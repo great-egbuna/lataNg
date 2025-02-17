@@ -5,11 +5,17 @@ import Button from "./Button";
 
 interface Props {
   placeholder?: string;
+  customStyles?: Record<string, string | number>;
+  customInputStyles?: string;
 }
 
-export default function Input({ placeholder }: Props) {
+export default function Input({
+  placeholder,
+  customStyles,
+  customInputStyles,
+}: Props) {
   return (
-    <View style={styles.containerStyles}>
+    <View style={[styles.containerStyles, customStyles]}>
       <TextInput placeholder={placeholder} style={styles.inputStyles} />
 
       <Button
@@ -17,7 +23,8 @@ export default function Input({ placeholder }: Props) {
         customStyle={{
           borderTopLeftRadius: 0,
           borderBottomLeftRadius: 0,
-
+          borderBottomRightRadius: 5,
+          borderTopRightRadius: 5,
           width: 50,
         }}
       />
@@ -27,14 +34,17 @@ export default function Input({ placeholder }: Props) {
 
 const styles = StyleSheet.create({
   containerStyles: {
-    borderRadius: 6,
-    backgroundColor: colors.offWhite,
+    borderRadius: 5,
     flexDirection: "row",
     flex: 1,
   },
   inputStyles: {
-    padding: 16,
+    paddingTop: 17,
+    paddingBottom: 14,
     flex: 1,
+    height: "100%",
     backgroundColor: colors.offWhite,
+    borderTopLeftRadius: 5,
+    borderBottomLeftRadius: 5,
   },
 });

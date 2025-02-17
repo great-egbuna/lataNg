@@ -7,13 +7,20 @@ import LocationBox from "./LocationBox";
 
 export default function Header() {
   return (
-    <View style={styles.containerStyle}>
+    <View style={styles.containerStyle} className="px-2 items-center">
       <Button
         text="SELL"
-        customStyle={{ width: 50, flexShrink: 0, padding: 0 }}
+        customStyle={{ width: 50, flexShrink: 0, padding: 0, height: 35 }}
       />
 
-      <Input placeholder="Search for products here" />
+      <Input
+        placeholder="Search for products here"
+        customStyles={{
+          borderColor: colors.offWhite,
+          borderRadius: 5,
+        }}
+       
+      />
 
       <LocationBox text="Ikega" />
     </View>
@@ -26,5 +33,6 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     width: "100%",
     gap: 12,
+    /*    height: 42, */
   },
 });

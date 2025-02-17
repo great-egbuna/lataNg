@@ -1,0 +1,58 @@
+import { images } from "./images";
+
+export const products = [
+  {
+    name: "Game Pad",
+    discount: "10",
+    price: "56,000",
+    desc: "Brand new playStation gam pad colour black",
+    location: "Lekki",
+    imgSource: images.gamePad,
+    label: "Premium",
+  },
+  {
+    name: "Game Chair",
+    discount: "",
+    price: "279,000",
+    desc: "Brand new gaming chair colour black",
+    location: "Enugu",
+    imgSource: images.gameChair,
+    label: "Gold",
+  },
+  {
+    name: "Freezer",
+    discount: "",
+    price: "300,000",
+    desc: "Brand new freezer from USA colour black",
+    location: "Mainlain",
+    imgSource: images.freezer,
+    label: "Premuim",
+  },
+  {
+    name: "pS5",
+    discount: "20",
+    price: "900,000",
+    desc: "Brand new playStation gaming console colour black",
+    location: "VI",
+    imgSource: images.ps5,
+    label: "Standard",
+  },
+  {
+    name: "Watch",
+    discount: "",
+    price: "30,000",
+    desc: "Brand new foreign imported water-proof wrist watch colour black",
+    location: "Rivers",
+    imgSource: images.watch,
+    label: "Premuim",
+  },
+  {
+    name: "Gaming PC",
+    discount: "",
+    price: "4,000,000",
+    desc: "Brand new gaming pc colour black",
+    location: "Ikeja",
+    imgSource: images.pc,
+    label: "Premium",
+  },
+];

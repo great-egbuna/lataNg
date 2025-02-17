@@ -1,6 +1,6 @@
 import { colors } from "@/colors";
 import { StyleSheet, Text, View } from "react-native";
-import MaterialIcons from "@expo/vector-icons/MaterialIcons";
+import Ionicons from "@expo/vector-icons/Ionicons";
 
 interface Props {
   text: string;
@@ -9,7 +9,7 @@ interface Props {
 export default function LocationBox({ text }: Props) {
   return (
     <View style={styles.box}>
-      <MaterialIcons name="map" />
+      <Ionicons name="location-outline" />
       <Text
         style={{
           fontSize: 8,
@@ -31,5 +31,6 @@ const styles = StyleSheet.create({
     gap: 4,
     padding: 10,
     borderRadius: 5,
+    height: "100%",
   },
 });
