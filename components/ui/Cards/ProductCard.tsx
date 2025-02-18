@@ -18,6 +18,7 @@ interface Props {
   location: string;
   imgSource: ImageSourcePropType;
   label?: string;
+  onPress?: () => void;
 }
 
 export default function ProductCard({
@@ -28,9 +29,13 @@ export default function ProductCard({
   location,
   imgSource,
   label,
+  onPress,
 }: Props) {
   return (
-    <TouchableOpacity className="flex-1 max-w-[194px] border border-grey-2 p-2 rounded-lg relative">
+    <TouchableOpacity
+      className="flex-1 max-w-[194px] border border-grey-2 p-2 rounded-lg relative"
+      onPress={onPress}
+    >
       <Image
         className="w-full h-[148px] rounded-md"
         resizeMode="contain"

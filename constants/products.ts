@@ -2,6 +2,7 @@ import { images } from "./images";
 
 export const products = [
   {
+    id: Math.floor(100 * Math.random()) + 1,
     name: "Game Pad",
     discount: "10",
     price: "56,000",
@@ -11,6 +12,7 @@ export const products = [
     label: "Premium",
   },
   {
+    id: Math.floor(100 * Math.random()) + 1,
     name: "Game Chair",
     discount: "",
     price: "279,000",
@@ -20,6 +22,7 @@ export const products = [
     label: "Gold",
   },
   {
+    id: Math.floor(100 * Math.random()) + 1,
     name: "Freezer",
     discount: "",
     price: "300,000",
@@ -29,6 +32,7 @@ export const products = [
     label: "Premuim",
   },
   {
+    id: Math.floor(100 * Math.random()) + 1,
     name: "pS5",
     discount: "20",
     price: "900,000",
@@ -38,6 +42,7 @@ export const products = [
     label: "Standard",
   },
   {
+    id: Math.floor(100 * Math.random()) + 1,
     name: "Watch",
     discount: "",
     price: "30,000",
@@ -47,6 +52,7 @@ export const products = [
     label: "Premuim",
   },
   {
+    id: Math.floor(100 * Math.random()) + 1,
     name: "Gaming PC",
     discount: "",
     price: "4,000,000",
