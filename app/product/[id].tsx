@@ -8,7 +8,7 @@ import SafetyTips from "@/components/pages/productDetails/SafetyTips";
 export default function ProductDefault() {
   return (
     <>
-      <View className={"bg-white px-2"}>
+      <View className={"bg-white"}>
         <Header />
       </View>
       <ScrollView className={"w-full h-full bg-white px-2"}>

@@ -16,6 +16,7 @@ export default function SafetyTips() {
         <Text className={"text-grey-10 font-semibold text-sm mb-3"}>
           Safety tips
         </Text>
+
         {safetyTips.map((item, index) => (
           <IconText
             icon={<Entypo name={"dot-single"} color={"#464646"} />}

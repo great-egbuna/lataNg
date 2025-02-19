@@ -19,7 +19,7 @@ export default function Header() {
           borderColor: colors.offWhite,
           borderRadius: 5,
         }}
-       
+        showBtn={true}
       />
 
       <LocationBox text="Ikega" />
