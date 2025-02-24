@@ -1,9 +1,5 @@
-import { Text, View } from "react-native";
+import MessagesComponent from "@/components/pages/Messages/Messages";
 
 export default function Message() {
-  return (
-    <View>
-      <Text>Message</Text>
-    </View>
-  );
+  return <MessagesComponent />;
 }

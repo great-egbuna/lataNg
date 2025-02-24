@@ -14,6 +14,7 @@ module.exports = {
         "grey-8-100": "#464646",
         "grey-9": "#292929",
         "grey-10": "#1e1e1e",
+        "grey-11": "#282828",
         purple: "#5113a1",
         "purple-3": "#d6c3e9",
         danger: "#fe0707",
