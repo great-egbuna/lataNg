@@ -5,7 +5,7 @@ import Button from "./Button";
 
 interface Props {
   placeholder?: string;
-  customStyles?: Record<string, string | number>;
+  customStyles?: string;
   customInputStyles?: string;
   onChangeText?: (text: string) => void;
   onBlur?: () => void;
@@ -13,6 +13,9 @@ interface Props {
   value?: string;
   multiline?: boolean;
   numberOfLines?: number;
+  iconColor?: string;
+  btnClassName?: string;
+  iconSize?: number;
 }
 
 export default function Input({
@@ -25,9 +28,12 @@ export default function Input({
   value,
   multiline,
   numberOfLines,
+  iconColor,
+  btnClassName,
+  iconSize,
 }: Props) {
   return (
-    <View style={[styles.containerStyles, customStyles]}>
+    <View className={`rounded flex-row flex-1 ${customStyles}`}>
       <TextInput
         placeholder={placeholder}
         className={`p-4 flex-1 h-full bg-offwhite rounded-tl-md rounded-bl-md ${customInputStyles}`}
@@ -40,7 +46,13 @@ export default function Input({
 
       {showBtn && (
         <Button
-          icon={<MaterialIcons name="search" color={colors.white} size={20} />}
+          icon={
+            <MaterialIcons
+              name="search"
+              color={iconColor || colors.white}
+              size={iconSize || 20}
+            />
+          }
           customStyle={{
             borderTopLeftRadius: 0,
             borderBottomLeftRadius: 0,
@@ -48,16 +60,9 @@ export default function Input({
             borderTopRightRadius: 5,
             width: 50,
           }}
+          className={btnClassName}
         />
       )}
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  containerStyles: {
-    borderRadius: 5,
-    flexDirection: "row",
-    flex: 1,
-  },
-});

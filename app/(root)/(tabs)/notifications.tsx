@@ -1,9 +1,10 @@
-import { Text, View } from "react-native";
+import NotificationsComponent from "@/components/pages/Notification/Notifications";
+import { View } from "react-native";
 
 export default function Notifications() {
   return (
-    <View>
-      <Text>Notifications</Text>
+    <View className={"h-full bg-white px-6"}>
+      <NotificationsComponent />
     </View>
   );
 }

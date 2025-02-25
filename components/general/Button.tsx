@@ -7,6 +7,7 @@ interface Props {
   icon?: ReactElement;
   customStyle?: Record<string, any>;
   buttonTextStyle?: Record<string, any>;
+  className?: string;
 }
 
 export default function Button({
@@ -14,9 +15,13 @@ export default function Button({
   icon,
   customStyle,
   buttonTextStyle,
+  className,
 }: Props) {
   return (
-    <Pressable style={[styles.buttonStyles, customStyle]}>
+    <Pressable
+      style={[styles.buttonStyles, customStyle]}
+      className={`bg-purple ${className}`}
+    >
       {text && <Text style={[styles.buttonText, buttonTextStyle]}>{text}</Text>}
       {icon && icon}
     </Pressable>
@@ -25,7 +30,6 @@ export default function Button({
 
 const styles = StyleSheet.create({
   buttonStyles: {
-    backgroundColor: colors.purple,
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
