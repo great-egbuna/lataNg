@@ -11,6 +11,9 @@ import freezer from "@/assets/images/pages/home/products/freezers.jpg";
 import watch from "@/assets/images/pages/home/products/watch.jpg";
 import pc from "@/assets/images/pages/home/products/gaming_Pc.jpg";
 import fashion from "@/assets/images/pages/home/products/lady_gown.jpg";
+import lataLogoBig from "@/assets/images/lataLogo.png";
+import lataLogoSmall from "@/assets/images/icon.png";
+import googleIcon from "@/assets/icons/google-icon.png";
 
 export const images = {
   manWithPhone,
@@ -26,4 +29,7 @@ export const images = {
   pc,
   freezer,
   watch,
+  lataLogoBig,
+  lataLogoSmall,
+  googleIcon,
 };

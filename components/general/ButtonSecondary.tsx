@@ -1,13 +1,20 @@
-import { Text, TouchableOpacity } from "react-native";
+import {
+  Image,
+  ImageSourcePropType,
+  Text,
+  TouchableOpacity,
+} from "react-native";
 import MaterialIcon from "@expo/vector-icons/MaterialIcons";
 import { colors } from "@/colors";
+import { ReactNode } from "react";
 
 interface Props {
-  text: string;
+  text: string | ReactNode;
   onPress?: () => void;
   icon?: any;
   customStyles?: string;
   customTextStyles?: string;
+  iconSrc?: ImageSourcePropType;
 }
 
 export default function ButtonSecondary({
@@ -15,11 +22,16 @@ export default function ButtonSecondary({
   icon,
   customStyles,
   customTextStyles,
+  onPress,
+  iconSrc,
 }: Props) {
   return (
     <TouchableOpacity
-      className={`w-[140px] h-[32px] border border-purple rounded-xl flex flex-row justify-center items-center gap-[6px], ${customStyles} `}
+      className={`min-w-[140px] min-h-[32px] border border-purple rounded-xl flex flex-row justify-center items-center gap-[6px], ${customStyles} `}
+      onPress={onPress}
     >
+      {iconSrc && <Image source={iconSrc} className="mr-2 flex" />}
+
       <Text className={`text-purple font-normal ${customTextStyles}`}>
         {text}
       </Text>

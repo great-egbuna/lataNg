@@ -1,15 +1,21 @@
-import React from "react";
+import React, { useEffect } from "react";
 import Header from "@/components/ui/Header/Header";
-import { ScrollView, StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Slot, Tabs } from "expo-router";
 import TabBarIcon from "@/components/ui/tabs/TabBarIcon";
+import Sidebar from "@/components/ui/Sidebar/Sidebar";
+import { AppContextProps, useApp } from "@/context/AppContext";
+import FeedbackModal from "@/components/ui/Modal/FeedbackModal";
 
 export default function AppLayout() {
-  return (
-    <SafeAreaView className="bg-white  h-full ">
-      <Header />
+  const { setNavOpen, navOpen } = useApp() as AppContextProps;
 
+  return (
+    <SafeAreaView className="bg-white  h-full relative ">
+      <Header />
+      <FeedbackModal />
+
+      <Sidebar />
       <Tabs
         screenOptions={{
           tabBarShowLabel: false,
@@ -80,7 +86,13 @@ export default function AppLayout() {
           }}
         />{" "}
         <Tabs.Screen
-          name="profile"
+          name="sidebar-toggle"
+          listeners={() => ({
+            tabPress: (e) => {
+              e.preventDefault();
+              setNavOpen(!navOpen);
+            },
+          })}
           options={{
             headerShown: false,
             tabBarIcon: ({ focused }) => {
@@ -92,6 +104,62 @@ export default function AppLayout() {
                 />
               );
             },
+          }}
+        />
+        <Tabs.Screen
+          name="saved"
+          options={{
+            headerShown: false,
+            href: null,
+          }}
+        />
+        <Tabs.Screen
+          name="balance"
+          options={{
+            headerShown: false,
+            href: null,
+          }}
+        />
+        <Tabs.Screen
+          name="subscriptions"
+          options={{
+            headerShown: false,
+            href: null,
+          }}
+        />
+        <Tabs.Screen
+          name="subscription-details"
+          options={{
+            headerShown: false,
+            href: null,
+          }}
+        />{" "}
+        <Tabs.Screen
+          name="analytics"
+          options={{
+            headerShown: false,
+            href: null,
+          }}
+        />{" "}
+        <Tabs.Screen
+          name="profile-form"
+          options={{
+            headerShown: false,
+            href: null,
+          }}
+        />
+        <Tabs.Screen
+          name="call-manager"
+          options={{
+            headerShown: false,
+            href: null,
+          }}
+        />
+        <Tabs.Screen
+          name="sales-agreement"
+          options={{
+            headerShown: false,
+            href: null,
           }}
         />
       </Tabs>

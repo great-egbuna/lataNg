@@ -10,6 +10,9 @@ interface ProductFormProps {
 }
 
 export default function ProductForm({ setSelectedImage }: ProductFormProps) {
+
+
+  
   const handleImageUpload = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ["images"],
@@ -126,9 +129,6 @@ export default function ProductForm({ setSelectedImage }: ProductFormProps) {
             customInputStyles={
               "rounded-md bg-white border border-grey-5 px-3 py-3 min-h-[100px] flex  items-start justify-start mt-3"
             }
-            customStyles={{
-              flexDirection: "column",
-            }}
             multiline={true}
           />
 

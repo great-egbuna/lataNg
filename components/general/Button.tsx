@@ -8,6 +8,7 @@ interface Props {
   customStyle?: Record<string, any>;
   buttonTextStyle?: Record<string, any>;
   className?: string;
+  onPress?: () => void;
 }
 
 export default function Button({
@@ -16,11 +17,13 @@ export default function Button({
   customStyle,
   buttonTextStyle,
   className,
+  onPress,
 }: Props) {
   return (
     <Pressable
       style={[styles.buttonStyles, customStyle]}
       className={`bg-purple ${className}`}
+      onPress={onPress}
     >
       {text && <Text style={[styles.buttonText, buttonTextStyle]}>{text}</Text>}
       {icon && icon}

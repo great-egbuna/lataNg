@@ -66,7 +66,7 @@ export const sidebar = [
   {
     icon: <SimpleLineIcons name={"settings"} color={"#292929"} size={16} />,
     label: "Settings",
-    path: "/settings",
+    path: "/profile-form",
   },
 
   {

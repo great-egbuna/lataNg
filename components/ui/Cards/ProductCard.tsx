@@ -9,6 +9,7 @@ import {
 
 import IonIcons from "@expo/vector-icons/Ionicons";
 import { truncateString } from "@/utils/utils";
+import { colors } from "@/colors";
 
 interface Props {
   discount?: string;
@@ -16,6 +17,7 @@ interface Props {
   name: string;
   desc: string;
   location: string;
+  saved?: boolean;
   imgSource: ImageSourcePropType;
   label?: string;
   onPress?: () => void;
@@ -30,6 +32,7 @@ export default function ProductCard({
   imgSource,
   label,
   onPress,
+  saved = false,
 }: Props) {
   return (
     <TouchableOpacity
@@ -53,7 +56,11 @@ export default function ProductCard({
           <Text>{name}</Text>
 
           <Pressable className="w-6 h-6 rounded-full flex items-center justify-center bg-offwhite">
-            <IonIcons name="bookmarks-outline" size={16} />
+            <IonIcons
+              name={saved ? "bookmark" : "bookmarks-outline"}
+              size={16}
+              color={colors.purple}
+            />
           </Pressable>
         </View>
 

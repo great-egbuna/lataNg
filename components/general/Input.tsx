@@ -8,7 +8,7 @@ interface Props {
   customStyles?: string;
   customInputStyles?: string;
   onChangeText?: (text: string) => void;
-  onBlur?: () => void;
+  onBlur?: (text: any) => void;
   showBtn?: boolean;
   value?: string;
   multiline?: boolean;
@@ -16,6 +16,8 @@ interface Props {
   iconColor?: string;
   btnClassName?: string;
   iconSize?: number;
+  editable?: boolean;
+  selectTextOnFocus?: boolean;
 }
 
 export default function Input({
@@ -31,6 +33,8 @@ export default function Input({
   iconColor,
   btnClassName,
   iconSize,
+  editable = true,
+  selectTextOnFocus = true,
 }: Props) {
   return (
     <View className={`rounded flex-row flex-1 ${customStyles}`}>
@@ -42,6 +46,8 @@ export default function Input({
         value={value}
         multiline={multiline}
         numberOfLines={numberOfLines}
+        editable={editable}
+        selectTextOnFocus={selectTextOnFocus}
       />
 
       {showBtn && (

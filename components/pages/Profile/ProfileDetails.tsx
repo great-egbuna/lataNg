@@ -68,10 +68,9 @@ export default function ProfileDetails({
               onBlur={() => handleBlur!(item.name)}
               value={value}
               placeholder={item.placeholder}
-              customInputStyles={`rounded-md bg-white border border-grey-5  px-3 py-3 mt-[8px] mb-6 ${item.type === "textarea" && "min-h-[50px]"}`}
-              customStyles={{
-                flexDirection: "column",
-              }}
+              customInputStyles={`rounded-md bg-white border border-grey-5  px-3 py-3 mt-[8px] mb-6 ${
+                item.type === "textarea" && "min-h-[50px]"
+              }`}
             />
           </View>
         );
