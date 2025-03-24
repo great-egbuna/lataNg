@@ -92,6 +92,8 @@ export default function LoginComponent() {
     await save("lataPubToken", res.publicToken);
 
     checkAuth();
+
+    console.log("res", res);
     router.push("/");
   };
 

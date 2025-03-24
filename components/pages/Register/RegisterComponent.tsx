@@ -146,6 +146,7 @@ export default function RegisterComponent() {
 
   // GOOGLE SIGN UP
 
+  /* 
   const handleSocialAuth = async () => {
     setLoadingSocialAuth(true);
 
@@ -162,7 +163,64 @@ export default function RegisterComponent() {
       return;
     }
 
-    const callbackResponse = await socialAuthService.googleCallback({
+    const callbackResponse = await socialAuthService.googleCallbackNotAlly({
+      role: decision,
+      accessToken: res as string,
+    });
+
+    if (callbackResponse instanceof Error) {
+      showToast({
+        type: "error",
+        text1: "Request Failed",
+        text2: "Failed to sign in with google",
+      });
+      setLoadingSocialAuth(false);
+
+      return;
+    }
+
+    showToast({
+      type: "success",
+      text1: "Success",
+      text2: "Success",
+    });
+
+    setSocialUser(callbackResponse);
+
+    // @ts-ignore
+
+    if (decision === "SELLER") {
+      router.push("/complete-signup");
+    } else {
+      setLoadingSocialAuth(false);
+
+      await save("lataPubToken", callbackResponse?.publicToken);
+      checkAuth();
+
+      router.push("/");
+    }
+
+    return;
+  };
+  */
+
+  const handleSocialAuth = async () => {
+    setLoadingSocialAuth(true);
+
+    const res = await socialAuthService.googleSignUp();
+
+    if (res instanceof Error) {
+      showToast({
+        type: "error",
+        text1: "Request Failed",
+        text2: "Failed to sign in with google",
+      });
+      setLoadingSocialAuth(false);
+
+      return;
+    }
+
+    const callbackResponse = await socialAuthService.googleCallbackNotAlly({
       role: decision,
       accessToken: res as string,
     });

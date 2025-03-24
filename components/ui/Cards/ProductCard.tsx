@@ -10,6 +10,12 @@ import {
 import IonIcons from "@expo/vector-icons/Ionicons";
 import { truncateString } from "@/utils/utils";
 import { colors } from "@/colors";
+import { AppContextProps, useApp } from "@/context/AppContext";
+import { useState } from "react";
+import { showToast } from "@/components/general/Toast";
+import { useSavedProducts } from "@/hooks/useProducts";
+import { IAUTH } from "@/interfaces/context/auth";
+import { useAuth } from "@/context/AuthContext";
 
 interface Props {
   discount?: string;
@@ -21,6 +27,8 @@ interface Props {
   imgSource: ImageSourcePropType;
   label?: string;
   onPress?: () => void;
+  isOwnProduct: boolean;
+  id: string;
 }
 
 export default function ProductCard({
@@ -33,7 +41,55 @@ export default function ProductCard({
   label,
   onPress,
   saved = false,
+  isOwnProduct,
+  id,
 }: Props) {
+  const { states } = useApp() as AppContextProps;
+  const { checkIfProductIsSaved, toggleSaveProduct } = useSavedProducts();
+  const { user, isLoggedIn } = useAuth() as IAUTH;
+
+  const [isSaving, setIsSaving] = useState(false);
+
+  const getState = (id: string) => {
+    if (states) {
+      const state = states.find((st) => st.id === id);
+      return state?.name;
+    }
+  };
+
+  const handleSaveProduct = async () => {
+    try {
+      if (!user || !isLoggedIn) {
+        showToast({
+          type: "error",
+          text1: "Error",
+          text2: "Please login to perform this action",
+        });
+        return;
+      }
+
+      if (isOwnProduct) {
+        showToast({
+          type: "error",
+          text1: "Error",
+          text2: "You cannot save your own product",
+        });
+        return;
+      }
+
+      setIsSaving(true);
+      await toggleSaveProduct(id);
+      setIsSaving(false);
+    } catch (error: any) {
+      setIsSaving(false);
+      showToast({
+        type: "error",
+        text1: "Error",
+        text2: error.message,
+      });
+    }
+  };
+
   return (
     <TouchableOpacity
       className="flex-1 max-w-[194px] border border-grey-2 p-2 rounded-lg relative"
@@ -42,7 +98,7 @@ export default function ProductCard({
       <Image
         className="w-full h-[148px] rounded-md"
         resizeMode="contain"
-        source={imgSource}
+        source={{ uri: imgSource as string }}
       />
 
       <View className="my-8 gap-[6px]">
@@ -50,14 +106,20 @@ export default function ProductCard({
           <Label text={`${discount}% OFF`} className="bg-[#fe0707]" />
         )}
 
-        <Text className="text-purple font-semibold text-xs">#{price}</Text>
+        <Text className="text-purple font-semibold text-xs">N{price}</Text>
 
         <View className="flex-row justify-between items-center">
           <Text>{name}</Text>
 
-          <Pressable className="w-6 h-6 rounded-full flex items-center justify-center bg-offwhite">
+          <Pressable
+            className="w-6 h-6 rounded-full flex items-center justify-center bg-offwhite"
+            onPress={handleSaveProduct}
+            disabled={isSaving}
+          >
             <IonIcons
-              name={saved ? "bookmark" : "bookmarks-outline"}
+              name={
+                checkIfProductIsSaved(id) ? "bookmark" : "bookmarks-outline"
+              }
               size={16}
               color={colors.purple}
             />
@@ -72,12 +134,13 @@ export default function ProductCard({
           <IonIcons name="location-outline" />
 
           <Text className="text-xs text-grey-8 font-normal w-full max-w-[92px]">
-            {location}
+            {getState(location)}
           </Text>
         </View>
       </View>
-
-      <Label text={label as string} className="absolute left-0 top-0" />
+      {label && (
+        <Label text={label as string} className="absolute left-0 top-0" />
+      )}
     </TouchableOpacity>
   );
 }

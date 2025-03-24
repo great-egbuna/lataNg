@@ -1,14 +1,15 @@
 import { colors } from "@/colors";
-import { StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
 
 interface Props {
   text: string;
+  onPress?: () => void;
 }
 
-export default function LocationBox({ text }: Props) {
+export default function LocationBox({ text, onPress }: Props) {
   return (
-    <View style={styles.box}>
+    <Pressable style={styles.box} onPress={onPress}>
       <Ionicons name="location-outline" />
       <Text
         style={{
@@ -17,7 +18,7 @@ export default function LocationBox({ text }: Props) {
       >
         {text}
       </Text>
-    </View>
+    </Pressable>
   );
 }
 

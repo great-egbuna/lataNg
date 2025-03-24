@@ -6,9 +6,12 @@ import TabBarIcon from "@/components/ui/tabs/TabBarIcon";
 import Sidebar from "@/components/ui/Sidebar/Sidebar";
 import { AppContextProps, useApp } from "@/context/AppContext";
 import FeedbackModal from "@/components/ui/Modal/FeedbackModal";
+import { useAuth } from "@/context/AuthContext";
+import { IAUTH } from "@/interfaces/context/auth";
 
 export default function AppLayout() {
   const { setNavOpen, navOpen } = useApp() as AppContextProps;
+  const { user } = useAuth() as IAUTH;
 
   return (
     <SafeAreaView className="bg-white  h-full relative ">
@@ -35,7 +38,13 @@ export default function AppLayout() {
           options={{
             headerShown: false,
             tabBarIcon: ({ focused }) => {
-              return <TabBarIcon text="Home" focused={focused} icon={"home"} />;
+              return (
+                <TabBarIcon
+                  text={user?.role === "SELLER" ? "My shop" : "Home"}
+                  focused={focused}
+                  icon={"home"}
+                />
+              );
             },
           }}
         />{" "}
@@ -157,6 +166,13 @@ export default function AppLayout() {
         />
         <Tabs.Screen
           name="sales-agreement"
+          options={{
+            headerShown: false,
+            href: null,
+          }}
+        />
+        <Tabs.Screen
+          name="feedbacks"
           options={{
             headerShown: false,
             href: null,

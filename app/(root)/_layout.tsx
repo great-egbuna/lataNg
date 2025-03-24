@@ -1,9 +1,10 @@
+import CustomToast from "@/components/ui/CustomToast";
 import Header from "@/components/ui/Header/Header";
 import AppProvider from "@/context/AppContext";
 import AuthProvider from "@/context/AuthContext";
+import SearchContextProvider from "@/context/SearchContext";
 import { Slot } from "expo-router";
-import { ReactNode, useEffect, useState } from "react";
-import { SafeAreaView } from "react-native";
+import { useEffect, useState } from "react";
 import Toast from "react-native-toast-message";
 
 export default function Layout() {
@@ -16,10 +17,9 @@ export default function Layout() {
   return (
     <AppProvider mounted={mounted}>
       <AuthProvider>
-        {/*   <SafeAreaView className="bg-white  h-full relative ">
-          <Header />
-        </SafeAreaView> */}
-        <Slot />
+        <SearchContextProvider>
+          <Slot />
+        </SearchContextProvider>
       </AuthProvider>
 
       <Toast />

@@ -12,6 +12,7 @@ module.exports = {
         "grey-5": "#ababab",
         "grey-6": "#787878",
         "grey-7": "#7a7a7a",
+        "grey-7b": "#5a5a5a",
         "grey-8": "#787878",
         "grey-8-100": "#464646",
         "grey-9": "#292929",
@@ -29,6 +30,7 @@ module.exports = {
         green: "#26d351",
         offwhite: "#f5f5f5",
         yellow: "#d3ae28",
+        "yello-100": "#e5ae0f",
       },
       boxShadow: {
         "shadow-mild": "0px 12px 12px red",
@@ -36,6 +38,9 @@ module.exports = {
       fontSize: {
         tiny: "8px",
         small: "10px",
+      },
+      borderRadius: {
+        base: "5px",
       },
     },
   },

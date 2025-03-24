@@ -20,7 +20,7 @@ export default function ProductPreview({ imgSource }: ProductPreviewProps) {
       >
         {imgSource ? (
           <Image
-            source={imgSource}
+            source={{ uri: imgSource as string }}
             resizeMode={"cover"}
             className={"w-full h-full rounded-lg"}
           />

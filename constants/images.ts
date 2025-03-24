@@ -14,6 +14,7 @@ import fashion from "@/assets/images/pages/home/products/lady_gown.jpg";
 import lataLogoBig from "@/assets/images/lataLogo.png";
 import lataLogoSmall from "@/assets/images/icon.png";
 import googleIcon from "@/assets/icons/google-icon.png";
+import smileyEyes from "@/assets/images/pages/home/SmileyXEyes.png";
 
 export const images = {
   manWithPhone,
@@ -32,4 +33,5 @@ export const images = {
   lataLogoBig,
   lataLogoSmall,
   googleIcon,
+  smileyEyes,
 };

@@ -18,7 +18,7 @@ export default function ProductDescription({
 }: IProductDetails) {
   return (
     <View className={"flex-col gap-2.5"}>
-      <Text className={"text-purple font-semibold text-base"}> #{price}</Text>
+      <Text className={"text-purple font-semibold text-base"}> N{price}</Text>
 
       <Text className={"text-grey-10 font-semibold text-base"}>{name}</Text>
 

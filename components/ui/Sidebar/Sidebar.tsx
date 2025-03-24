@@ -8,7 +8,9 @@ export default function Sidebar() {
 
   return (
     <View
-      className={`absolute  z-50 bg-white left-0  w-[180px] h-full px-6 -translate-x-full ${navOpen && "translate-x-0"}`}
+      className={`absolute  z-50 bg-white left-0  w-[180px] h-full px-6 -translate-x-full ${
+        navOpen && "translate-x-0"
+      }`}
     >
       <FlatList
         data={sidebar}
@@ -25,10 +27,10 @@ const SidebarItem = ({ item }: { item: (typeof sidebar)[0] }) => {
     <TouchableOpacity
       className={"flex flex-row items-center gap-2 mb-6"}
       onPress={() => {
-        if (item.path === "/feedback") {
+        /*  if (item.path === "/feedback" ) {
           setFeedbackOpen(true);
           return;
-        }
+        } */
         setNavOpen(false);
         router.push(item.path as RelativePathString);
       }}

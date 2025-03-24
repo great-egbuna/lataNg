@@ -42,7 +42,7 @@ export const sidebar = [
       />
     ),
     label: "Feedback",
-    path: "/feedback",
+    path: "/feedbacks",
   },
 
   {

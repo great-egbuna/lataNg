@@ -2,6 +2,7 @@ import { StyleSheet, TextInput, View } from "react-native";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { colors } from "@/colors";
 import Button from "./Button";
+import Loader from "./Loader";
 
 interface Props {
   placeholder?: string;
@@ -18,6 +19,9 @@ interface Props {
   iconSize?: number;
   editable?: boolean;
   selectTextOnFocus?: boolean;
+  onPress?: () => void;
+  loading?: boolean;
+  secureTextEntry?: boolean;
 }
 
 export default function Input({
@@ -35,6 +39,9 @@ export default function Input({
   iconSize,
   editable = true,
   selectTextOnFocus = true,
+  onPress,
+  loading,
+  secureTextEntry = false,
 }: Props) {
   return (
     <View className={`rounded flex-row flex-1 ${customStyles}`}>
@@ -43,21 +50,27 @@ export default function Input({
         className={`p-4 flex-1 h-full bg-offwhite rounded-tl-md rounded-bl-md ${customInputStyles}`}
         onChangeText={onChangeText}
         onBlur={onBlur}
-        value={value}
+        /*     value={value} */
         multiline={multiline}
         numberOfLines={numberOfLines}
         editable={editable}
         selectTextOnFocus={selectTextOnFocus}
+        defaultValue={value}
+        secureTextEntry={secureTextEntry}
       />
 
       {showBtn && (
         <Button
           icon={
-            <MaterialIcons
-              name="search"
-              color={iconColor || colors.white}
-              size={iconSize || 20}
-            />
+            loading ? (
+              <Loader color="white" size="small" />
+            ) : (
+              <MaterialIcons
+                name="search"
+                color={iconColor || colors.white}
+                size={iconSize || 20}
+              />
+            )
           }
           customStyle={{
             borderTopLeftRadius: 0,
@@ -67,6 +80,8 @@ export default function Input({
             width: 50,
           }}
           className={btnClassName}
+          onPress={onPress}
+          disabled={loading as boolean}
         />
       )}
     </View>

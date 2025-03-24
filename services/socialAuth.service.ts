@@ -105,6 +105,42 @@ class SocialAuthService {
       return new Error("Failed to authenticate with google");
     }
   }
+
+  public async googleCallbackNotAlly({
+    role,
+    accessToken,
+    credential,
+  }: {
+    role: string;
+    accessToken?: string;
+    credential?: string;
+  }) {
+    try {
+      const params = new URLSearchParams();
+      params.append("role", role);
+
+      if (accessToken) {
+        params.append("accessToken", accessToken);
+      }
+
+      if (credential) {
+        params.append("credential", credential);
+      }
+
+      const res = await $http.get(
+        `/auth/google-callback-token?${params.toString()}`
+      );
+      console.log("response", res?.data);
+
+      return res?.data;
+    } catch (error) {
+      console.log(
+        "google callback not ally error",
+        JSON.stringify(error?.response?.data)
+      );
+      return new Error("Failed to authenticate with google");
+    }
+  }
 }
 
 export const socialAuthService = new SocialAuthService();

@@ -15,6 +15,7 @@ interface Props {
   customStyles?: string;
   customTextStyles?: string;
   iconSrc?: ImageSourcePropType;
+  disabled?: boolean;
 }
 
 export default function ButtonSecondary({
@@ -24,11 +25,13 @@ export default function ButtonSecondary({
   customTextStyles,
   onPress,
   iconSrc,
+  disabled,
 }: Props) {
   return (
     <TouchableOpacity
-      className={`min-w-[140px] min-h-[32px] border border-purple rounded-xl flex flex-row justify-center items-center gap-[6px], ${customStyles} `}
+      className={` min-w-[140px] min-h-[32px] border border-purple rounded-xl flex flex-row justify-center items-center gap-[6px],  ${customStyles} `}
       onPress={onPress}
+      disabled={disabled}
     >
       {iconSrc && <Image source={iconSrc} className="mr-2 flex" />}
 

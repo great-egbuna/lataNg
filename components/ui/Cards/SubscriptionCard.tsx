@@ -7,9 +7,15 @@ interface Props {
   className?: string;
   text?: string;
   onPress?: () => void;
+  image?: string;
 }
 
-export default function SubscriptionCards({ className, text, onPress }: Props) {
+export default function SubscriptionCards({
+  className,
+  text,
+  onPress,
+  image,
+}: Props) {
   return (
     <TouchableOpacity
       className={`w-full h-[150px]  rounded-[10px] ${className}`}
@@ -17,7 +23,7 @@ export default function SubscriptionCards({ className, text, onPress }: Props) {
     >
       <View className={"items-center justify-center h-full flex-row gap-2.5"}>
         <RoundedImage
-          imgSource={images.fashion}
+          imgSource={{ uri: image }}
           className={"w-[80px] h-[80px]"}
         />
 

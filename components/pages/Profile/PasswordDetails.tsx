@@ -1,61 +1,168 @@
-import { FlatList, Text, TouchableOpacity, View } from "react-native";
-import Ionicons from "@expo/vector-icons/Ionicons";
+import React, { useState, useEffect } from "react";
+import { Text, View } from "react-native";
 import Input from "@/components/general/Input";
 
-interface Props {
-  handleChange?: (text: string) => void;
-  handleBlur?: (text: string) => void;
-  value?: string;
-  placeholder?: string;
+interface PasswordDetailsProps {
+  handleChange: (field: string) => (text: string) => void;
+  handleBlur: (field: string) => void;
+  setFieldValue: (field: string, value: any) => void;
+  values?: any;
 }
 
 const passwordDetailsFields = [
   {
     label: "Old Password",
     placeholder: "********",
-    name: "",
-    type: "text",
+    name: "oldPassword",
+    type: "password",
   },
   {
     label: "New Password",
     placeholder: "********",
-    name: "password",
-    type: "text",
+    name: "newPassword",
+    type: "password",
   },
   {
     label: "Confirm New Password",
     placeholder: "********",
-    name: "",
-    type: "text",
+    name: "confirmPassword",
+    type: "password",
   },
 ];
 
 export default function PasswordDetails({
   handleChange,
   handleBlur,
-  value,
-}: Props) {
+  values = {},
+  setFieldValue,
+}: PasswordDetailsProps) {
+  // Track password values locally to compare them
+  const [passwords, setPasswords] = useState({
+    oldPassword: "",
+    newPassword: "",
+    confirmPassword: "",
+  });
+
+  // Track validation error
+  const [passwordError, setPasswordError] = useState("");
+
+  const handlePasswordChange = (field: string) => (text: string) => {
+    setPasswords((prev) => ({
+      ...prev,
+      [field]: text,
+    }));
+
+    setFieldValue(field, text);
+
+    setPasswordError("");
+  };
+
+  // Validate passwords match on blur
+  const handlePasswordBlur = (name: string) => {
+    // Only validate if both fields have values
+    if (passwords.newPassword && passwords.confirmPassword) {
+      if (passwords.newPassword !== passwords.confirmPassword) {
+        setPasswordError("Passwords do not match");
+      } else {
+        setPasswordError("");
+      }
+    }
+
+    handleBlur(name);
+  };
+
+  // Update local state if values are provided externally
+  useEffect(() => {
+    if (values.oldPassword || values.newPassword || values.confirmPassword) {
+      setPasswords({
+        oldPassword: values.oldPassword || "",
+        newPassword: values.newPassword || "",
+        confirmPassword: values.confirmPassword || "",
+      });
+    }
+  }, [values.oldPassword, values.newPassword, values.confirmPassword]);
+
+  // Check if new password fields should be disabled
+  const isNewPasswordDisabled =
+    !passwords.oldPassword || passwords.oldPassword.length < 8;
+
   return (
     <View
-      className={"p-6 border border-offwhite rounded-[7px] gap-3  flex-1  my-4"}
+      className={"p-6 border border-offwhite rounded-[7px] gap-3 flex-1 my-4"}
     >
       <HeaderComponent />
 
       {passwordDetailsFields.map((item, index) => {
+        const isDisabled =
+          (item.name === "newPassword" || item.name === "confirmPassword") &&
+          isNewPasswordDisabled;
+
         return (
           <View key={index} className={"flex-1"}>
-            <Text className={"text-grey-9 font-normal"}>{item.label}</Text>
+            <Text
+              className={`text-grey-9 font-normal ${
+                isDisabled ? "text-grey-6" : ""
+              }`}
+            >
+              {item.label}
+              {item.name === "oldPassword" && (
+                <Text className="text-xs text-grey-7">
+                  {" "}
+                  (min. 8 characters)
+                </Text>
+              )}
+            </Text>
 
             <Input
-              onChangeText={() => handleChange!(item.name)}
-              onBlur={() => handleBlur!(item.name)}
-              value={value}
+              onChangeText={
+                item.name === "oldPassword"
+                  ? handlePasswordChange("oldPassword")
+                  : item.name === "newPassword" ||
+                    item.name === "confirmPassword"
+                  ? handlePasswordChange(item.name)
+                  : handleChange(item.name)
+              }
+              onBlur={
+                item.name === "newPassword" || item.name === "confirmPassword"
+                  ? handlePasswordBlur
+                  : handleBlur
+              }
+              value={
+                item.name === "oldPassword"
+                  ? passwords.oldPassword || ""
+                  : item.name === "newPassword" ||
+                    item.name === "confirmPassword"
+                  ? passwords[item.name as keyof typeof passwords]
+                  : values[item.name] || ""
+              }
               placeholder={item.placeholder}
-              customInputStyles={`rounded-md bg-white border border-grey-5  px-3 py-3 mt-[8px] mb-6 ${item.type === "textarea" && "min-h-[50px]"}`}
-              customStyles={{
-                flexDirection: "column",
-              }}
+              secureTextEntry={true}
+              editable={!isDisabled}
+              customInputStyles={`rounded-md border px-3 py-2 mt-[8px] ${
+                item.name === "confirmPassword" && passwordError
+                  ? "border-red-500 mb-1"
+                  : "mb-4"
+              } h-[45px] ${
+                isDisabled
+                  ? "bg-grey-2 text-grey-6 border-grey-3"
+                  : "bg-white border-grey-5"
+              }`}
+              customStyles="flex-none"
             />
+
+            {/* Old password length message */}
+            {item.name === "oldPassword" &&
+              passwords.oldPassword.length > 0 &&
+              passwords.oldPassword.length < 8 && (
+                <Text className="text-red-500 text-xs mt-4">
+                  Old password must be at least 8 characters
+                </Text>
+              )}
+
+            {/* Show error message only after the confirm password field */}
+            {item.name === "confirmPassword" && passwordError && (
+              <Text className="text-red-500 text-xs mt-4">{passwordError}</Text>
+            )}
           </View>
         );
       })}

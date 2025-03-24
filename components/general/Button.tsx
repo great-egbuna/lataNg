@@ -9,6 +9,7 @@ interface Props {
   buttonTextStyle?: Record<string, any>;
   className?: string;
   onPress?: () => void;
+  disabled?: boolean;
 }
 
 export default function Button({
@@ -18,12 +19,14 @@ export default function Button({
   buttonTextStyle,
   className,
   onPress,
+  disabled,
 }: Props) {
   return (
     <Pressable
-      style={[styles.buttonStyles, customStyle]}
-      className={`bg-purple ${className}`}
+      style={customStyle}
+      className={`bg-purple flex items-center justify-center py-1 px-2 rounded-base, ${className}`}
       onPress={onPress}
+      disabled={disabled}
     >
       {text && <Text style={[styles.buttonText, buttonTextStyle]}>{text}</Text>}
       {icon && icon}
@@ -32,15 +35,6 @@ export default function Button({
 }
 
 const styles = StyleSheet.create({
-  buttonStyles: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    paddingBlock: 4,
-    paddingInline: 8,
-    borderRadius: 5,
-  },
-
   buttonText: {
     color: colors.white,
     fontSize: 12,

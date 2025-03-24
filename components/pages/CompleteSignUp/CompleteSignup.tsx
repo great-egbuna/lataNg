@@ -84,7 +84,7 @@ const registerFields = [
   },
 
   {
-    placeholder: "Referrer ID (optiona)",
+    placeholder: "Referrer ID (optional)",
     name: "referrerCode",
   },
 ];

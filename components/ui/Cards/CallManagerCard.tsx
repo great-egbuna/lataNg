@@ -1,4 +1,4 @@
-import { Text, TouchableOpacity, View } from "react-native";
+import { Linking, Text, TouchableOpacity, View } from "react-native";
 
 export default function CallManagerCard() {
   return (
@@ -10,7 +10,14 @@ export default function CallManagerCard() {
         </Text>
       </View>
 
-      <TouchableOpacity className="border rounded-lg border-purple flex items-center justify-center">
+      <TouchableOpacity
+        className="border rounded-lg border-purple flex items-center justify-center py-3"
+        onPress={() =>
+          Linking.openURL(`tel:09069394365`).catch(() =>
+            alert("Failed to open dailer")
+          )
+        }
+      >
         <Text className="font-semibold text-base text-purple">09069394365</Text>
       </TouchableOpacity>
     </View>

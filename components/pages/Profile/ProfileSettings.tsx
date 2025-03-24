@@ -1,24 +1,47 @@
 import { Switch, Text, TouchableOpacity, View } from "react-native";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const notificationSettings = [
-  { label: "New Features and updates", name: "newFeatures" },
-  { label: "Your Subscription", name: "subscriptions" },
-  { label: "Messages", name: "messages" },
+  { label: "New Features and updates", name: "features" },
+  { label: "Your Subscription", name: "subscription" },
   { label: "Feedback", name: "feedback" },
   { label: "SMS Info Notification", name: "sms" },
 ];
 
-export default function ProfileSettings() {
+interface SettingsProps {
+  handleChange?: (field: string, value: boolean) => void;
+  values?: Record<string, boolean>;
+}
+
+export default function ProfileSettings({
+  handleChange,
+  values,
+}: SettingsProps) {
   const [settings, setSettings] = useState({
-    newFeatures: false,
-    subscriptions: false,
-    messages: false,
+    features: false,
+    subscription: false,
     feedback: false,
     sms: false,
   });
+
+  useEffect(() => {
+    if (values) {
+      setSettings((prev) => ({
+        ...prev,
+        ...values,
+      }));
+    }
+  }, [values]);
+
+  const toggleSetting = (name: string, value: boolean) => {
+    setSettings({ ...settings, [name]: value });
+    if (handleChange) {
+      handleChange(name, value);
+    }
+  };
+
   return (
-    <View className={"p-6 border border-offwhite rounded-[7px] gap-3  flex-1"}>
+    <View className={"p-6 border border-offwhite rounded-[7px] gap-3 flex-1"}>
       <Text className={"font-semibold text-xs text-grey-9"}>
         Notification Settings
       </Text>
@@ -32,25 +55,36 @@ export default function ProfileSettings() {
           return (
             <TouchableOpacity
               key={index}
-              className={"flex-row items-center justify-between"}
+              className={"flex-row items-center justify-between mt-3"}
+              onPress={() =>
+                toggleSetting(
+                  item.name,
+                  !settings[item.name as keyof typeof settings]
+                )
+              }
             >
               <Text
-                className={`font-normal text-xs text-grey-8 ${item.label.includes("SMS") && "font-semibold text-sm text-grey-9"}`}
+                className={`font-normal text-xs text-grey-8 ${
+                  item.label.includes("SMS") &&
+                  "font-semibold text-sm text-grey-9"
+                }`}
               >
                 {item.label}
               </Text>
               <Switch
-                //@ts-ignore
-                value={settings[item.name]}
-                onValueChange={(e) => {
-                  setSettings({ ...settings, [item.name]: e });
-                }}
-                thumbColor={false ? "#A020F0" : "#f4f3f4"}
-                trackColor={{ false: "#767577", true: "#A020F0" }}
+                value={settings[item.name as keyof typeof settings]}
+                onValueChange={(value) => toggleSetting(item.name, value)}
+                thumbColor={
+                  settings[item.name as keyof typeof settings]
+                    ? "#A020F0"
+                    : "#f4f3f4"
+                }
+                trackColor={{ false: "#767577", true: "#E0CCF9" }}
+                ios_backgroundColor="#767577"
               />
             </TouchableOpacity>
           );
-        },
+        }
       )}
     </View>
   );

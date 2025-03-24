@@ -25,7 +25,7 @@ export const sellerFields = [
     name: "password",
   },
   {
-    placeholder: "Referrer ID (optiona)",
+    placeholder: "Referrer ID (optional)",
     name: "referrerCode",
   },
 ];

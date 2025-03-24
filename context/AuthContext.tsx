@@ -41,6 +41,7 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
 
       if (res?.id) {
         setUser(res);
+        await save("lataAuthToken", res.token);
         await save("lataUser", JSON.stringify(res));
         setIsLoggedIn(true);
         setLoading(false);
