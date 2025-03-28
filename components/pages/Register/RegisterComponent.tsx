@@ -309,13 +309,13 @@ export default function RegisterComponent() {
           <View className="gap-10">
             {registerFields.map((field, index) => {
               return (
-                <View key={index}>
+                <View key={index} className="flex-1">
                   <Input
                     placeholder={field.placeholder}
                     onChangeText={handleChange(field.name)}
                     onBlur={handleBlur(field.name)}
                     value={values[field.name]}
-                    customStyles="bg-white"
+                    customStyles="bg-white "
                     customInputStyles="bg-white border rounded-md border-grey-12"
                   />
 

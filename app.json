@@ -26,7 +26,6 @@
     },
     "plugins": [
       "expo-router",
-
       [
         "expo-splash-screen",
         {
@@ -43,13 +42,13 @@
           "faceIDPermission": "Allow $(PRODUCT_NAME) to access your Face ID biometric data."
         }
       ],
-
       [
         "@react-native-google-signin/google-signin",
         {
           "iosUrlScheme": "com.googleusercontent.apps.495767714876-sp2sl0dbiplcvnh37284ro8lpadnrcb5"
         }
-      ]
+      ],
+      "expo-video"
     ],
     "experiments": {
       "typedRoutes": true
@@ -61,7 +60,6 @@
       "eas": {
         "projectId": "ac93b467-399f-4fd1-8748-851f28565cba"
       },
-
       "prodApi": "https://lata-main-backend.azurewebsites.net/v1/",
       "devApi": "http://localhost:3333/v1/"
     },

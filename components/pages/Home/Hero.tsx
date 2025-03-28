@@ -1,11 +1,20 @@
 import React from "react";
 import { colors } from "@/colors";
 import { images } from "@/constants/images";
-import { FlatList, Image, StyleSheet, Text, View } from "react-native";
-import ReelCircle from "./ReelCircle";
+import {
+  FlatList,
+  Image,
+  StyleSheet,
+  Text,
+  View,
+  TouchableOpacity,
+} from "react-native";
 import ButtonSecondary from "@/components/general/ButtonSecondary";
 import DropdownInput from "@/components/general/Dropdown";
 import { AppContextProps, ICategory, useApp } from "@/context/AppContext";
+import { useRouter } from "expo-router";
+import { DUMMY_REELS } from "@/components/pages/Reels/ReelsComponent";
+import { Reel } from "../Reels";
 
 interface Props {
   setCategory: (value: ICategory | null) => void;
@@ -46,6 +55,22 @@ const reels = [
   },
 ];
 
+const ReelCircle = ({ user }: Reel) => {
+  const router = useRouter();
+
+  return (
+    <TouchableOpacity
+      style={styles.reelCircle}
+      onPress={() => router.push("/reels")}
+    >
+      <Image source={{ uri: user.avatar }} style={styles.avatar} />
+      <Text style={styles.username} numberOfLines={1}>
+        {user.name}
+      </Text>
+    </TouchableOpacity>
+  );
+};
+
 export default function Hero({ setCategory }: Props) {
   const { categories } = useApp() as AppContextProps;
 
@@ -60,7 +85,7 @@ export default function Hero({ setCategory }: Props) {
       </View>
 
       <FlatList
-        data={reels}
+        data={DUMMY_REELS}
         horizontal
         bounces={false}
         renderItem={({ item }) => <ReelCircle {...item} />}
@@ -98,5 +123,23 @@ const styles = StyleSheet.create({
     borderRadius: 7,
     height: 160,
     padding: 4,
+  },
+  reelCircle: {
+    alignItems: "center",
+    marginHorizontal: 5,
+    width: 70,
+  },
+  avatar: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    borderWidth: 2,
+    borderColor: "#E1306C",
+  },
+  username: {
+    fontSize: 12,
+    marginTop: 4,
+    width: 60,
+    textAlign: "center",
   },
 });
