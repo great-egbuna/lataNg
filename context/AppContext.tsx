@@ -101,6 +101,9 @@ export interface AppContextProps {
   categoryProducts: IProduct[];
   subCategoryProducts: IProduct[] | null;
   setSubCategoryProducts: (value: IProduct[] | null) => void;
+  feedbackProductId: string | undefined;
+  feedbackProductName: string | undefined;
+  openFeedbackModal: (productId?: string, productName?: string) => void;
 }
 
 const AppContext = createContext<AppContextProps | null>(null);
@@ -110,6 +113,12 @@ export const useApp = () => useContext(AppContext);
 export default function AppProvider({ children, mounted }: AppProviderProps) {
   const [navOpen, setNavOpen] = useState(false);
   const [feedbackOpen, setFeedbackOpen] = useState(false);
+  const [feedbackProductId, setFeedbackProductId] = useState<
+    string | undefined
+  >(undefined);
+  const [feedbackProductName, setFeedbackProductName] = useState<
+    string | undefined
+  >(undefined);
   const [selectedPackage, setSelectedPackage] = useState<Record<string, any>>(
     {}
   );
@@ -231,6 +240,12 @@ export default function AppProvider({ children, mounted }: AppProviderProps) {
     }
   };
 
+  const openFeedbackModal = (productId?: string, productName?: string) => {
+    setFeedbackProductId(productId);
+    setFeedbackProductName(productName);
+    setFeedbackOpen(true);
+  };
+
   const value = {
     navOpen,
     setNavOpen,
@@ -273,6 +288,9 @@ export default function AppProvider({ children, mounted }: AppProviderProps) {
     categoryProducts,
     subCategoryProducts,
     setSubCategoryProducts,
+    feedbackProductId,
+    feedbackProductName,
+    openFeedbackModal,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

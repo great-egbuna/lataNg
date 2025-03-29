@@ -101,7 +101,7 @@ export default function FeedbackComponent() {
     </View>
   );
 
-  const renderFeedbackItem = ({ item }) => (
+  const renderFeedbackItem = ({ item }: { item: any }) => (
     <View className="border border-grey-2 rounded-lg p-4 mb-4">
       <View className="flex-row justify-between mb-2">
         <Text className="font-semibold">{item.product?.name || "Product"}</Text>

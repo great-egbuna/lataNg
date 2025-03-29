@@ -16,7 +16,6 @@ export default function AppLayout() {
   return (
     <SafeAreaView className="bg-white  h-full relative ">
       <Header />
-      <FeedbackModal />
 
       <Sidebar />
       <Tabs

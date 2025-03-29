@@ -4,8 +4,7 @@ import { AppContextProps, useApp } from "@/context/AppContext";
 import { useAuth } from "@/context/AuthContext";
 import { IAUTH } from "@/interfaces/context/auth";
 import { useRouter } from "expo-router";
-import { useEffect } from "react";
-import { FlatList, ImageSourcePropType, Text, View } from "react-native";
+import { FlatList, ImageSourcePropType, View } from "react-native";
 import Hero from "./Hero";
 
 export default function SubCategoroyProducts({

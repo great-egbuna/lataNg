@@ -138,6 +138,24 @@ const SellerCTA = () => {
         text={"Send message to Seller"}
         onPress={handleOpenChat}
       />
+
+      {/* <Button
+        customStyle={{
+          backgroundColor: colors.white,
+          width: "100%",
+          borderWidth: 1,
+          borderColor: colors.purple,
+          borderRadius: 12,
+        }}
+        buttonTextStyle={{
+          fontWeight: 600,
+          color: colors.purple,
+        }}
+        className="py-2"
+        text={"Give feedback"}
+        onPress={handleOpenChat}
+      /> */}
+
       {error ? <Text className="text-red-500 text-center">{error}</Text> : null}
       <Modal
         visible={modalVisible}

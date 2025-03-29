@@ -74,7 +74,7 @@ const ReelCircle = ({ user }: Reel) => {
 };
 
 export default function Hero({ setCategory, title }: Props) {
-  const { categories } = useApp() as AppContextProps;
+  const { categories, setSubCategoryProducts } = useApp() as AppContextProps;
   const [modalVisible, setModalVisible] = useState(false);
 
   const toggleModal = () => {
@@ -85,7 +85,7 @@ export default function Hero({ setCategory, title }: Props) {
     <>
       <View
         style={styles.heroBox}
-        className="mt-8 mb-6 flex-row justify-between "
+        className="mt-8 mb-6 flex-row justify-between"
       >
         <Image source={images.manWithPhone} />
         <Image source={images.boyGirlWithPhone} />
@@ -109,7 +109,10 @@ export default function Hero({ setCategory, title }: Props) {
           textClassName="text-purple text-bold"
           iconColor={colors.purple}
           data={categories as ICategory[]}
-          onSelect={(value) => setCategory(value)}
+          onSelect={(value) => {
+            setCategory(value);
+            setSubCategoryProducts(null);
+          }}
         />
         <ButtonSecondary
           text="BUY HERE"

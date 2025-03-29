@@ -140,10 +140,11 @@ export default function Index() {
         if (subCategoryProducts && subCategoryProducts?.length < 1) {
           return (
             <>
-              <Text className="text-base my-5 font-semibold">
+              <Hero setCategory={setCategory} />
+
+              <Text className="text-base mb-3 font-semibold">
                 No products found in that category
               </Text>
-              <Hero setCategory={setCategory} />
             </>
           );
         }

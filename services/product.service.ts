@@ -79,7 +79,6 @@ class ProductService {
         `/products/save/${productId}`
       );
 
-
       return response.data;
     } catch (error: any) {
       if (error.response && error.response.data) {
@@ -130,6 +129,16 @@ class ProductService {
         );
       }
       return new Error("Failed to unsave product!");
+    }
+  }
+
+  async getProductFeedbacks(productId: string) {
+    try {
+      const response = await $http.get(`/feedbacks/product/${productId}`);
+      return response.data;
+    } catch (error: any) {
+      console.log("error", JSON.stringify(error?.response?.data));
+      return new Error("Failed to get product feedbacks");
     }
   }
 }

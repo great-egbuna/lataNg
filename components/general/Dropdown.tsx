@@ -33,15 +33,20 @@ export default function DropdownInput({
     onSelect(value);
   };
 
+  console.log("selectedValue", selectedValue);
+
   return (
-    <View className={`flex-1 relative ${className} `}>
+    <View className={`flex-1 relative ${className}  `}>
       {/* Dropdown Trigger */}
       <TouchableOpacity
-        className={`flex-row items-center justify-between border border-grey-5 rounded-lg bg-white px-3 py-3 ${btnClassName} relative z-20`}
+        className={`flex-row items-center justify-between border border-grey-5 rounded-lg bg-white px-3 py-3 ${btnClassName} relative z-50`}
         onPress={() => setIsOpen((prevState) => !prevState)} // Toggle dropdown
       >
         <Text className={`text-sm text-grey-5 ${textClassName}`}>
-          {selectedValue?.name || selectedValue || placeholder}
+          {selectedValue?.name ||
+            selectedValue ||
+            selectedValue?.categoryName ||
+            placeholder}
           {/* Show selected value or placeholder */}
         </Text>
         <MaterialIcons
