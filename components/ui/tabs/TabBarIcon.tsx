@@ -1,5 +1,6 @@
 import { Text, View } from "react-native";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
+import { ISearchContextProps, useSearch } from "@/context/SearchContext";
 
 interface Props {
   icon: any;
@@ -14,6 +15,7 @@ export default function TabBarIcon({
   focused,
   customStyles,
 }: Props) {
+
   return (
     <View className="w-full  items-center">
       <MaterialIcons

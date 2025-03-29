@@ -108,22 +108,24 @@ export default function ProductCard({
 
         <Text className="text-purple font-semibold text-xs">N{price}</Text>
 
-        <View className="flex-row justify-between items-center">
-          <Text>{name}</Text>
+        <View className="flex-row justify-between items-center gap-2">
+          <Text className="max-w-[50px]">{name}</Text>
 
-          <Pressable
-            className="w-6 h-6 rounded-full flex items-center justify-center bg-offwhite"
-            onPress={handleSaveProduct}
-            disabled={isSaving}
-          >
-            <IonIcons
-              name={
-                checkIfProductIsSaved(id) ? "bookmark" : "bookmarks-outline"
-              }
-              size={16}
-              color={colors.purple}
-            />
-          </Pressable>
+          <View className="flex-1 items-end">
+            <Pressable
+              className="w-6 h-6 rounded-full flex items-center justify-center bg-offwhite "
+              onPress={handleSaveProduct}
+              disabled={isSaving}
+            >
+              <IonIcons
+                name={
+                  checkIfProductIsSaved(id) ? "bookmark" : "bookmarks-outline"
+                }
+                size={16}
+                color={colors.purple}
+              />
+            </Pressable>
+          </View>
         </View>
 
         <Text className="text-xs text-grey-8 font-normal w-full max-w-[92px]">

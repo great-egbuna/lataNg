@@ -36,8 +36,6 @@ export default function SearchProducts() {
 
   if (searchResult.length === 0) return null;
 
-  console.log("searchResult", searchResult.length);
-
   return (
     <View className="px-2">
       <FlatList

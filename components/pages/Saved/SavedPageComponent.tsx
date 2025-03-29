@@ -31,7 +31,7 @@ export default function SavedPageComponent() {
   }
 
   return (
-    <View className="px-2 bg-white">
+    <View className="px-2 bg-white h-full">
       <FlatList
         data={savedProducts}
         renderItem={({ item }) => (
@@ -64,20 +64,3 @@ export default function SavedPageComponent() {
     </View>
   );
 }
-
-const Header = () => {
-  return (
-    <View
-      className={
-        "justify-between  py-10 flex-row px-[45px] items-center bg-white"
-      }
-    >
-      <Text className={"text-grey-9 font-semibold text-sm"}>Saved</Text>
-
-      <View className={"flex-row gap-2"}>
-        <Ionicons name={"trash-outline"} color={colors.purple} />
-        <Text className={"text-purple font-normal text-small"}>Delete all</Text>
-      </View>
-    </View>
-  );
-};

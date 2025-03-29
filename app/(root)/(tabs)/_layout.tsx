@@ -1,17 +1,18 @@
 import React, { useEffect } from "react";
 import Header from "@/components/ui/Header/Header";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Slot, Tabs } from "expo-router";
+import { Tabs } from "expo-router";
 import TabBarIcon from "@/components/ui/tabs/TabBarIcon";
 import Sidebar from "@/components/ui/Sidebar/Sidebar";
 import { AppContextProps, useApp } from "@/context/AppContext";
-import FeedbackModal from "@/components/ui/Modal/FeedbackModal";
 import { useAuth } from "@/context/AuthContext";
 import { IAUTH } from "@/interfaces/context/auth";
+import { useSearch, ISearchContextProps } from "@/context/SearchContext";
 
 export default function AppLayout() {
   const { setNavOpen, navOpen } = useApp() as AppContextProps;
   const { user } = useAuth() as IAUTH;
+  const { searchResult, setSearchResult } = useSearch() as ISearchContextProps;
 
   return (
     <SafeAreaView className="bg-white  h-full relative ">
@@ -34,6 +35,13 @@ export default function AppLayout() {
       >
         <Tabs.Screen
           name="index"
+          listeners={{
+            tabPress: () => {
+              if (searchResult && searchResult.length > 0) {
+                setSearchResult([]);
+              }
+            },
+          }}
           options={{
             headerShown: false,
             tabBarIcon: ({ focused }) => {
