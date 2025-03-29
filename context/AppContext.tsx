@@ -1,5 +1,6 @@
 import { categoryService } from "@/services/category.service";
 import { locationService } from "@/services/location.service";
+import { productService } from "@/services/product.service";
 import {
   createContext,
   ReactNode,
@@ -37,6 +38,7 @@ export interface IProduct {
   city: string;
   user: { name: string; phoneNumber: string; avatar: string };
   userId: string;
+  subCategoryId?: string;
 }
 
 interface ICities {
@@ -49,6 +51,12 @@ export interface ICategory {
   name: string;
 }
 
+export interface ICategoryWithSubcategories extends ICategory {
+  subcategories?: { id: string; name: string }[];
+  image?: any;
+}
+
+// Extended context interface with category overlay functionality
 export interface AppContextProps {
   navOpen: boolean;
   setNavOpen: (value: boolean) => void;
@@ -77,6 +85,22 @@ export interface AppContextProps {
   setSubCategories: (value: ICategory[] | null) => void;
   myProduct: IProduct | null;
   setMyProduct: (value: IProduct | null) => void;
+
+  categoryOverlayVisible: boolean;
+  setCategoryOverlayVisible: (value: boolean) => void;
+  subcategoryOverlayVisible: boolean;
+  setSubcategoryOverlayVisible: (value: boolean) => void;
+  selectedCategory: ICategoryWithSubcategories | null;
+  setSelectedCategory: (value: ICategoryWithSubcategories | null) => void;
+  handleCategorySelect: (category: ICategoryWithSubcategories) => void;
+  handleSubcategorySelect: (
+    subcategoryId: string,
+    categoryId: string
+  ) => Promise<void>;
+  loadingProducts: boolean;
+  categoryProducts: IProduct[];
+  subCategoryProducts: IProduct[] | null;
+  setSubCategoryProducts: (value: IProduct[] | null) => void;
 }
 
 const AppContext = createContext<AppContextProps | null>(null);
@@ -99,6 +123,20 @@ export default function AppProvider({ children, mounted }: AppProviderProps) {
   const [categories, setCategories] = useState<ICategory[] | null>(null);
   const [subCategories, setSubCategories] = useState<ICategory[] | null>(null);
   const [myProduct, setMyProduct] = useState<IProduct | null>(null);
+
+  // New state for category overlay
+  const [categoryOverlayVisible, setCategoryOverlayVisible] = useState(false);
+  const [subcategoryOverlayVisible, setSubcategoryOverlayVisible] =
+    useState(false);
+  const [selectedCategory, setSelectedCategory] =
+    useState<ICategoryWithSubcategories | null>(null);
+  const [loadingProducts, setLoadingProducts] = useState(false);
+  const [categoryProducts, setCategoryProducts] = useState<IProduct[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [lastPage, setLastPage] = useState(1);
+  const [subCategoryProducts, setSubCategoryProducts] = useState<
+    IProduct[] | null
+  >(null);
 
   const loadApp = () => {
     setAppLoading(false);
@@ -136,6 +174,63 @@ export default function AppProvider({ children, mounted }: AppProviderProps) {
     })();
   }, []);
 
+  // Handle category selection
+  const handleCategorySelect = (category: ICategoryWithSubcategories) => {
+    setSelectedCategory(category);
+
+    if (category.subcategories && category.subcategories.length > 0) {
+      setSubcategoryOverlayVisible(true);
+    } else {
+      // If no subcategories, load products for the category directly
+      handleSubcategorySelect(category.id, category.id);
+      setCategoryOverlayVisible(false);
+    }
+  };
+
+  // Handle subcategory selection
+  const handleSubcategorySelect = async (
+    subcategoryId: string,
+    categoryId: string
+  ) => {
+    setLoadingProducts(true);
+    try {
+      const res = await productService.getProductsByCategory({
+        page: currentPage,
+        categoryId,
+      });
+
+      setCategoryProducts(res.data || []);
+      setLastPage(res.meta?.last_page || 1);
+      setSubcategoryOverlayVisible(false);
+      setCategoryOverlayVisible(false);
+    } catch (error) {
+      console.error("Error fetching products:", error);
+    } finally {
+      setLoadingProducts(false);
+    }
+  };
+
+  // Load more products
+  const loadMoreCategoryProducts = async () => {
+    if (currentPage < lastPage && !loadingProducts && selectedCategory) {
+      setLoadingProducts(true);
+      try {
+        const nextPage = currentPage + 1;
+        const res = await productService.getProductsByCategory({
+          page: nextPage,
+          categoryId: selectedCategory.id,
+        });
+
+        setCategoryProducts((prev) => [...prev, ...(res.data || [])]);
+        setCurrentPage(nextPage);
+      } catch (error) {
+        console.error("Error loading more products:", error);
+      } finally {
+        setLoadingProducts(false);
+      }
+    }
+  };
+
   const value = {
     navOpen,
     setNavOpen,
@@ -164,6 +259,20 @@ export default function AppProvider({ children, mounted }: AppProviderProps) {
     setSubCategories,
     myProduct,
     setMyProduct,
+
+    // New category overlay context
+    categoryOverlayVisible,
+    setCategoryOverlayVisible,
+    subcategoryOverlayVisible,
+    setSubcategoryOverlayVisible,
+    selectedCategory,
+    setSelectedCategory,
+    handleCategorySelect,
+    handleSubcategorySelect,
+    loadingProducts,
+    categoryProducts,
+    subCategoryProducts,
+    setSubCategoryProducts,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

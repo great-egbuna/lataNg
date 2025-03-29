@@ -32,7 +32,7 @@ const schemaValidation = yup.object().shape({
 
 const loginFields = [
   {
-    placeholder: "Enter  Email",
+    placeholder: "Enter your email",
     name: "email",
   },
 
@@ -225,7 +225,7 @@ export default function LoginComponent() {
           <View className="gap-10">
             {loginFields.map((field, index) => {
               return (
-                <View key={index}>
+                <View key={index} className="flex-1">
                   <Input
                     placeholder={field.placeholder}
                     onChangeText={handleChange(field.name)}

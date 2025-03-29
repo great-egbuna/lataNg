@@ -1,8 +1,14 @@
 import { colors } from "@/colors";
 import { Octicons } from "@expo/vector-icons";
-import { Text, TouchableOpacity, View } from "react-native";
+import { Text, TouchableOpacity, View, Linking } from "react-native";
 
 export default function SalesAgreementForm() {
+  const onPress = () => {
+    Linking.openURL(
+      "https://res.cloudinary.com/dg9by7oca/image/upload/v1712012185/Lata.ng_Sales_Agreement.pdf"
+    );
+  };
+
   return (
     <View className="border border-offwhite rounded-lg p-6">
       <View>
@@ -15,7 +21,10 @@ export default function SalesAgreementForm() {
         <Octicons name="table" size={50} color={colors.greyFour} />
       </View>
 
-      <TouchableOpacity className="bg-purple w-[126px] px-6 items-center py-[6px] rounded-lg">
+      <TouchableOpacity
+        className="bg-purple w-[126px] px-6 items-center py-[6px] rounded-lg"
+        onPress={onPress}
+      >
         <Text className="text-white font-semibold text-base">Download</Text>
       </TouchableOpacity>
     </View>

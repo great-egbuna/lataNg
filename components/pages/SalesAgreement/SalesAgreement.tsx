@@ -4,7 +4,7 @@ import SalesAgreementInput from "./SalesAgreementInput";
 
 export default function SalesAgreementComponent() {
   return (
-    <View>
+    <View className="pb-6">
       <SalesAgreementForm />
       <SalesAgreementInput />
     </View>

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { colors } from "@/colors";
 import { images } from "@/constants/images";
 import {
@@ -15,9 +15,11 @@ import { AppContextProps, ICategory, useApp } from "@/context/AppContext";
 import { useRouter } from "expo-router";
 import { DUMMY_REELS } from "@/components/pages/Reels/ReelsComponent";
 import { Reel } from "../Reels";
+import CategoriesOverlay from "@/components/ui/Categories/CategoriesOverlay";
 
 interface Props {
   setCategory: (value: ICategory | null) => void;
+  title?: string;
 }
 
 const reels = [
@@ -71,8 +73,13 @@ const ReelCircle = ({ user }: Reel) => {
   );
 };
 
-export default function Hero({ setCategory }: Props) {
+export default function Hero({ setCategory, title }: Props) {
   const { categories } = useApp() as AppContextProps;
+  const [modalVisible, setModalVisible] = useState(false);
+
+  const toggleModal = () => {
+    setModalVisible(!modalVisible);
+  };
 
   return (
     <>
@@ -108,10 +115,20 @@ export default function Hero({ setCategory }: Props) {
           text="BUY HERE"
           customStyles="bg-purple"
           customTextStyles=" text-white font-semibold"
+          onPress={toggleModal}
         />
       </View>
 
-      <Text className="text-base my-5 font-semibold">Trending Products</Text>
+      <Text className="text-base my-5 font-semibold">
+        {title || "Trending Products"}
+      </Text>
+
+      {/* Categories Overlay */}
+      <CategoriesOverlay
+        visible={modalVisible}
+        onClose={toggleModal}
+        title="Select Category to Buy"
+      />
     </>
   );
 }

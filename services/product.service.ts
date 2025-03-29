@@ -79,7 +79,6 @@ class ProductService {
         `/products/save/${productId}`
       );
 
-      console.log("response", response.data);
 
       return response.data;
     } catch (error: any) {

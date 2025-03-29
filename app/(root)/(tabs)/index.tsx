@@ -17,10 +17,12 @@ import MyProducts from "@/components/pages/MyProducts/MyProducts";
 import SearchProducts from "@/components/pages/Home/SearchedProducts";
 import { ISearchContextProps } from "@/context/SearchContext";
 import { useSearch } from "@/context/SearchContext";
+import SubCategoroyProducts from "@/components/pages/Home/SubCategoryProduct";
 
 export default function Index() {
   const router = useRouter();
-  const { appLoading, setSelectedProduct } = useApp() as AppContextProps;
+  const { appLoading, setSelectedProduct, subCategoryProducts } =
+    useApp() as AppContextProps;
   const { user, isLoggedIn } = useAuth() as IAUTH;
   const { searchResult } = useSearch() as ISearchContextProps;
 
@@ -128,10 +130,25 @@ export default function Index() {
 
   if (searchResult?.length > 0) return <SearchProducts />;
 
+  if (subCategoryProducts && subCategoryProducts?.length > 0)
+    return <SubCategoroyProducts setCategory={setCategory} />;
+
   return (
     <FlatList
       data={products}
-      ListHeaderComponent={() => <Hero setCategory={setCategory} />}
+      ListHeaderComponent={() => {
+        if (subCategoryProducts && subCategoryProducts?.length < 1) {
+          return (
+            <>
+              <Text className="text-base my-5 font-semibold">
+                No products found in that category
+              </Text>
+              <Hero setCategory={setCategory} />
+            </>
+          );
+        }
+        return <Hero setCategory={setCategory} />;
+      }}
       renderItem={({ item, index }) => (
         <>
           <ProductCard
