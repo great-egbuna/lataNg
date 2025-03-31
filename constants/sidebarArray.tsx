@@ -80,7 +80,11 @@ export const sidebar = [
     label: "Sales Agreement",
     path: "/sales-agreement",
   },
-
+  {
+    icon: <MaterialCommunityIcons name={"table"} size={16} color={"#292929"} />,
+    label: "Reels",
+    path: "/reels",
+  },
   {
     icon: <MaterialIcons name={"logout"} size={16} color={"#292929"} />,
     label: "Logout",
