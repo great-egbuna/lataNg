@@ -14,11 +14,9 @@ const { height: WINDOW_HEIGHT } = Dimensions.get("window");
 interface ReelItemProps {
   item: {
     id: string;
-    videoUrl: string;
+    video_url: string;
     description: string;
-    likes: number;
-    comments: number;
-    shares: number;
+    title: string;
     user: {
       name: string;
       avatar: string;
@@ -35,7 +33,7 @@ export default function ReelItem({
 }: ReelItemProps) {
   const isActive = activeReelIndex === index;
 
-  const player = useVideoPlayer(item.videoUrl, (player: VideoPlayer) => {
+  const player = useVideoPlayer(item.video_url, (player: VideoPlayer) => {
     player.loop = true;
     if (isActive) {
       player.play();
@@ -66,17 +64,17 @@ export default function ReelItem({
       {/* User Info */}
       <View style={styles.userInfo}>
         <TouchableOpacity style={styles.userButton}>
-          <Text style={styles.username}>{item.user.name}</Text>
+          <Text style={styles.username}>{item?.title}</Text>
         </TouchableOpacity>
       </View>
 
       {/* Description */}
       <View style={styles.descriptionContainer}>
-        <Text style={styles.description}>{item.description}</Text>
+        <Text style={styles.description}>{item?.description}</Text>
       </View>
 
       {/* Action Buttons */}
-      <View style={styles.actionButtons}>
+      {/*   <View style={styles.actionButtons}>
         <TouchableOpacity style={styles.actionButton}>
           <Ionicons name="heart" size={28} color="white" />
           <Text style={styles.actionText}>{item.likes}</Text>
@@ -91,7 +89,7 @@ export default function ReelItem({
           <Ionicons name="share-social" size={28} color="white" />
           <Text style={styles.actionText}>{item.shares}</Text>
         </TouchableOpacity>
-      </View>
+      </View> */}
     </View>
   );
 }

@@ -22,59 +22,33 @@ interface Props {
   title?: string;
 }
 
-const reels = [
-  {
-    name: "My Store",
-    imgSource: images.itel,
-  },
-  {
-    name: "Tech",
-    imgSource: images.airFryer,
-  },
-  {
-    name: "Appliances",
-    imgSource: images.clippers,
-  },
-  {
-    name: "Fashion",
-    imgSource: images.fashion,
-  },
-  {
-    name: "Breverage",
-    imgSource: images.drinks,
-  },
-  {
-    name: "Gadgets",
-    imgSource: images.pc,
-  },
-  {
-    name: "Jumia",
-    imgSource: images.ps5,
-  },
-  {
-    name: "Gaming",
-    imgSource: images.gameChair,
-  },
-];
-
-const ReelCircle = ({ user }: Reel) => {
+const ReelCircle = ({ item }: Reel) => {
   const router = useRouter();
-
+  const { setSelectedReel } = useApp() as AppContextProps;
   return (
     <TouchableOpacity
       style={styles.reelCircle}
-      onPress={() => router.push("/reels")}
+      onPress={() => {
+        setSelectedReel(item.reels as any);
+        router.push("/reels");
+      }}
     >
-      <Image source={{ uri: user.avatar }} style={styles.avatar} />
+      <Image
+        source={
+          item.user?.avatar ? { uri: item?.user?.avatar } : images.lataLogoBig
+        }
+        style={styles.avatar}
+      />
       <Text style={styles.username} numberOfLines={1}>
-        {user.name}
+        {item.user.name}
       </Text>
     </TouchableOpacity>
   );
 };
 
 export default function Hero({ setCategory, title }: Props) {
-  const { categories, setSubCategoryProducts } = useApp() as AppContextProps;
+  const { categories, setSubCategoryProducts, reels } =
+    useApp() as AppContextProps;
   const [modalVisible, setModalVisible] = useState(false);
 
   const toggleModal = () => {
@@ -85,17 +59,20 @@ export default function Hero({ setCategory, title }: Props) {
     <>
       <View
         style={styles.heroBox}
-        className="mt-8 mb-6 flex-row justify-between"
+        className="mt-8 mb-6 flex-row justify-between items-end"
       >
-        <Image source={images.manWithPhone} />
-        <Image source={images.boyGirlWithPhone} />
+        <Image source={images.manWithPhone} className="relative top-[5px]" />
+        <Image
+          source={images.boyGirlWithPhone}
+          className="relative top-[5px]"
+        />
       </View>
 
       <FlatList
-        data={DUMMY_REELS}
+        data={reels}
         horizontal
         bounces={false}
-        renderItem={({ item }) => <ReelCircle {...item} />}
+        renderItem={({ item }) => <ReelCircle item={item} />}
         showsHorizontalScrollIndicator={false}
       />
 
@@ -154,7 +131,7 @@ const styles = StyleSheet.create({
     height: 60,
     borderRadius: 30,
     borderWidth: 2,
-    borderColor: "#E1306C",
+    borderColor: colors.purple,
   },
   username: {
     fontSize: 12,

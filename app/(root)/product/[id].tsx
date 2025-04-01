@@ -111,7 +111,7 @@ export default function ProductDefault() {
             </Text>
           </TouchableOpacity>
 
-          {feedbacks.length > 0 && <ProductFeedback feedbacks={feedbacks} />}
+          {feedbacks?.length > 0 && <ProductFeedback feedbacks={feedbacks} />}
         </View>
         <FeedbackModal />
       </ScrollView>

@@ -24,7 +24,6 @@ class ProductService {
 
       return res.data.message;
     } catch (error: any) {
-      console.log("formData error", payload);
       console.log("error", JSON.stringify(error?.response?.data));
       return new Error("Failed to create product");
     }
@@ -60,9 +59,9 @@ class ProductService {
 
   public async getMyProducts({ page = 1 }: IGetProductsByCategory) {
     try {
-      const res = await $http.get(
-        `${prodApi}/products/my?page=${page}&limit=11`
-      );
+      const res = await $http.get(`/products/my?page=${page}&limit=11`);
+
+      console.log("res", res.data);
 
       return res.data;
     } catch (error: any) {

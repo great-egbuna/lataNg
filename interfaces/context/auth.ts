@@ -10,4 +10,6 @@ export interface IAUTH {
   checkAuth: () => void;
   user?: IUSER | null;
   setUser?: (value: IUSER | null) => void;
+  loading: boolean;
+  setLoading: (value: boolean) => void;
 }

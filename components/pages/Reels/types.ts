@@ -1,13 +1,16 @@
 export interface Reel {
-  id: string;
-  videoUrl: string;
-  description: string;
-  likes: number;
-  comments: number;
-  shares: number;
-  user: {
-    name: string;
-    avatar: string;
+  item: {
+    userId: string;
+    reels: {
+      id: string;
+      videoUrl: string;
+      description: string;
+    }[];
+
+    user: {
+      name: string;
+      avatar: string;
+    };
   };
 }
 

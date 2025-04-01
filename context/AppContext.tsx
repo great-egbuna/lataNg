@@ -1,6 +1,7 @@
 import { categoryService } from "@/services/category.service";
 import { locationService } from "@/services/location.service";
 import { productService } from "@/services/product.service";
+import { reelService } from "@/services/reel.service";
 import {
   createContext,
   ReactNode,
@@ -56,6 +57,13 @@ export interface ICategoryWithSubcategories extends ICategory {
   image?: any;
 }
 
+export interface IReel {
+  id: string;
+  userId: string;
+  title: string;
+  description: string;
+  video: string;
+}
 // Extended context interface with category overlay functionality
 export interface AppContextProps {
   navOpen: boolean;
@@ -104,6 +112,12 @@ export interface AppContextProps {
   feedbackProductId: string | undefined;
   feedbackProductName: string | undefined;
   openFeedbackModal: (productId?: string, productName?: string) => void;
+  reels: IReel[] | null;
+  setReels: (value: IReel[] | null) => void;
+  selectedReel: any[] | null;
+  setSelectedReel: (value: any[] | null) => void;
+  reelLoading: boolean;
+  setReelLoading: (value: boolean) => void;
 }
 
 const AppContext = createContext<AppContextProps | null>(null);
@@ -146,6 +160,9 @@ export default function AppProvider({ children, mounted }: AppProviderProps) {
   const [subCategoryProducts, setSubCategoryProducts] = useState<
     IProduct[] | null
   >(null);
+  const [reels, setReels] = useState<IReel[] | null>(null);
+  const [selectedReel, setSelectedReel] = useState<any | null>(null);
+  const [reelLoading, setReelLoading] = useState(false);
 
   const loadApp = () => {
     setAppLoading(false);
@@ -180,6 +197,13 @@ export default function AppProvider({ children, mounted }: AppProviderProps) {
     (async () => {
       const res = await categoryService.getSubCategories();
       setSubCategories(res);
+    })();
+  }, []);
+
+  useEffect(() => {
+    (async () => {
+      const res = await reelService.getReels();
+      setReels(res);
     })();
   }, []);
 
@@ -291,6 +315,10 @@ export default function AppProvider({ children, mounted }: AppProviderProps) {
     feedbackProductId,
     feedbackProductName,
     openFeedbackModal,
+    reels,
+    setReels,
+    selectedReel,
+    setSelectedReel,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

@@ -12,7 +12,7 @@ export default function MyProducts({
 }) {
   const router = useRouter();
   const { setMyProduct } = useApp() as AppContextProps;
-
+  console.log("myProducts", myProducts);
   return (
     <FlatList
       data={myProducts.data}

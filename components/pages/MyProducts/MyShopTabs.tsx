@@ -1,5 +1,7 @@
 import ButtonSecondary from "@/components/general/ButtonSecondary";
 import { images } from "@/constants/images";
+import { useAuth } from "@/context/AuthContext";
+import { IAUTH } from "@/interfaces/context/auth";
 import { useState } from "react";
 import { Image, Text, View } from "react-native";
 
@@ -34,6 +36,7 @@ export default function MyShopTabs({
   draft: number;
   reviewing: number;
 }) {
+  const { loading } = useAuth() as IAUTH;
   const [isActiveTab, setIsActiveTab] = useState("Active");
 
   const renderStatus = (label: string) => {
@@ -62,7 +65,9 @@ export default function MyShopTabs({
         {tabs.map((tab) => {
           return (
             <ButtonSecondary
-              text={`${tab.label}(${renderStatus(tab.label)})`}
+              text={`${tab.label} (${
+                loading ? "..." : renderStatus(tab.label)
+              })`}
               customStyles={`border-0 min-w-[1px] flex-1 ${
                 isActiveTab === tab.label && "bg-purple"
               }`}

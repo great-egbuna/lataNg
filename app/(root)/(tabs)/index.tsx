@@ -23,7 +23,7 @@ export default function Index() {
   const router = useRouter();
   const { appLoading, setSelectedProduct, subCategoryProducts } =
     useApp() as AppContextProps;
-  const { user, isLoggedIn } = useAuth() as IAUTH;
+  const { user, isLoggedIn, loading: authLoading } = useAuth() as IAUTH;
   const { searchResult } = useSearch() as ISearchContextProps;
 
   const [products, setProducts] = useState<any>([]);
@@ -38,13 +38,13 @@ export default function Index() {
 
   useEffect(() => {
     (async () => {
+      if (authLoading) return;
       const res = await productService.getMyProducts(myProductsPage);
 
-      console.log("myProducts", res.data[0].files);
       setMyProducts(res);
       setLoading(false);
     })();
-  }, []);
+  }, [isLoggedIn, user, authLoading]);
 
   useEffect(() => {
     (async () => {
@@ -97,18 +97,14 @@ export default function Index() {
 
   if (loading) {
     return (
-      <View className="items-center justify-center h-full bg-white">
+      <View className="items-center justify-center h-full bg-white gap-2">
+        <Loader size="large" />
         <Text>Fetching products..</Text>
       </View>
     );
   }
 
-  if (
-    user &&
-    user.role === "SELLER" &&
-    isLoggedIn &&
-    myProducts?.data?.length === 0
-  ) {
+  if (user && user.role === "SELLER" && isLoggedIn) {
     return (
       <MyProductsLayout myProducts={myProducts}>
         <NoProducts />

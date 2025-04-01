@@ -1,10 +1,29 @@
-import { sidebar } from "@/constants/sidebarArray";
+import {
+  notLoggedInSidebar,
+  buyerSidebar,
+  sidebar,
+} from "@/constants/sidebarArray";
 import { FlatList, Text, TouchableOpacity, View } from "react-native";
 import { Link, RelativePathString, useRouter } from "expo-router";
 import { AppContextProps, useApp } from "@/context/AppContext";
+import { useAuth } from "@/context/AuthContext";
+import { IAUTH } from "@/interfaces/context/auth";
 
 export default function Sidebar() {
   const { navOpen, setNavOpen } = useApp() as AppContextProps;
+
+  const { user, isLoggedIn } = useAuth() as IAUTH;
+
+  const getSidebar = () => {
+    if (isLoggedIn && user?.role === "BUYER") {
+      return buyerSidebar;
+    }
+
+    if (isLoggedIn && user?.role === "SELLER") {
+      return sidebar;
+    }
+    return notLoggedInSidebar;
+  };
 
   return (
     <View
@@ -13,7 +32,7 @@ export default function Sidebar() {
       }`}
     >
       <FlatList
-        data={sidebar}
+        data={getSidebar()}
         renderItem={({ item }) => <SidebarItem item={item} />}
       />
     </View>

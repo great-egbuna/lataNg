@@ -59,6 +59,7 @@ export default function AppLayout() {
           name="message"
           options={{
             headerShown: false,
+            href: null,
             tabBarIcon: ({ focused }) => {
               return (
                 <TabBarIcon

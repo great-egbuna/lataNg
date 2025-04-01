@@ -16,6 +16,7 @@ export default function LogoutComponent() {
     (async () => {
       try {
         await save("lataPubToken", "");
+        await save("lataAuthToken", "");
         await save("lataUser", "");
 
         setIsLoggedIn(false);

@@ -14,8 +14,12 @@ import { Ionicons } from "@expo/vector-icons";
 import * as FileSystem from "expo-file-system";
 import { Video } from "expo-av";
 import { reelService } from "@/services/reel.service";
+import { showToast } from "@/components/general/Toast";
+import { useRouter } from "expo-router";
 
 const ReelsPageComponent = () => {
+  const router = useRouter();
+
   const [video, setVideo] = useState<string | null>(null);
   const [videoFile, setVideoFile] = useState<any>(null);
   const [title, setTitle] = useState("");
@@ -71,40 +75,44 @@ const ReelsPageComponent = () => {
   };
 
   const handleCreateReel = async () => {
+    setLoading(true);
     if (!video || !title.trim() || !videoFile) {
       Alert.alert(
         "Missing Information",
         "Please select a video and enter a title"
       );
+      setLoading(false);
+    }
 
-      const formData = new FormData();
-      formData.append("video", {
-        uri: videoFile.uri,
-        name: videoFile.fileName,
-        type: videoFile.type,
-      } as any);
-      formData.append("title", title);
-      formData.append("description", description);
+    const formData = new FormData();
+    formData.append("file", {
+      uri: videoFile.uri,
+      name: videoFile.fileName,
+      type: videoFile.mimeType,
+    } as any);
+    formData.append("title", title);
+    formData.append("description", description);
 
-      const reel = await reelService.createReel(formData);
+    const res = await reelService.createReel(formData);
 
+    if (res instanceof Error) {
+      showToast({
+        type: "error",
+        text1: "Error",
+        text2: res.message,
+      });
+      setLoading(false);
       return;
     }
 
-    setLoading(true);
-    try {
-      // TODO: Implement reel creation logic here
-      await new Promise((resolve) => setTimeout(resolve, 1500)); // Simulated API call
-      setVideo(null);
-      setTitle("");
-      setDescription("");
-      Alert.alert("Success", "Your reel has been created successfully!");
-    } catch (error) {
-      console.error("Error creating reel:", error);
-      Alert.alert("Error", "Failed to create reel. Please try again.");
-    } finally {
-      setLoading(false);
-    }
+    showToast({
+      type: "success",
+      text1: "Success",
+      text2: "Your reel has been created successfully!",
+    });
+
+    router.push("/");
+    return;
   };
 
   return (
