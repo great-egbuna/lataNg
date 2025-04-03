@@ -13,7 +13,11 @@ import {
 class AuthService {
   public async register(payload: IREGISTER) {
     try {
-      const res = await $http.post("/auth/register", payload);
+      const res = await $http.post("/auth/register", payload, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
       return res.data;
     } catch (error) {
       console.log("error", JSON.stringify(error?.response?.data));

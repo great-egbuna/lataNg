@@ -29,6 +29,8 @@ import { AppContextProps, useApp } from "@/context/AppContext";
 import { buyerFields, sellerFields } from "@/constants/form";
 import { useAuth } from "@/context/AuthContext";
 import { IAUTH } from "@/interfaces/context/auth";
+import { objectToFormData } from "@/utils/utils";
+import { IREGISTER } from "@/interfaces/auth";
 
 const DEFAULT_USER_ROLE = "BUYER";
 
@@ -93,6 +95,7 @@ export default function RegisterComponent() {
   const [loading, setLoading] = useState(false);
   const [loadingSocialAuth, setLoadingSocialAuth] = useState(false);
   const [avatar, setAvatar] = useState<string | null>(null);
+  const [file, setFile] = useState<any | null>(null);
 
   const registerFields = decision === "SELLER" ? sellerFields : buyerFields;
 
@@ -102,9 +105,17 @@ export default function RegisterComponent() {
   ) => {
     setLoading(true);
 
-    if (avatar) values.avatar = avatar;
+    const formData = objectToFormData(values);
 
-    const res = await authService.register(values);
+    if (file) {
+      formData.append("file", {
+        uri: file.uri,
+        type: file.mimeType,
+        name: file.fileName,
+      });
+    }
+
+    const res = await authService.register(formData as unknown as IREGISTER);
 
     if (res instanceof Error) {
       showToast({
@@ -136,73 +147,14 @@ export default function RegisterComponent() {
     });
 
     if (!result.canceled) {
-      console.log("Image  result", result.assets[0].uri);
-
       setAvatar!(result.assets[0].uri);
+      setFile(result.assets[0]);
     } else {
       alert("You did not select any image");
     }
   };
 
   // GOOGLE SIGN UP
-
-  /* 
-  const handleSocialAuth = async () => {
-    setLoadingSocialAuth(true);
-
-    const res = await socialAuthService.googleSignUp();
-
-    if (res instanceof Error) {
-      showToast({
-        type: "error",
-        text1: "Request Failed",
-        text2: "Failed to sign in with google",
-      });
-      setLoadingSocialAuth(false);
-
-      return;
-    }
-
-    const callbackResponse = await socialAuthService.googleCallbackNotAlly({
-      role: decision,
-      accessToken: res as string,
-    });
-
-    if (callbackResponse instanceof Error) {
-      showToast({
-        type: "error",
-        text1: "Request Failed",
-        text2: "Failed to sign in with google",
-      });
-      setLoadingSocialAuth(false);
-
-      return;
-    }
-
-    showToast({
-      type: "success",
-      text1: "Success",
-      text2: "Success",
-    });
-
-    setSocialUser(callbackResponse);
-
-    // @ts-ignore
-
-    if (decision === "SELLER") {
-      router.push("/complete-signup");
-    } else {
-      setLoadingSocialAuth(false);
-
-      await save("lataPubToken", callbackResponse?.publicToken);
-      checkAuth();
-
-      router.push("/");
-    }
-
-    return;
-  };
-  */
 
   const handleSocialAuth = async () => {
     setLoadingSocialAuth(true);
@@ -270,9 +222,10 @@ export default function RegisterComponent() {
       {decision === "SELLER" && (
         <View className="flex-row items-center gap-3 mb-5 ">
           {avatar ? (
-            <ExpoImage
-              source={{ uri: avatar as ImageSourcePropType }}
+            <Image
+              source={{ uri: avatar as string }}
               className="w-[60px] h-[60px] rounded-full"
+              resizeMode="cover"
             />
           ) : (
             <TouchableOpacity
@@ -361,6 +314,7 @@ export default function RegisterComponent() {
                 }
                 customStyles="bg-white rounded-lg w-full py-2.5 rounded-md gap-2"
                 customTextStyles="text-purple font-semibold text-base"
+                // @ts-ignore
                 iconSrc={loadingSocialAuth ? "" : images.googleIcon}
                 onPress={handleSocialAuth}
               />

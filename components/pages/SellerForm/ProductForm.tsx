@@ -97,7 +97,7 @@ export default function ProductForm({ setSelectedImage }: ProductFormProps) {
 
     showToast({
       type: "success",
-      text1: "Produ ct created successfully",
+      text1: "Product created successfully",
       text2: res.message,
     });
 
@@ -154,7 +154,7 @@ export default function ProductForm({ setSelectedImage }: ProductFormProps) {
                 value={values.email}
                 placeholder={"Product name"}
                 customInputStyles={
-                  "rounded-md bg-white border border-grey-5  px-3 py-3"
+                  "rounded-md bg-white border border-grey-5  px-3 py-3 max-h-[40px]"
                 }
               />
 
@@ -172,7 +172,7 @@ export default function ProductForm({ setSelectedImage }: ProductFormProps) {
                 value={values.price}
                 placeholder={"Price"}
                 customInputStyles={
-                  "rounded-md bg-white border border-grey-5  px-3 py-3"
+                  "rounded-md bg-white border border-grey-5  px-3 py-3 max-h-[40px]"
                 }
               />
 
@@ -206,7 +206,7 @@ export default function ProductForm({ setSelectedImage }: ProductFormProps) {
             <DropdownInput
               placeholder={"Product type"}
               onSelect={(value) => setPayload({ ...payload, productType: "" })}
-              data={["opt1", "Opt2"]}
+              data={["New", "Used"]}
             />
 
             <DropdownInput
