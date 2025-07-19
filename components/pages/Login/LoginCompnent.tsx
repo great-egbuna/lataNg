@@ -37,7 +37,7 @@ const loginFields = [
   },
 
   {
-    placeholder: "Enter  Password",
+    placeholder: "Enter Your Password",
     name: "password",
   },
 ];
@@ -190,8 +190,6 @@ export default function LoginComponent() {
       text2: "Success",
     });
 
-    console.log("callback response", callbackResponse);
-
     setLoadingSocialAuth(false);
 
     await save("lataPubToken", callbackResponse?.publicToken);
@@ -222,7 +220,7 @@ export default function LoginComponent() {
           values,
           errors,
         }: FormikProps<any>) => (
-          <View className="gap-10">
+          <View className="gap-6">
             {loginFields.map((field, index) => {
               return (
                 <View key={index} className="flex-1">
@@ -232,7 +230,7 @@ export default function LoginComponent() {
                     onBlur={handleBlur(field.name)}
                     value={values[field.name]}
                     customStyles="bg-white"
-                    customInputStyles="bg-white border rounded-md border-grey-12"
+                    customInputStyles="bg-white border rounded-md border-grey-12 px-3 py-2"
                   />
 
                   {(errors[field.name] as any) && (
@@ -252,17 +250,17 @@ export default function LoginComponent() {
                 onPress={handleSubmit}
               />
 
-              <Link href={"/register"}>
-                <Text className="font-normal text-small text-grey-6 text-center mx-auto">
-                  Don’t have an account?{" "}
+              <Link href={"/decision"}>
+                <Text className="font-normal text-sm text-grey-6 text-center mx-auto">
+                  Don’t have an account ?{" "}
                   <Text className="text-purple text-small">Sign up</Text>
                 </Text>
               </Link>
 
               <View className="flex-row items-center gap-[10px]">
-                <View className="flex-1 h-0.5 text-grey-4" />
+                <View className="flex-1 h-0.5 bg-gray-100" />
                 <Text className="font-normal text-grey-6">Or login with</Text>
-                <View className="flex-1 h-0.5 text-grey-4" />
+                <View className="flex-1 h-0.5  bg-gray-100" />
               </View>
 
               <ButtonSecondary
@@ -279,10 +277,11 @@ export default function LoginComponent() {
                 onPress={onPress}
               />
 
-              <Text className="font-normal text-small text-grey-6 text-center mx-auto">
-                By creating an account, you agree to the and{" "}
-                <Text className="text-purple">Terms and Conditions</Text>{" "}
-                <Text className="text-purple">Privacy Policy</Text>
+              <Text className="font-normal text-base text-grey-6  mx-auto">
+                By creating an account, you agree to the
+                <Text className="text-purple">
+                  Terms and Conditions
+                </Text> and <Text className="text-purple">Privacy Policy</Text>
               </Text>
             </View>
           </View>

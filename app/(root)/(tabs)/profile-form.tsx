@@ -11,6 +11,8 @@ import { useProfileUpdate } from "@/hooks/useUser";
 
 export default function Profile() {
   const { user, isLoggedIn } = useAuth() as IAUTH;
+  const userSettings = user?.settings[0]?.columnValue;
+
   const [submitting, setSubmitting] = useState(false);
 
   const { updateProfile, loading, error, success } = useProfileUpdate({
@@ -89,10 +91,10 @@ export default function Profile() {
           address: user?.address || "",
           aboutBusiness: user?.aboutBusiness || "",
           phoneNumber: user?.phoneNumber || "",
-          feature: user?.feature || false,
-          subscription: user?.subscription || false,
-          feedback: user?.feedback || false,
-          sms: user?.sms || false,
+          feature: userSettings?.feature || false,
+          subscription: userSettings?.subscription || false,
+          feedback: userSettings?.feedback || false,
+          sms: userSettings?.sms || false,
         }}
       >
         {({
@@ -105,7 +107,7 @@ export default function Profile() {
           return (
             <>
               <View className={"px-2 h-full bg-white"}>
-                <Text className={"font-semibold text-grey-9 text-sm my-6"}>
+                <Text className={"font-semibold text-grey-9 text-base mt-4 "}>
                   Settings
                 </Text>
 

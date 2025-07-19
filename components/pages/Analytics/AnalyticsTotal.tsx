@@ -67,7 +67,7 @@ export default function AnalyticsTotal() {
   };
 
   return (
-    <>
+    <View className={"border border-grey-2 mb-3 rounded-lg py-4 px-2 gap-2"}>
       <AnalyticsCard
         text_one={"Total views"}
         text_two={formatNumber(clickData.productViews)}
@@ -94,6 +94,6 @@ export default function AnalyticsTotal() {
         text_three={"Total message clicks"}
         className={"bg-white"}
       />
-    </>
+    </View>
   );
 }

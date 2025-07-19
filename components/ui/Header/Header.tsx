@@ -1,4 +1,4 @@
-import { View, StyleSheet } from "react-native";
+import { View, StyleSheet, Image } from "react-native";
 
 import Button from "@/components/general/Button";
 import Input from "@/components/general/Input";
@@ -10,6 +10,8 @@ import CustomToast from "../CustomToast";
 import { useState } from "react";
 import StatesDropdown from "../StatesDropdown";
 import { ISearchContextProps, useSearch } from "@/context/SearchContext";
+import logo from "@/assets/images/icon.png";
+import { colors } from "@/colors";
 
 export default function Header() {
   const { isLoggedIn, user } = useAuth() as IAUTH;
@@ -53,29 +55,27 @@ export default function Header() {
     setShow(false);
   };
 
+  const handleSearchButtonClick = () => {
+    setSearchPageCount(1);
+    handleSearch();
+  };
+
   return (
     <View style={styles.containerStyle} className="px-2 items-center relative">
-      <Button
-        text="SELL"
-        customStyle={{
-          width: 50,
-          flexShrink: 0,
-          padding: 0,
-          height: 35,
-        }}
-        onPress={onPress}
-        className="rounded-base"
-      />
+      <Image source={logo} />
 
       <Input
-        placeholder="Search for products here"
+        placeholder="Search for products here "
         showBtn={true}
         onChangeText={(text) => onChangeText(text)}
-        onPress={handleSearch}
+        onPress={handleSearchButtonClick}
         loading={loadingSearch}
+        customInputStyles="shadow-2xl"
+        btnClassName={{ backgroundColor: colors.purple }}
       />
 
       <LocationBox text={state} onPress={() => setShow(!show)} />
+      <Button text="SELL" onPress={onPress} className="rounded-xl" />
 
       <StatesDropdown onSelect={handleLoocationSelect} show={show} />
 
@@ -84,6 +84,7 @@ export default function Header() {
         buttonText="Become a seller"
         show={showCustomToast}
         onClose={() => setShowCustomToast(false)}
+        setShow={setShowCustomToast}
         onPress={() => router.push("/upgrade-buyer")}
       />
     </View>
@@ -95,7 +96,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     width: "100%",
-    gap: 12,
+    gap: 8,
     /*    height: 42, */
   },
 });

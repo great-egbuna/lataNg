@@ -14,12 +14,34 @@ import { showToast } from "@/components/general/Toast";
 import FeedbackModal from "@/components/ui/Modal/FeedbackModal";
 import { productService } from "@/services/product.service";
 import ProductFeedback from "@/components/pages/productDetails/ProductFeedback";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import Loader, { FullScreenLoader } from "@/components/general/Loader";
+import ErrorCard from "@/components/ui/ErrorCard";
+import ProductInsight from "@/components/pages/productDetails/ProductInsight";
+import ProductMgtButton from "@/components/pages/productDetails/ProductMgtButton";
+import SimilarProducts from "@/components/pages/productDetails/SimilarProducts";
 
 export default function ProductDefault() {
-  const { selectedProduct, states, cities, openFeedbackModal } =
-    useApp() as AppContextProps;
+  const { id } = useLocalSearchParams();
+
+  const {
+    selectedProduct,
+    setSelectedProduct,
+    states,
+    cities,
+    openFeedbackModal,
+  } = useApp() as AppContextProps;
+
+  const router = useRouter();
+
+  const productId = selectedProduct?.product?.id || selectedProduct?.id;
+
   const { user, isLoggedIn } = useAuth() as IAUTH;
   const [feedbacks, setFeedbacks] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | undefined>(undefined);
+  const [deleting, setIsDeleting] = useState(false);
+
   const getCitiy = (id: string) => {
     if (cities) {
       const state = cities.find((st) => st.id === id);
@@ -34,6 +56,29 @@ export default function ProductDefault() {
     }
   };
 
+  const handleDelete = async (id: string) => {
+    const res = await productService.delete(id);
+    setIsDeleting(false);
+    if (res instanceof Error) {
+      showToast({
+        type: "error",
+        text1: "Error",
+        text2: "Failed to delete product",
+      });
+      setIsDeleting(false);
+      return;
+    }
+
+    showToast({
+      type: "success",
+      text1: "success",
+      text2: "Product deleted successfully",
+    });
+
+    setIsDeleting(false);
+    router.push("/shop");
+  };
+
   const handleOpenFeedback = () => {
     if (!isLoggedIn) {
       showToast({
@@ -45,7 +90,12 @@ export default function ProductDefault() {
     }
 
     // Don't allow feedback on own product
-    if (user && selectedProduct && user.id === selectedProduct.userId) {
+
+    if (
+      user &&
+      selectedProduct &&
+      user.id === selectedProduct?.product?.productOwnerId
+    ) {
       showToast({
         type: "error",
         text1: "Error",
@@ -54,23 +104,46 @@ export default function ProductDefault() {
       return;
     }
 
-    openFeedbackModal(selectedProduct?.id, selectedProduct?.name);
+    const productName = selectedProduct?.product?.name || selectedProduct?.name;
+    openFeedbackModal(productId, productName);
   };
 
   const getProductFeedbacks = async () => {
     const feedbacks = await productService.getProductFeedbacks(
       selectedProduct?.id as string
     );
-    console.log("feedbacks", feedbacks);
     setFeedbacks(feedbacks?.data);
   };
 
-  const isOwnProduct =
-    user && selectedProduct && user.id === selectedProduct.userId;
+  const product_owner_id =
+    selectedProduct?.userId || selectedProduct?.product?.userId;
 
+  const isOwnProduct = user && selectedProduct && user.id === product_owner_id;
   useEffect(() => {
     getProductFeedbacks();
   }, []);
+
+  useEffect(() => {
+    if (selectedProduct && selectedProduct?.id === id) {
+      setLoading(false);
+      return;
+    }
+
+    (async () => {
+      const res = await productService.getProductById(id as string);
+
+      if (res instanceof Error) {
+        setError(res?.message);
+        setLoading(false);
+      }
+      setSelectedProduct(res);
+      setLoading(false);
+    })();
+  }, [id]);
+
+  if (loading) return <FullScreenLoader />;
+
+  if (error) return <ErrorCard error={error} />;
 
   return (
     <>
@@ -78,26 +151,101 @@ export default function ProductDefault() {
         <Header />
       </View>
       <ScrollView className={"w-full h-full bg-white px-2"}>
-        <View
-          className={
-            "flex flex-col gap-4 border p-3 rounded-lg mt-6 border-grey-2"
-          }
-        >
-          <ImageCurosel uri={selectedProduct?.meta?.selectedImage as string} />
+        <View className={"flex flex-col gap-4 py-3  mt-6 "}>
+          <ImageCurosel
+            uri={selectedProduct?.meta?.selectedImage as string}
+            images={selectedProduct?.files || selectedProduct?.product?.files}
+          />
 
           <ProductDescription
-            price={selectedProduct?.price?.toLocaleString() as string}
-            name={selectedProduct?.name as string}
-            description={selectedProduct?.description as string}
-            location={`${getCitiy(selectedProduct?.city as string)}, ${getState(
-              selectedProduct?.state as string
-            )}`}
-            postTime={"Posted 2 hours"}
+            price={
+              (selectedProduct?.price?.toLocaleString() as string) ||
+              selectedProduct?.product?.price
+            }
+            name={
+              (selectedProduct?.name as string) ||
+              selectedProduct?.product?.name
+            }
+            description={
+              (selectedProduct?.description as string) ||
+              selectedProduct?.product?.description
+            }
+            location={`${
+              getCitiy(
+                (selectedProduct?.city as string) ||
+                  selectedProduct?.product?.city
+              ) ||
+              selectedProduct?.city ||
+              selectedProduct?.product?.city ||
+              " "
+            } ${
+              getState(
+                (selectedProduct?.state as string) ||
+                  selectedProduct?.product?.state
+              ) ||
+              selectedProduct?.state ||
+              selectedProduct?.product?.state
+            }`}
+            postTime={
+              selectedProduct?.createdAt || selectedProduct?.product?.createdAt
+            }
+            category={
+              selectedProduct?.category?.name ||
+              selectedProduct?.product?.category?.name
+            }
+            subCategoryId={
+              selectedProduct?.subCategoryId ||
+              selectedProduct?.product?.subCategoryId
+            }
+            type={
+              selectedProduct?.productType ||
+              selectedProduct?.product?.productType
+            }
           />
 
           <SellerContact />
 
           <SafetyTips />
+
+          {isOwnProduct && (
+            <>
+              <ProductInsight
+                views={
+                  selectedProduct?.views || selectedProduct?.product?.views
+                }
+                saved={
+                  selectedProduct?.saved || selectedProduct?.product?.saved
+                }
+                clicks={
+                  selectedProduct?.phoneClicks ||
+                  selectedProduct?.product?.phoneClicks
+                }
+                visits={
+                  selectedProduct?.userData?.profileViews ||
+                  selectedProduct?.product?.userData?.profileViews
+                }
+              />
+
+              <ProductMgtButton
+                label="Edit product"
+                className="bg-purple "
+                customTextStyle="text-white text-base font-semibold"
+                onclick={() => router.push(`/product/edit/${id}`)}
+              />
+
+              <ProductMgtButton
+                label={deleting ? "Deleting" : "Delete"}
+                className="border-red-5  "
+                customTextStyle="text-red-5 text-base font-semibold"
+                onclick={() => handleDelete(id)}
+              />
+            </>
+          )}
+
+          <ProductFeedback
+            productId={selectedProduct?.product?.id || selectedProduct?.id}
+          />
+          <SimilarProducts categoryId={selectedProduct?.categoryId} />
 
           {/* Feedback Button */}
 
@@ -110,10 +258,10 @@ export default function ProductDefault() {
               Leave Feedback
             </Text>
           </TouchableOpacity>
-
-          {feedbacks?.length > 0 && <ProductFeedback feedbacks={feedbacks} />}
         </View>
-        <FeedbackModal />
+        <FeedbackModal
+          productId={selectedProduct?.product?.id || selectedProduct?.id}
+        />
       </ScrollView>
     </>
   );

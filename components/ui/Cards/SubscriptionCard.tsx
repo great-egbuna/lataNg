@@ -24,10 +24,12 @@ export default function SubscriptionCards({
       <View className={"items-center justify-center h-full flex-row gap-2.5"}>
         <RoundedImage
           imgSource={{ uri: image }}
-          className={"w-[80px] h-[80px]"}
+          className={`w-[100px] h-[100px] ${
+            text === "Combo Sales" && "rounded-[40px] w-[130px]"
+          } `}
         />
 
-        <View className={"gap-2.5"}>
+        <View>
           <Text className={"font-normal text-sm text-white"}>Run ads on</Text>
 
           <Text className={"font-semibold text-sm text-white"}>{text}</Text>

@@ -1,27 +1,43 @@
-import { FlatList, ImageSourcePropType, Text, View } from "react-native";
-import { products } from "@/constants/products";
+import {
+  FlatList,
+  ImageSourcePropType,
+  Text,
+  useWindowDimensions,
+  View,
+} from "react-native";
 import ProductCard from "@/components/ui/Cards/ProductCard";
 import { useRouter } from "expo-router";
-import Ionicons from "@expo/vector-icons/Ionicons";
-import { colors } from "@/colors";
 import { useSavedProducts } from "@/hooks/useProducts";
 import { useAuth } from "@/context/AuthContext";
 import { IAUTH } from "@/interfaces/context/auth";
 import Loader from "@/components/general/Loader";
 import PromptLogin from "@/components/ui/PromptLogin";
 import { AppContextProps, useApp } from "@/context/AppContext";
+import { getNumOfColumns } from "@/utils/utils";
+import { useEffect } from "react";
 
 export default function SavedPageComponent() {
+  const { width } = useWindowDimensions();
+
   const router = useRouter();
   const { user, isLoggedIn } = useAuth() as IAUTH;
-  const { setSelectedProduct } = useApp() as AppContextProps;
+  const { setSelectedProduct, saveProductId } = useApp() as AppContextProps;
 
-  const { savedProducts, loading, loadMoreSavedProducts } = useSavedProducts();
+  const {
+    savedProducts,
+    loading,
+    loadMoreSavedProducts,
+    refreshSavedProducts,
+  } = useSavedProducts();
+
+  useEffect(() => {
+    (async () => await refreshSavedProducts())();
+  }, [saveProductId]);
 
   if (loading) {
     return (
       <View className="flex-1 items-center justify-center">
-        <Loader size="large" />;
+        <Loader size="large" />
       </View>
     );
   }
@@ -36,13 +52,15 @@ export default function SavedPageComponent() {
         data={savedProducts}
         renderItem={({ item }) => (
           <ProductCard
+            saved
             id={item.product?.id as string}
             name={item?.product?.name as string}
             desc={item?.product?.description as string}
             label={item.meta?.planName}
             imgSource={item?.product?.files?.[0]?.url as ImageSourcePropType}
             location={item?.product?.state}
-            price={item?.product?.price?.toLocaleString() as string}
+            price={item?.product?.price}
+            discount={item?.product?.discount}
             onPress={() => {
               setSelectedProduct(item);
               router.push(`/product/${item?.id}`);
@@ -51,15 +69,17 @@ export default function SavedPageComponent() {
           />
         )}
         keyExtractor={(_item, index) => index.toString()}
-        numColumns={2}
+        numColumns={getNumOfColumns(width)}
         columnWrapperClassName="mb-4 gap-4"
-        className="mt-6"
-        ListHeaderComponent={
-          <Text className="text-base my-5 font-semibold">Saved Products</Text>
-        }
+        className="mt-3"
+        ListHeaderComponent={() => (
+          <Text className="text-base my-3 font-semibold">Saved Products</Text>
+        )}
         onEndReached={loadMoreSavedProducts}
         onEndReachedThreshold={0.7}
-        /*       ListFooterComponent={loadingSearch ? <Loader /> : null} */
+        ListEmptyComponent={() => (
+          <Text className="font-light text-gray-500">No products found</Text>
+        )}
       />
     </View>
   );

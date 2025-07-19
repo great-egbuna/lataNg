@@ -18,7 +18,7 @@ export default function DecisionComponent() {
     setDecision(decison);
     /*  await save("lataDecision", decison); */
 
-    router.push("/login");
+    router.push("/register");
 
     setLoading(false);
   };

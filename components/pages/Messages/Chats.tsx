@@ -9,23 +9,44 @@ import {
   Platform,
   ActivityIndicator,
   SafeAreaView,
+  Pressable,
+  Image,
 } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import { AntDesign, Ionicons } from "@expo/vector-icons";
 import { IAUTH } from "@/interfaces/context/auth";
 import { useAuth } from "@/context/AuthContext";
-
+import { io } from "socket.io-client";
+import { AppContextProps, useApp } from "@/context/AppContext";
+import { useRouter } from "expo-router";
 export default function ChatUI({
-  messages = [],
   isLoading = false,
   onSendMessage,
   productInfo = null,
   sellerInfo = null,
 }) {
   const { user } = useAuth() as IAUTH;
+  const {
+    chatMessageObj,
+    socket,
+    setChatMessageObj,
+    messages: listner,
+  } = useApp() as AppContextProps;
 
-  const [inputMessage, setInputMessage] = useState("");
   const flatListRef = useRef(null);
+  const router = useRouter();
+  const [inputMessage, setInputMessage] = useState("");
+  const [messages, setMessages] = useState(chatMessageObj?.messages || []);
 
+  useEffect(() => {
+    socket?.on("get-all:chats" + user?.id, () => {
+      socket.emit("get-all:chats" + user?.id);
+      return;
+    });
+    const newChatObj = listner?.find((chat) => chat?.id === chatMessageObj?.id);
+    setChatMessageObj(newChatObj);
+    if (!newChatObj) return;
+    setMessages([...newChatObj?.messages]);
+  }, [chatMessageObj, listner]);
   useEffect(() => {
     if (flatListRef.current && messages.length > 0) {
       flatListRef.current.scrollToEnd({ animated: true });
@@ -50,12 +71,12 @@ export default function ChatUI({
               : "bg-gray-200 rounded-tl-none"
           }`}
         >
-          <Text className={`${isUserMessage ? "text-white" : "text-gray-800"}`}>
+          <Text className={`${isUserMessage ? "text-white" : "text-black"}`}>
             {item.message}
           </Text>
           <Text
             className={`text-xs mt-1 ${
-              isUserMessage ? "text-purple-100" : "text-gray-500"
+              isUserMessage ? "text-purple-2" : "text-black"
             }`}
           >
             {new Date(item.createdAt).toLocaleTimeString([], {
@@ -71,29 +92,46 @@ export default function ChatUI({
   const handleSend = () => {
     if (inputMessage.trim() === "") return;
 
-    onSendMessage(inputMessage);
+    socket.emit("send:message" + user?.id, {
+      userId: user?.id,
+      chatId: chatMessageObj?.id,
+      message: inputMessage,
+      otherUserId: chatMessageObj?.receiver?.id,
+    });
+
     setInputMessage("");
+  };
+  const isSender = () => {
+    if (chatMessageObj?.sender?.id === user?.id) return true;
+    return false;
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <SafeAreaView className="h-full bg-white">
       {/* Product/Seller Info Header */}
-      {(productInfo || sellerInfo) && (
-        <View className="p-3 border-b border-gray-300 flex-row items-center">
-          <View className="w-10 h-10 rounded-full bg-gray-300 mr-3" />
-          <View className="flex-1">
-            <Text className="font-bold">
-              {productInfo?.name || sellerInfo?.name || "Chat"}
-            </Text>
-            <Text className="text-gray-600 text-sm">
-              {productInfo
-                ? `${productInfo.price || ""}`
-                : sellerInfo?.email || ""}
-            </Text>
-          </View>
-        </View>
-      )}
 
+      <View className="px-2 py-2  border-b border-gray-300 flex-row  items-center bg-purple gap-2">
+        <Pressable onPress={() => router.push("/message")}>
+          <AntDesign name="left" size={20} color={"white"} />
+        </Pressable>
+        <View className="w-10 h-10 rounded-full bg-gray-300">
+          <Image
+            className="w-full h-full rounded-full"
+            source={{
+              uri: isSender()
+                ? chatMessageObj?.receiver?.avatar
+                : chatMessageObj?.sender?.avatar,
+            }}
+          />
+        </View>
+        <View className="flex-1">
+          <Text className="font-bold text-base text-white">
+            {isSender()
+              ? chatMessageObj?.receiver?.name
+              : chatMessageObj?.sender?.name}
+          </Text>
+        </View>
+      </View>
       {/* Messages List */}
       {isLoading ? (
         <View className="flex-1 justify-center items-center">
@@ -117,9 +155,9 @@ export default function ChatUI({
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         keyboardVerticalOffset={Platform.OS === "ios" ? 90 : 0}
       >
-        <View className="flex-row items-center p-2 border-t border-gray-300">
+        <View className="flex-row items-center p-2 border-t border-gray-300 bg-purple">
           <TextInput
-            className="flex-1 bg-gray-100 rounded-full px-4 py-2 mr-2"
+            className="flex-1 bg-gray-100 rounded px-4 py-2 "
             placeholder="Type a message..."
             value={inputMessage}
             onChangeText={setInputMessage}
@@ -129,7 +167,7 @@ export default function ChatUI({
             onPress={handleSend}
             className="w-10 h-10 rounded-full bg-purple justify-center items-center"
           >
-            <Ionicons name="send" size={20} color="white" />
+            <Ionicons name="send" size={25} color="white" />
           </TouchableOpacity>
         </View>
       </KeyboardAvoidingView>

@@ -7,6 +7,8 @@ import { useAuth } from "@/context/AuthContext";
 import { IAUTH } from "@/interfaces/context/auth";
 import { Link } from "expo-router";
 import PromptLogin from "@/components/ui/PromptLogin";
+import { notificationService } from "@/services/notification.service";
+import { useState } from "react";
 
 export default function NotificationsComponent() {
   const {
@@ -20,7 +22,9 @@ export default function NotificationsComponent() {
 
   const { user, isLoggedIn } = useAuth() as IAUTH;
 
-  console.log("notifications", pagination);
+  const [isRead, setIsRead] = useState(0);
+
+  //console.log("notifications", notifications[0]?.id);
 
   if (loading) {
     return (
@@ -36,18 +40,21 @@ export default function NotificationsComponent() {
 
   return (
     <View>
-      <Header />
+      <Header setIsRead={setIsRead} isRead={isRead} />
       <FlatList
         data={notifications}
         renderItem={({ item }: { item: any }) => (
           <NotificationItem
+            id={item?.id}
             message={item.message}
             image={item.data.image}
             createdAt={item.createdAt}
+            isRead={isRead === 1 ? isRead : item?.isRead}
+            url={item?.data?.url}
           />
         )}
-        className={"px-2 bg-white py-4 border border-grey-2 rounded-[7px] "}
-        keyExtractor={(item) => item?.data?.id}
+        className={"px-2 bg-white  border border-grey-2 rounded-[7px] "}
+        keyExtractor={(item, index) => index?.toString()}
         ListEmptyComponent={() => (
           <View className="flex-1 justify-center items-center">
             <Text className="text-gray-500">No notifications found</Text>
@@ -67,18 +74,33 @@ export default function NotificationsComponent() {
   );
 }
 
-const Header = () => {
-  return (
-    <View
-      className={
-        "justify-between  py-10 flex-row px-[45px] items-center bg-white"
-      }
-    >
-      <Text className={"text-grey-9 font-semibold text-sm"}>Notifications</Text>
+const Header = ({
+  setIsRead,
+  isRead,
+}: {
+  setIsRead: (value: number) => void;
+  isRead: number;
+}) => {
+  const markAsRead = async () => {
+    const response = await notificationService.markAsRead();
+    if (response instanceof Error) return;
+    setIsRead(1);
+  };
 
-      <Text className={"text-purple font-normal text-small"}>
-        Mark all as read
+  return (
+    <View className={"justify-between  py-3 flex-row  items-center bg-white"}>
+      <Text className={"text-grey-9 font-semibold text-base"}>
+        Notifications
       </Text>
+      <TouchableOpacity onPress={markAsRead} disabled={isRead === 1}>
+        <Text
+          className={`${
+            isRead === 1 ? "opacity-50" : ""
+          } text-purple font-normal text-base`}
+        >
+          Mark all as read
+        </Text>
+      </TouchableOpacity>
     </View>
   );
 };

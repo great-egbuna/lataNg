@@ -1,6 +1,6 @@
 import { View } from "react-native";
 import MyShopTabs from "./MyShopTabs";
-import { ReactNode } from "react";
+import { ReactNode, useState } from "react";
 
 export default function MyProductsLayout({
   myProducts,
@@ -10,7 +10,7 @@ export default function MyProductsLayout({
   children: ReactNode;
 }) {
   return (
-    <View className="h-full bg-white gap-9">
+    <View className="h-full bg-white gap-4">
       <MyShopTabs
         active={myProducts.statusCounts?.active}
         denied={myProducts.statusCounts?.denied}

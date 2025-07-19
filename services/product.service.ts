@@ -6,6 +6,9 @@ import { ICreateProduct } from "@/interfaces/product";
 interface IGetProductsByCategory {
   categoryId?: string;
   page?: number;
+  limit?: number;
+  /* For My Products */
+  tab?: string;
 }
 
 interface SaveProductResponse {
@@ -29,6 +32,32 @@ class ProductService {
     }
   }
 
+  public async update(payload: ICreateProduct, id: string) {
+    try {
+      const res = await $http.put(`/products/${id}`, payload, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      return res.data.message;
+    } catch (error: any) {
+      console.log("error", error?.response?.data);
+      return new Error("Failed to update product");
+    }
+  }
+
+  public async delete(id: string) {
+    try {
+      const res = await $http.delete(`/products/${id}`);
+
+      return res.data.message;
+    } catch (error: any) {
+      console.log("error", error?.response?.data);
+      return new Error("Failed to delete product");
+    }
+  }
+
   public async getTrendingProducts() {
     try {
       const res = await $http.get(
@@ -44,10 +73,11 @@ class ProductService {
   public async getProductsByCategory({
     categoryId = "58abe3ac-ac93-4257-97fe-a46e786ea1dc",
     page = 1,
+    limit = 11,
   }: IGetProductsByCategory) {
     try {
       const res = await $http.get(
-        `${prodApi}/products?category=${categoryId}&page=${page}&limit=11`
+        `${prodApi}/products?category=${categoryId}&page=${page}&limit=${limit}`
       );
 
       return res.data;
@@ -57,9 +87,11 @@ class ProductService {
     }
   }
 
-  public async getMyProducts({ page = 1 }: IGetProductsByCategory) {
+  public async getMyProducts({ page = 1, tab }: IGetProductsByCategory) {
     try {
-      const res = await $http.get(`/products/my?page=${page}&limit=11`);
+      const res = await $http.get(
+        `/products/my?page=${page}&limit=11&tab=${tab || "active"}`
+      );
 
       console.log("res", res.data);
 
@@ -138,6 +170,16 @@ class ProductService {
     } catch (error: any) {
       console.log("error", JSON.stringify(error?.response?.data));
       return new Error("Failed to get product feedbacks");
+    }
+  }
+
+  public async getProductById(id: string) {
+    try {
+      const response = await $http.get(`/products/${id}`);
+      return response?.data;
+    } catch (error) {
+      console.log("error", JSON.stringify(error?.response?.data));
+      return new Error("Failed to get product");
     }
   }
 }

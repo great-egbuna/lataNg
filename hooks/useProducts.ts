@@ -69,7 +69,8 @@ export function useSavedProducts(
     }
   };
 
-  const refreshSavedProducts = () => fetchSavedProducts(1, initialLimit);
+  const refreshSavedProducts = async () =>
+    await fetchSavedProducts(1, initialLimit);
 
   const loadMoreSavedProducts = () => {
     if (pagination.currentPage < pagination.lastPage && !loading) {
@@ -77,20 +78,18 @@ export function useSavedProducts(
     }
   };
 
-  const checkIfProductIsSaved = useCallback(
-    (checkProductId: string | number): boolean => {
-      if (savingProducts.has(checkProductId)) {
-        return true;
-      }
+  const checkIfProductIsSaved = (checkProductId: string | number): boolean => {
+    if (savingProducts.has(checkProductId)) {
+      return true;
+    }
 
-      return savedProducts.some(
-        (item) =>
-          item.productId === checkProductId ||
-          (item.product && item.product.id === checkProductId)
-      );
-    },
-    [savedProducts, savingProducts]
-  );
+    const isSaved = savedProducts.some(
+      (item) =>
+        item.productId === checkProductId ||
+        (item.product && item.product.id === checkProductId)
+    );
+    return isSaved;
+  };
 
   const toggleSaveProduct = async (
     toggleProductId: string | number
@@ -99,13 +98,15 @@ export function useSavedProducts(
 
     try {
       if (currentlySaved) {
-        setSavedProducts((prev) =>
-          prev.filter(
+        setSavedProducts((prev) => {
+          const newSavedProduct = prev.filter(
             (item) =>
               item.productId !== toggleProductId &&
               (!item.product || item.product.id !== toggleProductId)
-          )
-        );
+          );
+
+          return newSavedProduct;
+        });
 
         if (savingProducts.has(toggleProductId)) {
           setSavingProducts((prev) => {

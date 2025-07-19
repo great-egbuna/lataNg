@@ -31,22 +31,30 @@ function SubcategoriesOverlay({
   categoryName,
   categoryId,
 }: SubcategoriesOverlayProps) {
-  const { setSubCategoryProducts } = useApp() as AppContextProps;
+  const { setSubCategoryProducts, unlimitedCategories } =
+    useApp() as AppContextProps;
 
   const router = useRouter();
 
   const handleSelect = async (subcategoryId: string) => {
-    const res = await productService.getProductsByCategory({
-      categoryId,
-    });
-
-    const subProducts = res.data.filter(
-      (product: IProduct) => product.subCategoryId === subcategoryId
+    let otherProducts = [];
+    const subProducts = unlimitedCategories?.filter?.(
+      (product: IProduct) =>
+        product.subCategoryId === subcategoryId ||
+        (product.subCategoryId?.includes("yatch") &&
+          subcategoryId.includes("Yatch"))
     );
 
-    console.log("subProducts", subProducts);
+    // return something most of the time
+    if (subProducts?.length === 0) {
+      otherProducts = unlimitedCategories?.filter?.(
+        (product: IProduct) => product.subCategoryId === "Others"
+      );
+    }
 
-    setSubCategoryProducts(subProducts);
+    const products = subProducts.length > 0 ? subProducts : otherProducts;
+
+    setSubCategoryProducts(products);
     router.push(`/`);
 
     onClose();

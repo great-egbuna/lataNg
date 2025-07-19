@@ -4,8 +4,10 @@ import { AppContextProps, useApp } from "@/context/AppContext";
 import { useAuth } from "@/context/AuthContext";
 import { ISearchContextProps, useSearch } from "@/context/SearchContext";
 import { IAUTH } from "@/interfaces/context/auth";
+import { getNumOfColumns } from "@/utils/utils";
 import { useRouter } from "expo-router";
 import { useEffect } from "react";
+import { useWindowDimensions } from "react-native";
 import { FlatList, ImageSourcePropType, Text, View } from "react-native";
 
 export default function SearchProducts() {
@@ -17,7 +19,7 @@ export default function SearchProducts() {
     loadingSearch,
     handleSearch,
   } = useSearch() as ISearchContextProps;
-
+  const { width } = useWindowDimensions();
   const { user } = useAuth() as IAUTH;
 
   const { setSelectedProduct } = useApp() as AppContextProps;
@@ -37,7 +39,7 @@ export default function SearchProducts() {
   if (searchResult.length === 0) return null;
 
   return (
-    <View className="px-2">
+    <View className="px-2 bg-white h-full">
       <FlatList
         data={searchResult}
         renderItem={({ item }) => (
@@ -48,7 +50,8 @@ export default function SearchProducts() {
             label={item.meta?.planName}
             imgSource={item.meta?.selectedImage as ImageSourcePropType}
             location={item?.state}
-            price={item.price?.toLocaleString() as string}
+            price={item.price as number}
+            discount={item?.discount as string}
             onPress={() => {
               setSelectedProduct(item);
               router.push(`/product/${item?.id}`);
@@ -57,11 +60,10 @@ export default function SearchProducts() {
           />
         )}
         keyExtractor={(_item, index) => index.toString()}
-        numColumns={2}
+        numColumns={getNumOfColumns(width)}
         columnWrapperClassName="mb-4 gap-4"
-        className="mt-6"
         ListHeaderComponent={
-          <Text className="text-base my-5 font-semibold">Search Results</Text>
+          <Text className="text-base my-5 font-semibold">Products</Text>
         }
         onEndReached={loadMore}
         onEndReachedThreshold={0.7}

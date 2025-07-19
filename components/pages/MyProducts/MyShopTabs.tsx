@@ -1,5 +1,6 @@
 import ButtonSecondary from "@/components/general/ButtonSecondary";
 import { images } from "@/constants/images";
+import { AppContextProps, useApp } from "@/context/AppContext";
 import { useAuth } from "@/context/AuthContext";
 import { IAUTH } from "@/interfaces/context/auth";
 import { useState } from "react";
@@ -8,20 +9,34 @@ import { Image, Text, View } from "react-native";
 const tabs = [
   {
     label: "Active",
+    status: "ACTIVE",
+    tab: "active",
     color: "text-[#292929]",
+    bg: "bg-purple",
   },
 
   {
     label: "Reviewing",
-    color: "text-[#e5ae0f]",
+    status: "INACTIVE",
+    tab: "reviewing",
+
+    color: "text-yellow-100",
+    bg: "bg-yellow-100",
   },
   {
     label: "Declined",
+    status: "CANCELLED",
+    tab: "denied",
+
     color: "text-red-5",
+    bg: "bg-red-5",
   },
   {
     label: "Draft",
-    color: "text-black",
+    status: "DRAFT",
+    tab: "draft",
+    color: "text-[#000000]",
+    bg: "bg-[#000]",
   },
 ];
 
@@ -37,7 +52,11 @@ export default function MyShopTabs({
   reviewing: number;
 }) {
   const { loading } = useAuth() as IAUTH;
-  const [isActiveTab, setIsActiveTab] = useState("Active");
+  const {
+    myProdActiveTab: isActiveTab,
+    setMyProdActiveTab: setIsActiveTab,
+    setMyProdQueryTab,
+  } = useApp() as AppContextProps;
 
   const renderStatus = (label: string) => {
     switch (label) {
@@ -55,27 +74,34 @@ export default function MyShopTabs({
     }
   };
 
-  const onPress = (tab: string) => {
-    setIsActiveTab(tab);
+  const onPress = (tab: string, q: string) => {
+    setIsActiveTab!(tab);
+    setMyProdQueryTab!(q);
   };
   return (
-    <View className=" gap-9 px-3.5 pt-9">
+    <View className=" gap-2 px-3.5 pt-4">
       <Text className="text-grey-9 font-semibold">My Shop</Text>
-      <View className="flex-row ">
+      <View className="flex-row">
         {tabs.map((tab) => {
           return (
             <ButtonSecondary
               text={`${tab.label} (${
                 loading ? "..." : renderStatus(tab.label)
               })`}
-              customStyles={`border-0 min-w-[1px] flex-1 ${
-                isActiveTab === tab.label && "bg-purple"
+              customStyles={`border-0 min-w-[1px] flex-1 min-h-[5px] py-1 px-0.5  rounded-3xl  ${
+                isActiveTab === tab.status && tab.bg
               }`}
-              customTextStyles={`${tab.color} font-semibold ${
-                isActiveTab === tab.label && "text-white"
-              }`}
+              customTextStyles={`${tab.color}  font-semibold text-center ${
+                isActiveTab === tab.status && "text-white"
+              } ${
+                isActiveTab === "INACTIVE" && tab.status === "INACTIVE"
+                  ? "text-[#fff]"
+                  : tab.color
+              }  
+               
+              `}
               key={tab.label}
-              onPress={() => onPress(tab.label)}
+              onPress={() => onPress(tab.status, tab.tab)}
             />
           );
         })}

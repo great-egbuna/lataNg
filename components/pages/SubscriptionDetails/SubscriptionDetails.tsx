@@ -4,7 +4,7 @@ import SubscriptionSuggestions from "@/components/pages/SubscriptionDetails/Subs
 
 export default function SubscriptionDetailsPageComponent() {
   return (
-    <View className={"px-3 py-9"}>
+    <View className={"px-3 py-4"}>
       <SubscriptionDetailsTop />
 
       <SubscriptionSuggestions />

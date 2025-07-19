@@ -3,6 +3,7 @@ import { Stack } from "expo-router";
 import "./globals.css";
 import { GoogleSignin } from "@react-native-google-signin/google-signin";
 
+
 export default function RootLayout() {
   useEffect(() => {
     GoogleSignin.configure({

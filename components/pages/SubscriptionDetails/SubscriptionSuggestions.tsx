@@ -40,8 +40,8 @@ export default function SubscriptionSuggestions() {
   }
 
   return (
-    <View className={"gap-6 mt-4"}>
-      <Text className={"font-semibold text-sm text-grey-8-100 self-center"}>
+    <View className={"gap-4 mt-4"}>
+      <Text className={"font-semibold text-base text-grey-8-100 "}>
         Have a different product?
       </Text>
 

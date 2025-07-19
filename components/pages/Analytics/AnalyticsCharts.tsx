@@ -70,15 +70,15 @@ export default function AnalyticsCharts() {
   }
 
   return (
-    <View>
-      <View className={"flex-row justify-between items-center"}>
-        <Text className={"flex-1"}>Sales Chart</Text>
+    <View className="mb-6">
+      <View className={"flex-row justify-between items-center my-2"}>
+        <Text className={"flex-1"}>Product Insights</Text>
 
         <DropdownInput
           placeholder={months.find((m) => m.month === selectedMonth)?.name}
           data={months}
           onSelect={handleMonthSelect}
-          className={"flex-1"}
+          className={"flex-1 relative"}
         />
       </View>
       {/*   <AnalyticsBarChart
@@ -88,7 +88,9 @@ export default function AnalyticsCharts() {
       {error ? (
         <Text className="text-red-500 text-center my-2">{error}</Text>
       ) : (
-        <View>
+        <View
+          className={"border border-grey-2 mb-3 rounded-lg py-4 px-2 gap-2"}
+        >
           <AnalyticsCard
             text_one={"Product Views"}
             text_two={formatNumber(monthlyClicks.productViews)}

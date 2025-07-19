@@ -21,16 +21,23 @@ export default function BalanceComponent() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [checkoutUrl, setCheckoutUrl] = useState("");
   const [showCheckout, setShowCheckout] = useState(false);
-
+  const [rechargeError, setRechargeError] = useState<string | undefined>(
+    undefined
+  );
   const handleRecharge = async () => {
     if (!amount || isNaN(Number(amount)) || Number(amount) <= 0) {
       Alert.alert("Invalid Amount", "Please enter a valid amount");
       return;
     }
 
-    setIsProcessing(true);
-
     try {
+      if (Number(amount) < 5000) {
+        setRechargeError("Amount must be greater than 5000");
+        return;
+      }
+      setIsProcessing(true);
+      setRechargeError(undefined);
+
       const response = await paymentService.getWalletCreditCredentials(
         Number(amount)
       );
@@ -161,34 +168,36 @@ export default function BalanceComponent() {
   }
 
   return (
-    <View className={"border border-grey-2 rounded-[10px] gap-6 p-6 h-full"}>
+    <View className={"border border-grey-2 rounded-[10px] gap-6 p-6 h-"}>
       <View className={"gap-2"}>
-        <Text className={"font-semibold text-grey-9 text-sm"}>My Balance</Text>
-        <Text className={"font-normal text-grey-8-100 text-small"}>
+        <Text className={"font-semibold text-grey-9 text-lg"}>My Balance</Text>
+        <Text className={"font-normal text-grey-8-100 "}>
           You can use your balance to pay for subscription packages
         </Text>
       </View>
 
-      <View
-        className={
-          "bg-purple-2 w-[114px] h-[85px] rounded-[5px] justify-center gap-3 px-6"
-        }
-      >
-        <Text className={"font-normal text-tiny text-grey-8-100"}>
-          Available balance
-        </Text>
-        <Text className={"font-semibold text-grey-10 text-base"}>
-          #{wallet?.balance}
-        </Text>
+      <View className="flex-row">
+        <View
+          className={
+            "bg-purple-2  rounded-[1px] justify-center gap-3 px-6 py-3"
+          }
+        >
+          <Text className={"font-normal  text-grey-8-100"}>
+            Available balance
+          </Text>
+          <Text className={"font-semibold text-grey-10 text-base"}>
+            #{wallet?.balance}
+          </Text>
+        </View>
       </View>
 
       <TouchableOpacity
         className={
-          "bg-purple w-[174px] h-[32px] items-center justify-center rounded-lg"
+          "bg-purple w-[174px] h-[32px] items-center justify-center rounded-xl"
         }
         onPress={() => setModalVisible(true)}
       >
-        <Text className={"text-white font-semibold text-base"}>Recharge</Text>
+        <Text className={"text-white font-bold text-base"}>Recharge</Text>
       </TouchableOpacity>
 
       {/* Recharge Modal */}
@@ -216,6 +225,9 @@ export default function BalanceComponent() {
                 onChangeText={setAmount}
                 className="text-base"
               />
+              {rechargeError && (
+                <Text className="text-red-500 text-sm">{rechargeError}</Text>
+              )}
             </View>
 
             <Button

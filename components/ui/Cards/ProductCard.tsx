@@ -5,21 +5,22 @@ import {
   Text,
   TouchableOpacity,
   View,
+  useWindowDimensions,
 } from "react-native";
 
 import IonIcons from "@expo/vector-icons/Ionicons";
-import { truncateString } from "@/utils/utils";
 import { colors } from "@/colors";
 import { AppContextProps, useApp } from "@/context/AppContext";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { showToast } from "@/components/general/Toast";
 import { useSavedProducts } from "@/hooks/useProducts";
 import { IAUTH } from "@/interfaces/context/auth";
 import { useAuth } from "@/context/AuthContext";
+import { FontAwesome6 } from "@expo/vector-icons";
 
 interface Props {
-  discount?: string;
-  price: string;
+  discount: number;
+  price: number;
   name: string;
   desc: string;
   location: string;
@@ -29,6 +30,7 @@ interface Props {
   onPress?: () => void;
   isOwnProduct: boolean;
   id: string;
+  review?: boolean;
 }
 
 export default function ProductCard({
@@ -43,12 +45,19 @@ export default function ProductCard({
   saved = false,
   isOwnProduct,
   id,
+  review,
 }: Props) {
-  const { states } = useApp() as AppContextProps;
-  const { checkIfProductIsSaved, toggleSaveProduct } = useSavedProducts();
+  const { width } = useWindowDimensions();
+  const { states, setSaveProductId, saveProductId } =
+    useApp() as AppContextProps;
+  const { checkIfProductIsSaved, toggleSaveProduct, savedProducts } =
+    useSavedProducts();
   const { user, isLoggedIn } = useAuth() as IAUTH;
-
   const [isSaving, setIsSaving] = useState(false);
+  const [isSaved, setIsSaved] = useState(saved || false);
+
+  const uuidRgx =
+    /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}/;
 
   const getState = (id: string) => {
     if (states) {
@@ -77,9 +86,16 @@ export default function ProductCard({
         return;
       }
 
+      setIsSaved(!isSaved);
+
       setIsSaving(true);
       await toggleSaveProduct(id);
       setIsSaving(false);
+
+      setSaveProductId!((prevId: string | undefined) => {
+        if (prevId === id) return undefined;
+        return id;
+      });
     } catch (error: any) {
       setIsSaving(false);
       showToast({
@@ -90,69 +106,153 @@ export default function ProductCard({
     }
   };
 
+  const getCardWidth = () => {
+    if (width > 800) {
+      return "max-w-[400px]";
+    } else {
+      return "may-w-[380px]";
+    }
+  };
+
+  const calculateDiscount = (discount: number) => {
+    const discountFloat = discount / 100;
+    const discountedPrice = price * discountFloat;
+
+    const priceAfterDiscount = price - discountedPrice;
+
+    return priceAfterDiscount.toLocaleString();
+  };
+
+  const handleCardClick = () => {
+    onPress!();
+    /* router.push(`/product/${id}`); */
+  };
+
+  useEffect(() => {
+    setIsSaved(checkIfProductIsSaved(id));
+  }, [saveProductId, savedProducts]);
+
   return (
     <TouchableOpacity
-      className="flex-1 max-w-[194px] border border-grey-2 p-2 rounded-lg relative"
-      onPress={onPress}
+      className={`flex-1 ${getCardWidth()} border border-grey-2 p-2 rounded-lg relative `}
+      onPress={handleCardClick}
     >
-      <Image
-        className="w-full h-[148px] rounded-md"
-        resizeMode="contain"
-        source={{ uri: imgSource as string }}
-      />
+      <View className="relative">
+        <Image
+          className="w-full h-[148px] rounded-md bg-indigo-100/40"
+          source={{ uri: imgSource as string }}
+        />
+        {review && (
+          <View className="absolute inset-0 items-end justify-end">
+            <View className="bg-white border border-purple px-3 py-1 rounded">
+              <Text className="text-purple">Under Review</Text>
+            </View>
+          </View>
+        )}
+      </View>
 
-      <View className="my-8 gap-[6px]">
-        {discount && (
-          <Label text={`${discount}% OFF`} className="bg-[#fe0707]" />
+      <View className="my-2 gap-[6px]">
+        {!!discount && (
+          <Label
+            text={`${discount}% OFF`}
+            labelClassName="bg-[#fe0707] px-2 max-w-[100px]"
+          />
         )}
 
-        <Text className="text-purple font-semibold text-xs">N{price}</Text>
+        <Discount
+          isDiscount={!!discount}
+          price={price}
+          calculateDiscount={calculateDiscount}
+          discount={discount}
+        />
+        <Text className="font-semibold text-lg tracking-[-0.72px]">{name}</Text>
 
-        <View className="flex-row justify-between items-center gap-2">
-          <Text className="max-w-[50px]">{name}</Text>
+        <Text className="text-lg text-grey-8 font-normal w-full  tracking-[-0.72px] line-clamp-2">
+          {desc}
+        </Text>
 
-          <View className="flex-1 items-end">
+        <View className=" flex-row items-center justify-between gap-4 flex-1">
+          <View className="flex-row items-center ">
+            <IonIcons name="location-outline" size={16} />
+
+            <Text className="text-lg text-grey-8 font-normal shrink">
+              {/*   {getState(location)} */}
+
+              {uuidRgx.test(location) ? getState(location) : location}
+            </Text>
+          </View>
+
+          {!isOwnProduct && (
             <Pressable
               className="w-6 h-6 rounded-full flex items-center justify-center bg-offwhite "
               onPress={handleSaveProduct}
               disabled={isSaving}
             >
               <IonIcons
-                name={
-                  checkIfProductIsSaved(id) ? "bookmark" : "bookmarks-outline"
-                }
+                name={isSaved ? "bookmark" : "bookmarks-outline"}
                 size={16}
                 color={colors.purple}
               />
             </Pressable>
-          </View>
-        </View>
-
-        <Text className="text-xs text-grey-8 font-normal w-full max-w-[92px]">
-          {truncateString(desc)}
-        </Text>
-
-        <View className="flex-row items-center">
-          <IonIcons name="location-outline" />
-
-          <Text className="text-xs text-grey-8 font-normal w-full max-w-[92px]">
-            {getState(location)}
-          </Text>
+          )}
         </View>
       </View>
-      {label && (
-        <Label text={label as string} className="absolute left-0 top-0" />
+      {!!label && (
+        <Label
+          text={label as string}
+          labelClassName="absolute left-2 top-2 bg-purple"
+        />
       )}
     </TouchableOpacity>
   );
 }
 
-const Label = ({ text, className }: { text: string; className?: string }) => {
+const Label = ({
+  text,
+  labelClassName,
+}: {
+  text: string;
+  labelClassName?: string;
+}) => {
   return (
     <View
-      className={`bg-purple w-[67px] py-1.5 px-3 rounded-br-[3px] justify-center items-center ${className}`}
+      className={`bg-purpl py-1.5 px-3 rounded-br-[3px] justify-center items-center rounded w-fit, ${labelClassName}`}
     >
-      <Text className="text-white font-normal text-[10px]">{text}</Text>
+      <Text className="text-white font-normal text-base">{text}</Text>
+    </View>
+  );
+};
+
+const Discount = ({
+  discount,
+  isDiscount,
+  price,
+  calculateDiscount,
+}: {
+  isDiscount: boolean;
+  discount: number;
+  price: number;
+  calculateDiscount: (discount: number) => string;
+}) => {
+  if (!isDiscount)
+    return (
+      <Text className="text-purple font-extrabold text-xl tracking-[-0.72px]">
+        <FontAwesome6 name="naira-sign" size={20} />
+        {price?.toLocaleString()}
+      </Text>
+    );
+
+  return (
+    <View>
+      <Text className="text-gray-400 font-extrabold text-lg line-through">
+        <FontAwesome6 name="naira-sign" size={20} />
+        {price?.toLocaleString()}
+      </Text>
+
+      <Text className="text-purple font-extrabold text-xl ">
+        <FontAwesome6 name="naira-sign" size={20} />
+        {calculateDiscount(discount)}
+      </Text>
     </View>
   );
 };

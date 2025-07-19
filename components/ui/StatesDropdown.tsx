@@ -1,6 +1,6 @@
-import React from "react";
+import React, { useEffect } from "react";
 
-import { View } from "react-native";
+import { ScrollView, View } from "react-native";
 import DropdownInput from "../general/Dropdown";
 import { AppContextProps, useApp } from "@/context/AppContext";
 
@@ -14,8 +14,14 @@ export default function StatesDropdown({ onSelect, show }: Props) {
 
   if (!show) return <></>;
   return (
-    <View className={`absolute top-full left-0 right-0 bg-white rounded-md `}>
-      <DropdownInput data={states} onSelect={onSelect} open />
-    </View>
+    <>
+      <DropdownInput
+        data={states}
+        onSelect={onSelect}
+        className="right-5 top-7 rounded-md shadow  "
+        open
+        btnClassName="hidden"
+      />
+    </>
   );
 }

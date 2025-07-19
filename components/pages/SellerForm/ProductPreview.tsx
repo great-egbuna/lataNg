@@ -4,9 +4,15 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 
 interface ProductPreviewProps {
   imgSource?: ImageSourcePropType;
+  name?: string;
+  price?: number;
 }
 
-export default function ProductPreview({ imgSource }: ProductPreviewProps) {
+export default function ProductPreview({
+  imgSource,
+  name,
+  price,
+}: ProductPreviewProps) {
   return (
     <View className={"border border-grey-1 rounded-lg p-3 gap-3"}>
       <Text className={"text-grey-8 text-sm font-normal"}>
@@ -31,9 +37,13 @@ export default function ProductPreview({ imgSource }: ProductPreviewProps) {
         )}
       </View>
 
-      <Text className={"text-purple font-semibold text-xs"}>Product name</Text>
-      <Text className={"text-grey-9 font-normal text-small"}>
-        Product price
+      <Text className={"text-purple font-semibold text-base"}>
+        {name || "Product name"}
+      </Text>
+      <Text className={"text-grey-9 font-normal text-sm"}>
+        {price?.toLocaleString()
+          ? `N${price?.toLocaleString()}`
+          : " Product price"}
       </Text>
 
       <IconText

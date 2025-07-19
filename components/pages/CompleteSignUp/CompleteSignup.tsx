@@ -4,6 +4,7 @@ import { Formik, FormikProps } from "formik";
 import {
   Image,
   ImageSourcePropType,
+  Pressable,
   Text,
   TouchableOpacity,
   View,
@@ -18,12 +19,12 @@ import Loader from "@/components/general/Loader";
 import * as ImagePicker from "expo-image-picker";
 import { authService } from "@/services/auth.service";
 import { showToast } from "@/components/general/Toast";
-import { Image as ExpoImage } from "expo-image";
 import { useRouter } from "expo-router";
 import { useAuth } from "@/context/AuthContext";
 import { IAUTH } from "@/interfaces/context/auth";
 import { save } from "@/store/storage";
 import { AppContextProps, ISocialUser, useApp } from "@/context/AppContext";
+import * as Linking from "expo-linking";
 
 const phoneNumberValidation = yup
   .string()
@@ -62,24 +63,20 @@ const schemaValidation = yup.object().shape({
 
 const registerFields = [
   {
-    placeholder: "Enter  business name",
+    placeholder: "Enter  Business Name",
     name: "name",
   },
 
   {
-    placeholder: "Enter  email",
-    name: "email",
-  },
-  {
-    placeholder: "Enter business location",
+    placeholder: "Enter Business Location",
     name: "address",
   },
   {
-    placeholder: "Enter phone number",
+    placeholder: "Enter Phone Number",
     name: "phoneNumber",
   },
   {
-    placeholder: "About business",
+    placeholder: "About Business",
     name: "aboutBusiness",
   },
 
@@ -154,6 +151,9 @@ export default function CompleteSignUpComponent() {
     }
   };
 
+  const handleTermsAndConditions = () =>
+    Linking.openURL("https://lata.ng/terms-and-conditions");
+
   return (
     <View className=" mt-12 pb-10">
       <Image source={images.lataLogoSmall} />
@@ -161,10 +161,10 @@ export default function CompleteSignUpComponent() {
         Complete Your Profile
       </Text>
 
-      <View className="flex-row items-center gap-3 mb-5 ">
+      <View className="flex items-center gap-1 mb-5 ">
         {avatar ? (
-          <ExpoImage
-            source={{ uri: avatar as ImageSourcePropType }}
+          <Image
+            source={{ uri: avatar }}
             className="w-[60px] h-[60px] rounded-full"
           />
         ) : (
@@ -178,7 +178,7 @@ export default function CompleteSignUpComponent() {
           </TouchableOpacity>
         )}
 
-        <Text className="font-normal text-xs text-grey-6 text-center ">
+        <Text className="font-light text-lg text-grey-6 text-center tracking-[-0.72px]">
           Add a profile picture or your business logo
         </Text>
       </View>
@@ -201,7 +201,7 @@ export default function CompleteSignUpComponent() {
           values,
           errors,
         }: FormikProps<any>) => (
-          <View className="gap-10">
+          <View className="gap-4 h-full">
             {registerFields.map((field, index) => {
               return (
                 <View key={index}>
@@ -210,8 +210,8 @@ export default function CompleteSignUpComponent() {
                     onChangeText={handleChange(field.name)}
                     onBlur={handleBlur(field.name)}
                     value={values[field.name]}
-                    customStyles="bg-white"
-                    customInputStyles="bg-white border rounded-md border-grey-12"
+                    customStyles="bg-white "
+                    customInputStyles="bg-white border rounded-md border-grey-12 py-2 px-3 min-h-[16px]"
                     editable={!(field.name === "email" && socialUser?.email)}
                   />
 
@@ -239,23 +239,24 @@ export default function CompleteSignUpComponent() {
               />
 
               <Link href={"/login"}>
-                <Text className="font-normal text-small text-grey-6 text-center mx-auto">
+                <Text className="font-normal text-base text-grey-6 text-center mx-auto">
                   Already have an account?{" "}
-                  <Text className="text-purple text-small">Login</Text>
+                  <Text className="text-purple text-base">Login</Text>
                 </Text>
               </Link>
 
               <View className="flex-row items-center gap-[10px]">
-                <View className="flex-1 h-0.5 bg-grey-4" />
-                <Text className="font-normal text-grey-6">Or login with</Text>
-                <View className="flex-1 h-0.5 bg-grey-4" />
+                <View className="flex-1 h-0.5 bg-gray-300" />
+                <Text className="font-normal text-grey-6">Or Login with</Text>
+                <View className="flex-1 h-0.5 bg-gray-300" />
               </View>
-
-              <Text className="font-normal text-small text-grey-6 text-center mx-auto">
-                By creating an account, you agree to the and{" "}
-                <Text className="text-purple">Terms and Conditions</Text>{" "}
-                <Text className="text-purple">Privacy Policy</Text>
-              </Text>
+              <Pressable onPress={handleTermsAndConditions}>
+                <Text className="font-normal text-base text-grey-6 text-center mx-auto">
+                  By creating an account, you agree to the and{" "}
+                  <Text className="text-purple">Terms and Conditions</Text>{" "}
+                  <Text className="text-purple">Privacy Policy</Text>
+                </Text>
+              </Pressable>
             </View>
           </View>
         )}

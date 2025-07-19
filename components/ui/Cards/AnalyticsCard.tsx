@@ -16,21 +16,19 @@ export default function AnalyticsCard({
   textClassName,
 }: Props) {
   return (
-    <View className={"border border-grey-2 mb-3 rounded-lg p-4"}>
+    <View>
       <View
-        className={`border border-grey-2  rounded-lg px-6 py-7 bg-purple gap-4 ${className}`}
+        className={`border border-grey-2  rounded-lg px-6 py-4 bg-purple gap-2 ${className}`}
       >
-        <Text className={`font-normal text-sm text-grey-10 ${textClassName}`}>
+        <Text className={`font-normal text-base text-grey-10 ${textClassName}`}>
           {text_one}
         </Text>
         <Text
-          className={`font-medium text-sm text-grey-10 text-2xl ${textClassName}`}
+          className={`font-bold text-lg text-grey-10 text-2xl ${textClassName}`}
         >
           {text_two}
         </Text>
-        <Text
-          className={`font-normal text-small text-grey-10 ${textClassName} `}
-        >
+        <Text className={`font-normal text-sm text-gray-500 ${textClassName} `}>
           {text_three}
         </Text>
       </View>

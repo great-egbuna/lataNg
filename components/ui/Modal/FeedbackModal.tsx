@@ -15,7 +15,11 @@ import { useAuth } from "@/context/AuthContext";
 import { IAUTH } from "@/interfaces/context/auth";
 import { colors } from "@/colors";
 
-export default function FeedbackModal() {
+interface Props {
+  productId?: string;
+}
+
+export default function FeedbackModal(props: Props) {
   const {
     feedbackOpen,
     setFeedbackOpen,
@@ -61,11 +65,13 @@ export default function FeedbackModal() {
     }
 
     setIsSubmitting(true);
+    console.log("feedbackProductId", feedbackProductId);
+    console.log("productId", props?.productId);
 
     try {
       const result = await feedbackService.createFeedback({
         type: "PRODUCT",
-        productId: feedbackProductId,
+        productId: feedbackProductId || props?.productId,
         description,
         rating,
         sender: user?.name || "Anonymous",

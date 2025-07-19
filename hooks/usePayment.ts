@@ -39,7 +39,7 @@ export function useSubscriptionPayment(
       if (result instanceof Error) {
         setError(result);
         options.onError?.(result);
-        return null;
+        return result;
       }
 
       setPaymentData(result);
@@ -50,7 +50,7 @@ export function useSubscriptionPayment(
         err instanceof Error ? err : new Error("An unexpected error occurred");
       setError(error);
       options.onError?.(error);
-      return null;
+      return err;
     } finally {
       setLoading(false);
     }

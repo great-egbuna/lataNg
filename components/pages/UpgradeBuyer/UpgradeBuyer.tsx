@@ -4,6 +4,7 @@ import { Formik, FormikProps } from "formik";
 import {
   Image,
   ImageSourcePropType,
+  Pressable,
   Text,
   TouchableOpacity,
   View,
@@ -23,6 +24,7 @@ import { useRouter } from "expo-router";
 import { AppContextProps, ISocialUser, useApp } from "@/context/AppContext";
 import { useAuth } from "@/context/AuthContext";
 import { IAUTH } from "@/interfaces/context/auth";
+import RoundedImage from "@/components/ui/RoundedImage";
 
 const phoneNumberValidation = yup
   .string()
@@ -92,10 +94,12 @@ export default function UpgradeBuyerComponent() {
   const { user } = useAuth() as IAUTH;
   const { name, shouldCompleteProfile, role, ...newUser } = user as ISocialUser;
 
+  console.log("avatar", user?.avatar);
+
   const router = useRouter();
 
   const [loading, setLoading] = useState(false);
-  const [avatar, setAvatar] = useState<string | null>(null);
+  const [avatar, setAvatar] = useState<string | null>(user?.avatar || null);
 
   const onSubmit = async (
     values: any,
@@ -154,10 +158,12 @@ export default function UpgradeBuyerComponent() {
 
       <View className="flex-row items-center gap-3 mb-5 ">
         {avatar ? (
-          <ExpoImage
-            source={{ uri: avatar as ImageSourcePropType }}
-            className="w-[60px] h-[60px] rounded-full"
-          />
+          <Pressable onPress={handleImageUpload}>
+            <RoundedImage
+              imgSource={{ uri: avatar }}
+              className="w-[60px] h-[60px] rounded-full"
+            />
+          </Pressable>
         ) : (
           <TouchableOpacity
             className={
@@ -192,7 +198,7 @@ export default function UpgradeBuyerComponent() {
           values,
           errors,
         }: FormikProps<any>) => (
-          <View className="gap-10">
+          <View className="gap-4">
             {registerFields.map((field, index) => {
               return (
                 <View key={index}>
@@ -202,7 +208,7 @@ export default function UpgradeBuyerComponent() {
                     onBlur={handleBlur(field.name)}
                     value={values[field.name]}
                     customStyles="bg-white"
-                    customInputStyles="bg-white border rounded-md border-grey-12"
+                    customInputStyles="bg-white border rounded-md border-grey-12 py-2 px-2"
                     editable={
                       !(field.name === "email" || field.name === "referrerCode")
                     }

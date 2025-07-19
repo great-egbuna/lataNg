@@ -11,9 +11,13 @@ const safetyTips = [
 
 export default function SafetyTips() {
   return (
-    <View className={"px-6 py-6"}>
+    <View>
       <View className={"border border-grey-2 rounded-[10px] p-4"}>
-        <Text className={"text-grey-10 font-semibold text-sm mb-3"}>
+        <Text
+          className={
+            "text-grey-10 font-semibold text-xl tracking-[-0.72px] mb-3"
+          }
+        >
           Safety tips
         </Text>
 

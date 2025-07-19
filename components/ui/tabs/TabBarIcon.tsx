@@ -15,13 +15,12 @@ export default function TabBarIcon({
   focused,
   customStyles,
 }: Props) {
-
   return (
     <View className="w-full  items-center">
       <MaterialIcons
         name={icon}
         color={focused ? "#f6f6f6" : "#ababab"}
-        size={28}
+        size={24}
         className={customStyles}
       />
       <Text

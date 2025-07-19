@@ -10,8 +10,9 @@ import { IAUTH } from "@/interfaces/context/auth";
 import { useSearch, ISearchContextProps } from "@/context/SearchContext";
 
 export default function AppLayout() {
-  const { setNavOpen, navOpen } = useApp() as AppContextProps;
-  const { user } = useAuth() as IAUTH;
+  const { setNavOpen, navOpen, subCategories, setSubCategoryProducts } =
+    useApp() as AppContextProps;
+  const { user, isLoggedIn } = useAuth() as IAUTH;
   const { searchResult, setSearchResult } = useSearch() as ISearchContextProps;
 
   return (
@@ -25,7 +26,7 @@ export default function AppLayout() {
 
           tabBarStyle: {
             backgroundColor: "#5113a1",
-            minHeight: 102,
+            minHeight: 70,
           },
           tabBarIconStyle: {
             flex: 1,
@@ -37,8 +38,12 @@ export default function AppLayout() {
           name="index"
           listeners={{
             tabPress: () => {
-              if (searchResult && searchResult.length > 0) {
+              if (searchResult && searchResult?.length > 0) {
                 setSearchResult([]);
+              }
+
+              if (subCategories && subCategories?.length > 0) {
+                setSubCategoryProducts(null);
               }
             },
           }}
@@ -46,11 +51,7 @@ export default function AppLayout() {
             headerShown: false,
             tabBarIcon: ({ focused }) => {
               return (
-                <TabBarIcon
-                  text={user?.role === "SELLER" ? "My shop" : "Home"}
-                  focused={focused}
-                  icon={"home"}
-                />
+                <TabBarIcon text={"Home"} focused={focused} icon={"home"} />
               );
             },
           }}
@@ -59,7 +60,8 @@ export default function AppLayout() {
           name="message"
           options={{
             headerShown: false,
-            href: null,
+            //href: null,
+            href: user?.role === "SELLER" ? "/message" : null,
             tabBarIcon: ({ focused }) => {
               return (
                 <TabBarIcon
@@ -75,6 +77,7 @@ export default function AppLayout() {
           name="sell"
           options={{
             headerShown: false,
+            href: user?.role === "SELLER" ? "/sell" : "/decision",
             tabBarIcon: ({ focused }) => {
               return (
                 <TabBarIcon
@@ -88,9 +91,27 @@ export default function AppLayout() {
           }}
         />{" "}
         <Tabs.Screen
+          name="shop"
+          options={{
+            headerShown: false,
+            href: user?.role === "SELLER" ? "/shop" : null,
+            tabBarIcon: ({ focused }) => {
+              if (user?.role === "SELLER")
+                return (
+                  <TabBarIcon
+                    focused={focused}
+                    text="My Shop"
+                    icon={"storefront"}
+                  />
+                );
+            },
+          }}
+        />
+        <Tabs.Screen
           name="notifications"
           options={{
             headerShown: false,
+            href: isLoggedIn ? "/notifications" : "/login",
             tabBarIcon: ({ focused }) => {
               return (
                 <TabBarIcon

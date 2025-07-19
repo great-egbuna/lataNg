@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { colors } from "@/colors";
 import { images } from "@/constants/images";
 import {
@@ -8,23 +8,30 @@ import {
   Text,
   View,
   TouchableOpacity,
+  ScrollView,
 } from "react-native";
 import ButtonSecondary from "@/components/general/ButtonSecondary";
 import DropdownInput from "@/components/general/Dropdown";
 import { AppContextProps, ICategory, useApp } from "@/context/AppContext";
 import { useRouter } from "expo-router";
-import { DUMMY_REELS } from "@/components/pages/Reels/ReelsComponent";
 import { Reel } from "../Reels";
 import CategoriesOverlay from "@/components/ui/Categories/CategoriesOverlay";
+import FLatlistDropdown, {
+  Dropdown,
+} from "@/components/general/FlatlistDropDown";
+import SubCategoroyProducts from "./SubCategoryProduct";
 
 interface Props {
   setCategory: (value: ICategory | null) => void;
+  category?: ICategory;
   title?: string;
+  showTitle?: boolean;
 }
 
 const ReelCircle = ({ item }: Reel) => {
   const router = useRouter();
   const { setSelectedReel } = useApp() as AppContextProps;
+
   return (
     <TouchableOpacity
       style={styles.reelCircle}
@@ -46,25 +53,44 @@ const ReelCircle = ({ item }: Reel) => {
   );
 };
 
-export default function Hero({ setCategory, title }: Props) {
-  const { categories, setSubCategoryProducts, reels } =
+export default function Hero({
+  setCategory,
+  category,
+  title,
+  showTitle = true,
+}: Props) {
+  const { categories, setSubCategoryProducts, subCategoryProducts, reels } =
     useApp() as AppContextProps;
   const [modalVisible, setModalVisible] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
+  const [selectedValue, setSelectedValue] = useState<ICategory | null>(null);
+  const [newCategories, setNewCategories] = useState(categories);
 
   const toggleModal = () => {
     setModalVisible(!modalVisible);
   };
 
+  useEffect(() => {
+    const isExists = categories?.find((ctg) => ctg?.name === "All categories");
+    if (isExists) return;
+    categories?.unshift({ id: "", name: "All categories" });
+    setNewCategories(categories);
+  }),
+    [];
+
   return (
-    <>
+    <View>
       <View
         style={styles.heroBox}
-        className="mt-8 mb-6 flex-row justify-between items-end"
+        className="mt-2  flex-row justify-between items-end rounded "
       >
-        <Image source={images.manWithPhone} className="relative top-[5px]" />
+        <Image
+          source={images.manWithPhone}
+          className="relative top-[5px] h-full"
+        />
         <Image
           source={images.boyGirlWithPhone}
-          className="relative top-[5px]"
+          className="relative top-[5px] h-full"
         />
       </View>
 
@@ -76,32 +102,63 @@ export default function Hero({ setCategory, title }: Props) {
         showsHorizontalScrollIndicator={false}
       />
 
-      <View className="flex-row justify-between mt-8">
+      <View className="flex-row justify-between mt-4">
         {/*  <ButtonSecondary text="Select category" icon={"keyboard-arrow-down"} /> */}
 
-        <DropdownInput
-          placeholder="Select category"
-          className="min-w-[140px] grow-0  py-0.5"
-          btnClassName="py-0 rounded-xl min-h-[32px] border-purple"
-          textClassName="text-purple text-bold"
-          iconColor={colors.purple}
-          data={categories as ICategory[]}
-          onSelect={(value) => {
-            setCategory(value);
-            setSubCategoryProducts(null);
-          }}
-        />
+        <View className="w-[140px] py-0.5">
+          <FLatlistDropdown
+            placeholder={category?.name}
+            btnClassName="py-0 rounded-xl  border-purple min-h-[28px]"
+            textClassName="text-purple text-bold"
+            iconColor={colors.purple}
+            data={newCategories as ICategory[]}
+            isOpen={isOpen}
+            setIsOpen={setIsOpen}
+            selectedValue={selectedValue?.name}
+            setSelectedValue={setSelectedValue}
+          />
+        </View>
+
         <ButtonSecondary
           text="BUY HERE"
-          customStyles="bg-purple"
+          customStyles="bg-purple self-start min-h-[28px]"
           customTextStyles=" text-white font-semibold"
           onPress={toggleModal}
         />
       </View>
+      {isOpen && (
+        <Dropdown
+          onPress={(value) => {
+            setSelectedValue(value);
+            setCategory(value);
+            setSubCategoryProducts(null);
+            setIsOpen(false);
+          }}
+          data={categories as ICategory[]}
+        />
+      )}
 
-      <Text className="text-base my-5 font-semibold">
-        {title || "Trending Products"}
-      </Text>
+      {subCategoryProducts && subCategoryProducts.length === 0 ? (
+        <View className="gap">
+          <Text className="text-base mt-2 font-semibold text-gray-300">
+            No Products Found In That Category
+          </Text>
+
+          <Text className="text-xl my-2 font-semibold">
+            {title || "Trending Products"}
+          </Text>
+        </View>
+      ) : (
+        <>
+          {showTitle && (
+            <Text className={`text-xl  font-semibold my-2`}>
+              {category?.name && category?.name !== "All categories"
+                ? title
+                : title || "Trending Products"}
+            </Text>
+          )}
+        </>
+      )}
 
       {/* Categories Overlay */}
       <CategoriesOverlay
@@ -109,16 +166,16 @@ export default function Hero({ setCategory, title }: Props) {
         onClose={toggleModal}
         title="Select Category to Buy"
       />
-    </>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   heroBox: {
-    flex: 1,
+    /*  flex: 1, */
     backgroundColor: colors.purple,
-    borderRadius: 7,
-    height: 160,
+
+    height: 150,
     padding: 4,
   },
   reelCircle: {

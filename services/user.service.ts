@@ -52,7 +52,6 @@ class UserService {
         }
         data = profileData;
       }
-      console.log("HERE");
 
       const response = await $http.put("/users", data, {
         headers: profileData.file

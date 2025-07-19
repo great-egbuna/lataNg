@@ -30,7 +30,7 @@ module.exports = {
         green: "#26d351",
         offwhite: "#f5f5f5",
         yellow: "#d3ae28",
-        "yello-100": "#e5ae0f",
+        "yellow-100": "#e5ae0f",
       },
       boxShadow: {
         "shadow-mild": "0px 12px 12px red",

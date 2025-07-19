@@ -10,27 +10,20 @@ interface Props {
 export default function LocationBox({ text, onPress }: Props) {
   return (
     <Pressable style={styles.box} onPress={onPress}>
-      <Ionicons name="location-outline" />
-      <Text
-        style={{
-          fontSize: 8,
-        }}
-      >
-        {text}
-      </Text>
+      <Ionicons name="location-outline" size={18} />
+      <Text className="text-lg">{text}</Text>
     </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
   box: {
-    width: 50,
     backgroundColor: colors.offWhite,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
     gap: 4,
-    padding: 10,
+    padding: 5,
     borderRadius: 5,
     height: "100%",
   },

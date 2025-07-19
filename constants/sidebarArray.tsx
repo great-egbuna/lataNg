@@ -16,6 +16,12 @@ export const sidebar = [
   },
 
   {
+    icon: <Ionicons name={"call-outline"} color={"#292929"} size={16} />,
+    label: "Messages",
+    path: "/message",
+  },
+
+  {
     icon: (
       <MaterialCommunityIcons
         name="bookmark-multiple-outline"
@@ -25,6 +31,14 @@ export const sidebar = [
     ),
     label: "Saved",
     path: "/saved",
+  },
+
+  {
+    icon: (
+      <MaterialCommunityIcons name="storefront" size={16} color={"#292929"} />
+    ),
+    label: "My Shop",
+    path: "/shop",
   },
 
   {
@@ -77,14 +91,17 @@ export const sidebar = [
 
   {
     icon: <MaterialCommunityIcons name={"table"} size={16} color={"#292929"} />,
-    label: "Sales Agreement",
-    path: "/sales-agreement",
-  },
-  {
-    icon: <MaterialCommunityIcons name={"table"} size={16} color={"#292929"} />,
     label: "Reels",
     path: "/create-reel",
   },
+  {
+    icon: (
+      <MaterialIcons name={"pending-actions"} size={16} color={"#292929"} />
+    ),
+    label: "Sales Agreement",
+    path: "/sales-agreement",
+  },
+
   {
     icon: <MaterialIcons name={"logout"} size={16} color={"#292929"} />,
     label: "Logout",
@@ -100,7 +117,11 @@ export const buyerSidebar = [
     label: "Home",
     path: "/",
   },
-
+  {
+    icon: <Ionicons name={"call-outline"} color={"#292929"} size={16} />,
+    label: "Messages",
+    path: "/message",
+  },
   {
     icon: (
       <MaterialCommunityIcons
@@ -111,6 +132,13 @@ export const buyerSidebar = [
     ),
     label: "Saved",
     path: "/saved",
+  },
+  {
+    icon: (
+      <MaterialIcons name="notifications-none" size={16} color={"#292929"} />
+    ),
+    label: "Notifications",
+    path: "/notifications",
   },
 
   {
@@ -143,6 +171,11 @@ export const notLoggedInSidebar = [
 
   {
     icon: <Ionicons name={"call-outline"} color={"#292929"} size={16} />,
+    label: "Message",
+    path: "/message",
+  },
+  {
+    icon: <Ionicons name={"call-outline"} color={"#292929"} size={16} />,
     label: "Call Manager",
     path: "/call-manager",
   },
@@ -153,3 +186,49 @@ export const notLoggedInSidebar = [
     path: "/logout",
   },
 ];
+
+export const getNotLoggedInSidebar = (isLoggedIn: boolean) => {
+  return [
+    {
+      icon: (
+        <MaterialCommunityIcons
+          name="home-outline"
+          size={16}
+          color={"#292929"}
+        />
+      ),
+      label: "Home",
+      path: "/",
+    },
+
+    {
+      icon: <MaterialIcons name={"mail-outline"} color={"#292929"} size={16} />,
+      label: "Messages",
+      path: isLoggedIn ? "/message" : "/login",
+    },
+    {
+      icon: (
+        <MaterialCommunityIcons
+          name="bookmark-multiple-outline"
+          size={16}
+          color={"#292929"}
+        />
+      ),
+      label: "Saved",
+      path: isLoggedIn ? "/saved" : "/login",
+    },
+    {
+      icon: (
+        <MaterialIcons name="notifications-none" size={16} color={"#292929"} />
+      ),
+      label: "Notifications",
+      path: isLoggedIn ? "/notifications" : "/login",
+    },
+
+    {
+      icon: <SimpleLineIcons name={"settings"} color={"#292929"} size={16} />,
+      label: "Settings",
+      path: isLoggedIn ? "/profile-form" : "/login",
+    },
+  ];
+};

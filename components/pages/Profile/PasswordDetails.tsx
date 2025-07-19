@@ -88,7 +88,7 @@ export default function PasswordDetails({
 
   return (
     <View
-      className={"p-6 border border-offwhite rounded-[7px] gap-3 flex-1 my-4"}
+      className={"p-2 border border-offwhite rounded-[7px] gap-2  flex-1 my-4"}
     >
       <HeaderComponent />
 
@@ -98,7 +98,7 @@ export default function PasswordDetails({
           isNewPasswordDisabled;
 
         return (
-          <View key={index} className={"flex-1"}>
+          <View key={index} className={"flex-1 "}>
             <Text
               className={`text-grey-9 font-normal ${
                 isDisabled ? "text-grey-6" : ""
@@ -138,11 +138,11 @@ export default function PasswordDetails({
               placeholder={item.placeholder}
               secureTextEntry={true}
               editable={!isDisabled}
-              customInputStyles={`rounded-md border px-3 py-2 mt-[8px] ${
+              customInputStyles={`rounded-md border px-3 mt-2  ${
                 item.name === "confirmPassword" && passwordError
                   ? "border-red-500 mb-1"
-                  : "mb-4"
-              } h-[45px] ${
+                  : ""
+              } h-[28px] ${
                 isDisabled
                   ? "bg-grey-2 text-grey-6 border-grey-3"
                   : "bg-white border-grey-5"

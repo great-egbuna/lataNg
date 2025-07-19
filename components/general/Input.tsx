@@ -15,7 +15,7 @@ interface Props {
   multiline?: boolean;
   numberOfLines?: number;
   iconColor?: string;
-  btnClassName?: string;
+  btnClassName?: any;
   iconSize?: number;
   editable?: boolean;
   selectTextOnFocus?: boolean;
@@ -44,10 +44,10 @@ export default function Input({
   secureTextEntry = false,
 }: Props) {
   return (
-    <View className={`rounded flex-row flex-1 ${customStyles}`}>
+    <View className={`rounded flex-row flex-1 ${customStyles} `}>
       <TextInput
         placeholder={placeholder}
-        className={`p-4 flex-1 h-full bg-offwhite rounded-tl-md rounded-bl-md ${customInputStyles}`}
+        className={`p-1 flex-1 bg-offwhite rounded-tl-md rounded-bl-md placeholder:text-gray-700/70 placeholder:text-base ${customInputStyles} `}
         onChangeText={onChangeText}
         onBlur={onBlur}
         /*     value={value} */
@@ -68,18 +68,12 @@ export default function Input({
               <MaterialIcons
                 name="search"
                 color={iconColor || colors.white}
-                size={iconSize || 20}
+                size={iconSize || 13}
               />
             )
           }
-          customStyle={{
-            borderTopLeftRadius: 0,
-            borderBottomLeftRadius: 0,
-            borderBottomRightRadius: 5,
-            borderTopRightRadius: 5,
-            width: 50,
-          }}
-          className={btnClassName}
+          className={`rounded-md  bg-white `}
+          btnStyle={btnClassName}
           onPress={onPress}
           disabled={loading as boolean}
         />

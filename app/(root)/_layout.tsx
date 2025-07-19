@@ -6,6 +6,10 @@ import SearchContextProvider from "@/context/SearchContext";
 import { Slot } from "expo-router";
 import { useEffect, useState } from "react";
 import Toast from "react-native-toast-message";
+import * as SplashScreen from "expo-splash-screen";
+
+
+SplashScreen.preventAutoHideAsync();
 
 export default function Layout() {
   const [mounted, setMounted] = useState(false);

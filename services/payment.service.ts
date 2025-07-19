@@ -27,6 +27,7 @@ class PaymentService {
       });
       return response.data;
     } catch (error: any) {
+      console.log("sub error:", error?.response?.data);
       return new Error(
         error?.response?.data?.message ||
           "Failed to get subscription credentials"

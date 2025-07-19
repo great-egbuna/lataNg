@@ -28,6 +28,18 @@ class FeedbackService {
     }
   }
 
+  async getProductFeedback(productId: string) {
+    try {
+      const res = await $http.get(`/feedbacks/product/${productId}`);
+
+      return res?.data;
+    } catch (error) {
+      return new Error(
+        error?.response?.data?.message || "Failed to fetch product feedback"
+      );
+    }
+  }
+
   async messageLata(message: string) {
     try {
       const response = await $http.post("/feedbacks/message-lata", { message });

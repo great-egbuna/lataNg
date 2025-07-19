@@ -6,37 +6,41 @@ interface Props {
   text?: string;
   icon?: ReactElement;
   customStyle?: Record<string, any>;
-  buttonTextStyle?: Record<string, any>;
+  buttonTextStyle?: string;
   className?: string;
   onPress?: () => void;
   disabled?: boolean;
+  purpleText?: boolean;
+  btnStyle?: any;
 }
 
 export default function Button({
   text,
   icon,
-  customStyle,
   buttonTextStyle,
   className,
   onPress,
   disabled,
+  purpleText = false,
+  btnStyle,
 }: Props) {
   return (
     <Pressable
-      style={customStyle}
       className={`bg-purple flex items-center justify-center py-1 px-2 rounded-base, ${className}`}
       onPress={onPress}
       disabled={disabled}
+      style={{ ...btnStyle }}
     >
-      {text && <Text style={[styles.buttonText, buttonTextStyle]}>{text}</Text>}
+      {text && (
+        <Text
+          className={`${
+            purpleText ? "text-purple" : "text-white"
+          } text-lg ${buttonTextStyle}`}
+        >
+          {text}
+        </Text>
+      )}
       {icon && icon}
     </Pressable>
   );
 }
-
-const styles = StyleSheet.create({
-  buttonText: {
-    color: colors.white,
-    fontSize: 12,
-  },
-});

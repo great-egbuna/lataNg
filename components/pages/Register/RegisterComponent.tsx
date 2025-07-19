@@ -4,7 +4,7 @@ import { Formik, FormikProps } from "formik";
 import {
   Image,
   ImageSourcePropType,
-  Linking,
+  Pressable,
   Text,
   TouchableOpacity,
   View,
@@ -19,11 +19,9 @@ import Loader from "@/components/general/Loader";
 import * as ImagePicker from "expo-image-picker";
 import { authService } from "@/services/auth.service";
 import { showToast } from "@/components/general/Toast";
-import { Image as ExpoImage, type ImageSource } from "expo-image";
 import { useRouter } from "expo-router";
 import { socialAuthService } from "@/services/socialAuth.service";
 import { colors } from "@/colors";
-import { useGoogleAuth } from "@/hooks/useGoogleAuth";
 import { save } from "@/store/storage";
 import { AppContextProps, useApp } from "@/context/AppContext";
 import { buyerFields, sellerFields } from "@/constants/form";
@@ -31,6 +29,7 @@ import { useAuth } from "@/context/AuthContext";
 import { IAUTH } from "@/interfaces/context/auth";
 import { objectToFormData } from "@/utils/utils";
 import { IREGISTER } from "@/interfaces/auth";
+import * as Linking from "expo-linking";
 
 const DEFAULT_USER_ROLE = "BUYER";
 
@@ -136,7 +135,7 @@ export default function RegisterComponent() {
     resetForm();
     setLoading(false);
 
-    setTimeout(() => router.push("/login"), 30000);
+    setTimeout(() => router.push("/login"), 1000);
   };
 
   const handleImageUpload = async () => {
@@ -212,15 +211,18 @@ export default function RegisterComponent() {
     return;
   };
 
+  const handleTermsAndConditions = () =>
+    Linking.openURL("https://lata.ng/terms-and-conditions");
+
   return (
-    <View className=" mt-12 pb-10">
+    <View className=" mt-2 pb-10">
       <Image source={images.lataLogoSmall} />
       <Text className="font-medium text-xl text-grey-9 mt-3 mb-5">
-        Register {decision === "SELLER" ? "seller" : "buyer"}
+        Register {decision === "SELLER" ? "Seller" : "Buyer"}
       </Text>
 
       {decision === "SELLER" && (
-        <View className="flex-row items-center gap-3 mb-5 ">
+        <View className="flex-ro items-center gap-1 mb-5 ">
           {avatar ? (
             <Image
               source={{ uri: avatar as string }}
@@ -238,8 +240,8 @@ export default function RegisterComponent() {
             </TouchableOpacity>
           )}
 
-          <Text className="font-normal text-xs text-grey-6 text-center ">
-            Add a profile picture or your business logo
+          <Text className="font-light text-lg text-gray-700 text-center tracking-[-0.72px] ">
+            Add a Profile Picture or your Business Logo
           </Text>
         </View>
       )}
@@ -259,7 +261,7 @@ export default function RegisterComponent() {
           values,
           errors,
         }: FormikProps<any>) => (
-          <View className="gap-10">
+          <View className="gap-4">
             {registerFields.map((field, index) => {
               return (
                 <View key={index} className="flex-1">
@@ -269,7 +271,7 @@ export default function RegisterComponent() {
                     onBlur={handleBlur(field.name)}
                     value={values[field.name]}
                     customStyles="bg-white "
-                    customInputStyles="bg-white border rounded-md border-grey-12"
+                    customInputStyles="bg-white  border rounded-md border-grey-12 py-2 px-3"
                   />
 
                   {(errors[field.name] as any) && (
@@ -288,20 +290,22 @@ export default function RegisterComponent() {
                   loading ? <Loader size="small" color="white" /> : "Continue"
                 }
                 customStyles="bg-purple rounded-lg w-full   w-full py-2.5 rounded-md"
-                customTextStyles="text-white font-semibold text-base"
+                customTextStyles="text-white font-medium"
               />
 
               <Link href={"/login"}>
-                <Text className="font-normal text-small text-grey-6 text-center mx-auto">
-                  Already have an account?{" "}
-                  <Text className="text-purple text-small">Login</Text>
+                <Text className="font-normal text-base text-grey-6 text-center mx-auto">
+                  Already have an account ?{" "}
+                  <Text className="text-purple text-base">Login</Text>
                 </Text>
               </Link>
 
               <View className="flex-row items-center gap-[10px]">
-                <View className="flex-1 h-0.5 bg-grey-4" />
-                <Text className="font-normal text-grey-6">Or login with</Text>
-                <View className="flex-1 h-0.5 bg-grey-4" />
+                <View className="flex-1 h-0.5 bg-gray-300" />
+                <Text className="font-normal text-grey-6 text-base">
+                  Or Login with
+                </Text>
+                <View className="flex-1 h-0.5 bg-gray-300" />
               </View>
 
               <ButtonSecondary
@@ -313,17 +317,18 @@ export default function RegisterComponent() {
                   )
                 }
                 customStyles="bg-white rounded-lg w-full py-2.5 rounded-md gap-2"
-                customTextStyles="text-purple font-semibold text-base"
+                customTextStyles="text-purple font-semibold"
                 // @ts-ignore
                 iconSrc={loadingSocialAuth ? "" : images.googleIcon}
                 onPress={handleSocialAuth}
               />
-
-              <Text className="font-normal text-small text-grey-6 text-center mx-auto">
-                By creating an account, you agree to the and{" "}
-                <Text className="text-purple">Terms and Conditions</Text>{" "}
-                <Text className="text-purple">Privacy Policy</Text>
-              </Text>
+              <Pressable onPress={handleTermsAndConditions}>
+                <Text className="font-normal text-base text-grey-6  mx-auto">
+                  By creating an account, you agree to the{" "}
+                  <Text className="text-purple">Terms and Conditions</Text> and{" "}
+                  <Text className="text-purple">Privacy Policy</Text>
+                </Text>
+              </Pressable>
             </View>
           </View>
         )}

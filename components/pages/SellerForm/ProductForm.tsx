@@ -9,7 +9,9 @@ import { Formik, FormikProps, FormikValues } from "formik";
 import Input from "@/components/general/Input";
 import * as ImagePicker from "expo-image-picker";
 import Ionicons from "@expo/vector-icons/Ionicons";
-import DropdownInput from "@/components/general/Dropdown";
+import DropdownInput, {
+  DropdownInputView,
+} from "@/components/general/Dropdown";
 import { useState } from "react";
 import { objectToFormData } from "@/utils/utils";
 import { productService } from "@/services/product.service";
@@ -21,18 +23,29 @@ import { useAuth } from "@/context/AuthContext";
 import { IAUTH } from "@/interfaces/context/auth";
 import { Link, useRouter } from "expo-router";
 import { AppContextProps, useApp } from "@/context/AppContext";
+import { OtherImages } from "../MyProducts/EditProduct";
 
 interface ProductFormProps {
   setSelectedImage?: (imgSource: string) => void;
+  productFiles: any[];
+  setShowOverlay: (value: boolean) => void;
+  setSelectedImg: (value: string) => void;
+  setProductFiles: (value: any[]) => void;
 }
 
-export default function ProductForm({ setSelectedImage }: ProductFormProps) {
+export default function ProductForm({
+  setSelectedImage,
+  productFiles,
+  setProductFiles,
+  setShowOverlay,
+  setSelectedImg,
+}: ProductFormProps) {
   const router = useRouter();
   const { user } = useAuth() as IAUTH;
   const { cities, states, categories, subCategories } =
     useApp() as AppContextProps;
 
-  const [file, setFile] = useState<any>(null);
+  const [files, setFiles] = useState<any>([]);
   const [uploading, setUploading] = useState(false);
   const [payload, setPayload] = useState({
     categoryId: "",
@@ -53,7 +66,12 @@ export default function ProductForm({ setSelectedImage }: ProductFormProps) {
 
     if (!result.canceled) {
       setSelectedImage!(result.assets[0].uri);
-      setFile(result.assets[0]);
+      setProductFiles([
+        ...productFiles,
+        { image: { url: result.assets[0].uri } },
+      ]);
+      setFiles([...files, ...result?.assets]);
+      console.log("here");
       setUploading(false);
     } else {
       alert("You did not select any image");
@@ -76,12 +94,13 @@ export default function ProductForm({ setSelectedImage }: ProductFormProps) {
 
     const formData = objectToFormData(values);
 
-    if (file) {
-      formData.append(`files`, {
-        uri: file.uri,
-        type: file.mimeType,
-        name: file.fileName,
-      });
+    if (files.length > 0) {
+      for (let i = 0; i < files?.length; i++)
+        formData.append(`files`, {
+          uri: files[i].uri,
+          type: files[i].mimeType,
+          name: files[i].fileName,
+        });
     }
     const res = await productService.store(formData as any);
 
@@ -101,14 +120,15 @@ export default function ProductForm({ setSelectedImage }: ProductFormProps) {
       text2: res.message,
     });
 
-    router.push("/");
+    router.push("/shop");
   };
 
   return (
     <Formik
       onSubmit={onSubmit}
       initialValues={{}}
-      validationSchema={createProductValidator}
+      /*    validationSchema={createProductValidator} */
+      enableReinitialize
     >
       {({
         handleChange,
@@ -118,24 +138,33 @@ export default function ProductForm({ setSelectedImage }: ProductFormProps) {
         errors,
         isSubmitting,
       }: FormikProps<any>) => (
-        <ScrollView className={"bg-white my-3 h-full "}>
+        <View className={"bg-white my-3 h-full "}>
           <View className={"p-3 border-grey-1 border rounded-lg gap-3 mb-3"}>
             <Text className={"text-grey-7 font-normal text-small"}>
               Add at least one photo of your product
             </Text>
 
-            <TouchableOpacity
-              className={
-                "w-[60px] h-[52px] rounded-md bg-purple-3 items-center justify-center"
-              }
-              onPress={handleImageUpload}
-            >
-              {uploading ? (
-                <Loader color="white" size="small" />
-              ) : (
-                <Ionicons name={"image"} />
-              )}
-            </TouchableOpacity>
+            <View className="flex-row gap-2">
+              <TouchableOpacity
+                className={
+                  "w-[60px] h-[52px] rounded-md bg-purple-3 items-center justify-center"
+                }
+                onPress={handleImageUpload}
+              >
+                {uploading ? (
+                  <Loader color="white" size="small" />
+                ) : (
+                  <Ionicons name={"image"} />
+                )}
+              </TouchableOpacity>
+              <OtherImages
+                images={productFiles}
+                onClickTrash={(item) => {
+                  setShowOverlay(true);
+                  setSelectedImg(item);
+                }}
+              />
+            </View>
 
             <Text className={"text-grey-8 font-normal text-tiny"}>
               Each picture must not exceed 5MB
@@ -151,118 +180,138 @@ export default function ProductForm({ setSelectedImage }: ProductFormProps) {
               <Input
                 onChangeText={handleChange("name")}
                 onBlur={() => handleBlur("name")}
-                value={values.email}
+                value={values.name}
                 placeholder={"Product name"}
                 customInputStyles={
-                  "rounded-md bg-white border border-grey-5  px-3 py-3 max-h-[40px]"
+                  "rounded-md bg-white border border-grey-5  px-3 py-3 "
                 }
               />
 
-              {(errors["name"] as any) && (
-                <Text className="text-danger  text-small mt-2">
-                  {errors["name"] as any}
-                </Text>
-              )}
+              <Text
+                className={` ${
+                  errors["name"] ? "visible" : "invisible"
+                } text-danger  text-small mt-1`}
+              >
+                {errors["name"] as any}
+              </Text>
             </View>
 
-            <View className="flex-1">
+            <View className="flex-1 ">
               <Input
                 onChangeText={handleChange("price")}
                 onBlur={() => handleBlur("price")}
-                value={values.price}
+                value={values.price?.toLocaleString()}
                 placeholder={"Price"}
                 customInputStyles={
-                  "rounded-md bg-white border border-grey-5  px-3 py-3 max-h-[40px]"
+                  "rounded-md bg-white border border-grey-5  px-3 py-3 "
                 }
               />
 
-              {(errors["price"] as any) && (
-                <Text className="text-danger  text-small mt-2">
-                  {errors["price"] as any}
-                </Text>
-              )}
+              <Text
+                className={` ${
+                  errors["name"] ? "visible" : "invisible"
+                } text-danger  text-small mt-1`}
+              >
+                {errors["price"] as any}
+              </Text>
             </View>
           </View>
 
-          <View className={"flex-row gap-2.5 my-3 px-2"}>
-            <DropdownInput
-              placeholder={"Select category"}
-              onSelect={(value) =>
-                setPayload({ ...payload, categoryId: value.id })
-              }
-              data={categories}
-            />
+          <View className="gap-6">
+            <View className={"flex-row gap-2.5  px-2 "}>
+              <DropdownInputView
+                placeholder={"Select category"}
+                onSelect={(value) =>
+                  setPayload({ ...payload, categoryId: value.id })
+                }
+                data={categories}
+                className="relative flex-1 "
+                btnClassName="py-3"
+              />
 
-            <DropdownInput
-              placeholder={"Select sub category"}
-              onSelect={(value) =>
-                setPayload({ ...payload, subCategoryId: value.id })
-              }
-              data={subCategories}
-            />
-          </View>
+              <DropdownInputView
+                placeholder={"Select sub category "}
+                onSelect={(value) =>
+                  setPayload({ ...payload, subCategoryId: value.id })
+                }
+                data={subCategories}
+                className="relative flex-1"
+                btnClassName="py-3"
+              />
+            </View>
 
-          <View className={"flex-row gap-2.5 mb-3 px-2"}>
-            <DropdownInput
-              placeholder={"Product type"}
-              onSelect={(value) => setPayload({ ...payload, productType: "" })}
-              data={["New", "Used"]}
-            />
+            <View className={"flex-row gap-2.5  px-2 items-start"}>
+              <DropdownInputView
+                placeholder={"Product type"}
+                onSelect={(value) =>
+                  setPayload({ ...payload, productType: "" })
+                }
+                data={["New", "Used"]}
+                className="relative flex-1 "
+                btnClassName="py-3"
+              />
 
-            <DropdownInput
-              placeholder={"Select state"}
-              onSelect={(value) => setPayload({ ...payload, state: value.id })}
-              data={states}
-            />
-          </View>
+              <DropdownInputView
+                placeholder={"Select state"}
+                onSelect={(value) =>
+                  setPayload({ ...payload, state: value.id })
+                }
+                data={states}
+                className="relative flex-1 "
+                btnClassName="py-3"
+              />
+            </View>
 
-          <View className="px-2 gap-2.5">
-            <DropdownInput
-              placeholder={"Select city"}
-              onSelect={(value) => setPayload({ ...payload, city: value.id })}
-              data={cities}
-            />
+            <View className="px-2 gap-6">
+              <DropdownInputView
+                placeholder={"Select city"}
+                onSelect={(value) => setPayload({ ...payload, city: value.id })}
+                data={cities}
+                className="relative"
+                btnClassName="py-3"
+              />
 
-            <Input
-              onChangeText={handleChange("discount")}
-              onBlur={() => handleBlur("discount")}
-              value={values.discount}
-              placeholder={"discount"}
-              customInputStyles={
-                "rounded-md bg-white border border-grey-5  px-3"
-              }
-            />
+              <Input
+                onChangeText={handleChange("discount")}
+                onBlur={() => handleBlur("discount")}
+                value={values.discount}
+                placeholder={"Give Discount(%) e.g 10"}
+                customInputStyles={
+                  "rounded-md bg-white border border-grey-5  px-3 py-3"
+                }
+              />
 
-            <Input
-              onChangeText={handleChange("description")}
-              onBlur={() => handleBlur("description")}
-              value={values.desccription}
-              placeholder={"Product description"}
-              customInputStyles={
-                "rounded-md bg-white border border-grey-5 px-3 py-3 min-h-[100px] flex  items-start justify-start "
-              }
-              multiline={true}
-            />
-            {(errors["description"] as any) && (
-              <Text className="text-danger  text-small mt-2">
-                {errors["decsription"] as any}
-              </Text>
-            )}
-            <TouchableOpacity
-              className={"bg-purple  p-3 rounded-xl flex items-center"}
-              onPress={() => handleSubmit()}
-              disabled={isSubmitting}
-            >
-              {isSubmitting ? (
-                <Loader color="white" size="small" />
-              ) : (
-                <Text className={" text-white font-semibold "}>
-                  Create Product
+              <Input
+                onChangeText={handleChange("description")}
+                onBlur={() => handleBlur("description")}
+                value={values.description}
+                placeholder={"Product description"}
+                customInputStyles={
+                  "rounded-md bg-white border border-grey-5 px-3 py-3 min-h-[100px] flex  items-start justify-start "
+                }
+                multiline={true}
+              />
+              {(errors["description"] as any) && (
+                <Text className="text-danger  text-small mt-2">
+                  {errors["decsription"] as any}
                 </Text>
               )}
-            </TouchableOpacity>
+              <TouchableOpacity
+                className={"bg-purple  p-3 rounded-xl flex items-center"}
+                onPress={() => handleSubmit()}
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? (
+                  <Loader color="white" size="small" />
+                ) : (
+                  <Text className={" text-white font-semibold "}>
+                    Update Product
+                  </Text>
+                )}
+              </TouchableOpacity>
+            </View>
           </View>
-        </ScrollView>
+        </View>
       )}
     </Formik>
   );

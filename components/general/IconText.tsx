@@ -10,9 +10,11 @@ interface IProps {
 export default function IconText({ text, icon, type = "text" }: IProps) {
   return (
     <View className={"flex-row items-center gap-0.5"}>
-      {type === "text" ? <Ionicons name={icon} /> : icon}
+      {type === "text" ? <Ionicons name={icon} size={18} /> : icon}
 
-      <Text className={"text-sm text-grey-5 font-normal"}>{text}</Text>
+      <Text className={"text-lg text-gray-700 font-light tracking-[-0.72px]"}>
+        {text}
+      </Text>
     </View>
   );
 }

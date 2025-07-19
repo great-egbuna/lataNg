@@ -44,6 +44,7 @@ export default function SearchContextProvider({
 
   const handleSearch = async () => {
     setLoadingSearch(true);
+    const existingIds = new Set(searchResult?.map((res) => res?.id));
 
     if (!search || search.length < 3) {
       setLoadingSearch(false);
@@ -80,9 +81,9 @@ export default function SearchContextProvider({
     }
     setMeta(res?.meta);
 
-    console.log("length:", res.data.length);
+    const newFilter = res?.data?.filter((res) => !existingIds?.has(res?.id));
 
-    setSearchResult([...searchResult, ...res.data]);
+    setSearchResult([...searchResult, ...newFilter]);
 
     setLoadingSearch(false);
   };

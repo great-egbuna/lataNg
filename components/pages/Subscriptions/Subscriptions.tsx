@@ -13,7 +13,7 @@ import Loader from "@/components/general/Loader";
 import PromptLogin from "@/components/ui/PromptLogin";
 
 export const getColor = (index: number) => {
-  const colors = ["bg-purple-5", "bg-purple", "bg-purple-8"];
+  const colors = ["bg-purple-5", "bg-purple", "bg-purple-8", "bg-[#1e0344]"];
   return colors[index % colors.length];
 };
 
@@ -62,8 +62,8 @@ export default function SubscriptionsComponent() {
 
   return (
     <ScrollView className={"py-6 pb-10  rounded-[10px] bg-white"}>
-      <View className={"border border-grey-2 gap-2  px-3"}>
-        <View className={"px-10"}>
+      <View className={"gap-2  px-2"}>
+        <View className={"px-"}>
           <Text className={"text-base font-semibold text-grey-8 "}>
             Increase your product sales with our subscription packages
           </Text>
@@ -74,7 +74,7 @@ export default function SubscriptionsComponent() {
           </Text>
         </View>
 
-        <View className={"gap-6 mt-4 mb-8"}>
+        <View className={"gap-3 mt-4 mb-10 "}>
           {subscriptionPackages?.map((item, index) => {
             return (
               <SubscriptionCards

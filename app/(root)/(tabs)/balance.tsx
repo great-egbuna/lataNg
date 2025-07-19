@@ -3,7 +3,7 @@ import { View } from "react-native";
 
 export default function Balance() {
   return (
-    <View className={"px-4  py-6 bg-white"}>
+    <View className={"px-2  py-4 bg-white h-full"}>
       <BalanceComponent />
     </View>
   );

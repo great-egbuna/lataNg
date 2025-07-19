@@ -14,34 +14,6 @@ interface ProfileDetailsProps {
   values?: any;
 }
 
-const profileDetailsFields = [
-  {
-    name: "name",
-    label: "Name",
-    placeholder: "Enter your name",
-    type: "text",
-  },
-
-  {
-    name: "phoneNumber",
-    label: "Phone Number",
-    placeholder: "Enter your phone number",
-    type: "text",
-  },
-  {
-    name: "address",
-    label: "Address",
-    placeholder: "Enter your address",
-    type: "text",
-  },
-  {
-    name: "aboutBusiness",
-    label: "About Business",
-    placeholder: "Tell us about your business",
-    type: "textarea",
-  },
-];
-
 export default function ProfileDetails({
   handleChange,
   handleBlur,
@@ -50,6 +22,39 @@ export default function ProfileDetails({
 }: ProfileDetailsProps) {
   const { user } = useAuth() as IAUTH;
   const { error } = useProfileUpdate();
+
+  const profileDetailsFields = [
+    {
+      name: "name",
+      label: "Name",
+      placeholder: "Enter your name",
+      type: "text",
+    },
+    {
+      name: "email",
+      label: "Email",
+      placeholder: "",
+      type: "text",
+    },
+    {
+      name: "phoneNumber",
+      label: "Phone Number",
+      placeholder: "Enter your phone number",
+      type: "text",
+    },
+    {
+      name: "address",
+      label: "Address",
+      placeholder: "Enter your address",
+      type: "text",
+    },
+    {
+      name: "aboutBusiness",
+      label: "Bio",
+      placeholder: "Enter description",
+      type: "textarea",
+    },
+  ];
 
   const [profileImage, setProfileImage] = useState<any | null>(null);
   const [imagePreview, setImagePreview] = useState<string>(user?.avatar);
@@ -65,7 +70,10 @@ export default function ProfileDetails({
     if (user && setFieldValue) {
       setFieldValue("name", user.name || "");
       setFieldValue("address", user.address || "");
+      setFieldValue("email", user?.email);
+
       setFieldValue("aboutBusiness", user.aboutBusiness || "");
+
       setFieldValue("phoneNumber", user.phoneNumber || "");
     }
   }, [user, setFieldValue]);
@@ -87,8 +95,6 @@ export default function ProfileDetails({
         name: result.assets[0].fileName,
         type: result.assets[0].mimeType,
       });
-
-      console.log("image uri", result.assets[0].uri);
     } else {
       alert("You did not select any image");
       setUploading(false);
@@ -106,8 +112,8 @@ export default function ProfileDetails({
   // HeaderComponent as originally defined
   const HeaderComponent = () => {
     return (
-      <View className={" mt-4"}>
-        <Text className={"font-semibold text-xs text-grey-9"}>
+      <View className={" "}>
+        <Text className={"font-semibold text-base text-grey-9"}>
           Profile Details
         </Text>
 
@@ -132,14 +138,14 @@ export default function ProfileDetails({
   };
 
   return (
-    <View className={"p-6 border border-offwhite rounded-[7px] gap-3 flex-1"}>
+    <View className={"p-2 border border-offwhite rounded-[7px] gap-3 flex-1"}>
       {/* HeaderComponent */}
       <HeaderComponent />
 
       {/* Form Fields */}
       {profileDetailsFields.map((item, index) => {
         return (
-          <View key={index} className={"flex-1 mb-2"}>
+          <View key={index} className={" "}>
             <Text className={"text-grey-9 font-normal"}>{item.label}</Text>
 
             <Input
@@ -147,13 +153,14 @@ export default function ProfileDetails({
               onChangeText={handleChange(item.name)}
               onBlur={() => handleBlur(item.name)}
               placeholder={item.placeholder}
-              customInputStyles={`rounded-md bg-white border border-grey-5 px-3 ${
-                item.type === "textarea"
-                  ? "py-3 mt-[8px] mb-6 min-h-[90px]"
-                  : "py-0.5 mt-[8px] mb-4 h-[28px]"
-              }`}
+              customInputStyles={`rounded-md  border border-purple px-3 ${
+                item.type === "textarea" || item.label === "Address"
+                  ? "py-3 mt-[8px]  min-h-[40px]"
+                  : "py-0.5 mt-[8px]  h-[28px]"
+              }   ${item?.label === "Email" ? "bg-offwhite" : "bg-white"}`}
               customStyles="flex-none"
               multiline={item.type === "textarea"}
+              editable={item?.label !== "Email"}
             />
           </View>
         );

@@ -13,14 +13,15 @@ import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { colors } from "@/colors";
 import { useSubscriptionPayment } from "@/hooks/usePayment";
 import { WebView } from "react-native-webview";
-import Loader from "@/components/general/Loader";
+import Loader, { FullScreenLoader } from "@/components/general/Loader";
 import Button from "@/components/general/Button";
 import { useWallet } from "@/hooks/useWallet";
 import { useSubscriptions } from "@/hooks/useSubscriptions";
+import { showToast } from "@/components/general/Toast";
+import ErrorCard from "@/components/ui/ErrorCard";
 export default function SubscriptionDetailsTop() {
   const { selectedPackage } = useApp() as AppContextProps;
   const { wallet } = useWallet();
-  const { tabs } = useSubscriptions();
   const { loading, error, paymentData, initiatePayment, resetPaymentData } =
     useSubscriptionPayment({
       onSuccess: (data) => {
@@ -38,8 +39,32 @@ export default function SubscriptionDetailsTop() {
   const [checkoutUrl, setCheckoutUrl] = useState("");
   const [selectedDuration, setSelectedDuration] = useState(1);
   const [selectedBenefits, setSelectedBenefits] = useState<any>({});
-
+  const [processingBalPayment, setProcessingBalPayment] = useState(false);
+  const [processingTransferPayment, setProcessingTransferPay] = useState(false);
+  const [processingPaystackPayment, setProcessingPaystackPay] = useState(false);
   const durations = [1, 3, 6, 12];
+
+  const tabs = [
+    {
+      name: "Free",
+    },
+
+    {
+      name: "Premium",
+    },
+
+    {
+      name: "VIP",
+    },
+
+    {
+      name: "Gold",
+    },
+
+    {
+      name: "Pro Sales",
+    },
+  ];
 
   useEffect(() => {
     const duration = activePackage === "Free" ? 0 : selectedDuration;
@@ -59,7 +84,10 @@ export default function SubscriptionDetailsTop() {
   };
 
   const handlePayWithPaystack = async () => {
+    setProcessingPaystackPay(true);
     if (!selectedBenefits?.id) {
+      setProcessingPaystackPay(false);
+
       Alert.alert("Error", "No plan selected");
       return;
     }
@@ -69,6 +97,7 @@ export default function SubscriptionDetailsTop() {
       "paystack",
       useWalletBalance
     );
+    setProcessingPaystackPay(false);
 
     if (result && result.credentials?.paystackConfig) {
       const paystackConfig = result.credentials.paystackConfig;
@@ -127,8 +156,11 @@ export default function SubscriptionDetailsTop() {
   };
 
   const handlePayWithTransfer = async () => {
+    setProcessingTransferPay(true);
     if (!selectedBenefits?.id) {
       Alert.alert("Error", "No plan selected");
+      setProcessingTransferPay(false);
+
       return;
     }
 
@@ -140,6 +172,7 @@ export default function SubscriptionDetailsTop() {
 
     if (result && result.credentials) {
       setModalVisible(false);
+      setProcessingTransferPay(false);
 
       // Format the transfer details in the requested format
       Alert.alert(
@@ -151,12 +184,105 @@ export default function SubscriptionDetailsTop() {
         }\n\nCopy\nAmount: ₦${result.credentials.amountToPay.toLocaleString(
           "en-US",
           { minimumFractionDigits: 0, maximumFractionDigits: 0 }
-        )}\n\nDownload Invoice\n*Instruction\nFor mobile transfer use your payment ID as the narration\n\nFor bank deposit use your payment ID as the depositor's name`,
+        )}\n\nDownload Invoice\n\n*INSTRUCTION\n\nFor mobile transfer use your payment ID as the narration\n\nFor bank deposit use your payment ID as the depositor's name`,
         [{ text: "OK" }]
       );
     }
   };
 
+  const handlePayWithBalance = async (value: boolean) => {
+    setProcessingBalPayment(true);
+    if (!selectedBenefits?.id) {
+      Alert.alert("Error", "No plan selected");
+      setProcessingBalPayment(false);
+      setUseWalletBalance(false);
+      return;
+    }
+
+    const result = await initiatePayment(
+      selectedBenefits.id,
+      "paystack",
+      value
+    );
+
+    /*  if (result instanceof Error) {
+      showToast({
+        type: "error",
+        text1: "Error ocurred",
+        text2: result.message,
+      });
+    }
+ */
+    setUseWalletBalance(false);
+
+    setProcessingBalPayment(false);
+
+    if (result && result.credentials?.paystackConfig) {
+      const paystackConfig = result.credentials.paystackConfig;
+
+      // Create HTML for Paystack inline payment
+      const checkoutHtml = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <title>Paystack Payment</title>
+          <meta name="viewport" content="width=device-width, initial-scale=1">
+          <script src="https://js.paystack.co/v1/inline.js"></script>
+        </head>
+        <body style="padding: 0; margin: 0;">
+          <div id="paystackEmbedContainer"></div>
+          <script>
+            // Close WebView function to communicate with React Native
+            const messagePayload = (action, data = {}) => {
+              window.ReactNativeWebView.postMessage(JSON.stringify({ action, ...data }));
+            };
+            
+            // Call the PaystackPop.setup function
+            const payWithPaystack = () => {
+              const handler = PaystackPop.setup({
+                key: '${paystackConfig.publicKey}',
+                email: '${paystackConfig.email}',
+                amount: ${paystackConfig.amount},
+                currency: 'NGN',
+                ref: '${result.credentials.reference || ""}',
+                metadata: ${JSON.stringify(paystackConfig.metadata || {})},
+                channels: ${JSON.stringify(paystackConfig.channels || [])},
+                label: '${paystackConfig.label || ""}',
+                onClose: function() {
+                  messagePayload('close');
+                },
+                callback: function(response) {
+                  messagePayload('success', { reference: response.reference });
+                }
+              });
+              handler.openIframe();
+            };
+            
+            // Run the function when the page loads
+            payWithPaystack();
+          </script>
+        </body>
+        </html>
+      `;
+
+      setCheckoutUrl(
+        `data:text/html;charset=utf-8,${encodeURIComponent(checkoutHtml)}`
+      );
+      setShowCheckout(true);
+      setModalVisible(false);
+    }
+  };
+
+  const handleToggle = (value: boolean) => {
+    const walletBal = wallet?.balance;
+    const benefitPrice = selectedBenefits?.price;
+
+    if (!walletBal) return;
+    if (walletBal < benefitPrice) return;
+
+    setUseWalletBalance(value);
+    handlePayWithBalance(value);
+  };
   const handleWebViewMessage = (event: any) => {
     try {
       const data = JSON.parse(event.nativeEvent.data);
@@ -177,6 +303,10 @@ export default function SubscriptionDetailsTop() {
       console.error("Error parsing WebView message:", error);
     }
   };
+
+  if (error) return <ErrorCard error={error?.message} />;
+  if (processingBalPayment)
+    return <FullScreenLoader label="Processing payment" />;
 
   if (showCheckout) {
     return (
@@ -200,14 +330,10 @@ export default function SubscriptionDetailsTop() {
   return (
     <View>
       <Text
-        className={"font-semibold text-grey-8-100 text-sm"}
+        className={"font-semibold text-grey-8-100 text-base"}
       >{`Available plans for ${selectedPackage.name} ads`}</Text>
 
-      <ScrollView
-        horizontal={true}
-        bounces={false}
-        showsHorizontalScrollIndicator={false}
-      >
+      <View className="flex-row gap-1">
         {tabs?.map((item: Record<string, any>, index: number) => {
           return (
             <TouchableOpacity
@@ -219,7 +345,7 @@ export default function SubscriptionDetailsTop() {
                 item.name === activePackage
                   ? "bg-purple text-white"
                   : "bg-white border border-purple"
-              } rounded-xl  flex items-center justify-center py-1.5 px-6 mr-3 mt-4 mb-2`}
+              } rounded-xl  flex items-center justify-center    mt-4 mb-2 px-2`}
             >
               <Text
                 className={`${
@@ -231,15 +357,11 @@ export default function SubscriptionDetailsTop() {
             </TouchableOpacity>
           );
         })}
-      </ScrollView>
+      </View>
 
-      <View className={"border border-grey-2 rounded-[10px] px-3 py-6 gap-4"}>
+      <View className={"border border-grey-2 rounded-[10px] px-2 py-4  gap-4"}>
         {activePackage !== "Free" && (
           <View>
-            <Text className="font-semibold text-grey-8 mb-2">
-              Subscription Duration
-            </Text>
-
             <View className="flex-row ">
               {durations.map((duration) => (
                 <TouchableOpacity
@@ -249,14 +371,14 @@ export default function SubscriptionDetailsTop() {
                   }}
                   className={`${
                     duration === selectedDuration
-                      ? "bg-purple text-white"
+                      ? "bg-purple-2 text-white"
                       : "bg-white border border-purple"
-                  } rounded-xl  flex items-center justify-center py-1.5  mr-3 mt-4 mb-2  flex-1`}
+                  } rounded flex items-center justify-center py-0.5  mr-3  mb-2  flex-1`}
                 >
                   <Text
                     className={`${
                       duration === selectedDuration
-                        ? "text-white"
+                        ? "text-black"
                         : "text-purple"
                     } text-xs`}
                   >
@@ -270,7 +392,9 @@ export default function SubscriptionDetailsTop() {
 
         {/* Always show features, for all packages */}
         {selectedBenefits?.features?.map((text: string, index: number) => {
-          return <Benefit text={text} key={index} />;
+          return (
+            <Benefit text={text} key={index} activePackage={activePackage} />
+          );
         })}
 
         {/* Button/price section */}
@@ -356,25 +480,25 @@ export default function SubscriptionDetailsTop() {
             </View>
 
             {/* Wallet balance toggle */}
-            {wallet && wallet.balance > 0 && (
-              <View className="flex-row justify-between items-center mb-4 p-3 bg-purple-2 rounded-lg">
-                <View>
-                  <Text className="font-medium">Use wallet balance</Text>
-                  <Text className="text-sm text-grey-6">
-                    Available: ₦{wallet.balance.toLocaleString()}
-                  </Text>
-                </View>
-                <Switch
-                  value={useWalletBalance}
-                  onValueChange={setUseWalletBalance}
-                  trackColor={{ false: colors.greyFour, true: colors.purple }}
-                  thumbColor={colors.white}
-                />
+
+            <View className="flex-row justify-between items-center mb-4 p-3 bg-purple-2 rounded-lg">
+              <View>
+                <Text className="font-medium">Use wallet balance</Text>
+                <Text className="text-sm text-grey-6">
+                  Available: ₦{wallet?.balance.toLocaleString()}
+                </Text>
               </View>
-            )}
+              <Switch
+                value={useWalletBalance}
+                onValueChange={(value) => handleToggle(value)}
+                disabled={wallet?.balance < selectedBenefits?.price}
+                trackColor={{ false: colors.greyFour, true: colors.purple }}
+                thumbColor={colors.white}
+              />
+            </View>
 
             {error && (
-              <Text className="text-red-500 mb-4">{error.message}</Text>
+              <Text className="text-red-500 mb-4">{error?.message}</Text>
             )}
 
             <View className="gap-3">
@@ -388,8 +512,8 @@ export default function SubscriptionDetailsTop() {
                   fontWeight: 600,
                   color: colors.white,
                 }}
-                className="py-3"
-                text={loading ? "Processing..." : "Pay with Card/Bank"}
+                className="py-1 rounded-lg"
+                text={processingPaystackPayment ? "Processing..." : "Pay now"}
                 onPress={handlePayWithPaystack}
                 disabled={loading}
               />
@@ -402,12 +526,14 @@ export default function SubscriptionDetailsTop() {
                   borderColor: colors.purple,
                   borderRadius: 12,
                 }}
-                buttonTextStyle={{
-                  fontWeight: 600,
-                  color: colors.purple,
-                }}
-                className="py-3"
-                text={loading ? "Processing..." : "Pay with Bank Transfer"}
+                buttonTextStyle={"font-semibold text-purple"}
+                purpleText
+                className="py-1 rounded-lg bg-white border border-purple"
+                text={
+                  processingTransferPayment
+                    ? "Processing..."
+                    : "Pay with transfer"
+                }
                 onPress={handlePayWithTransfer}
                 disabled={loading}
               />
@@ -433,10 +559,19 @@ export default function SubscriptionDetailsTop() {
   );
 }
 
-const Benefit = ({ text }: { text: string }) => {
+const Benefit = ({
+  text,
+  activePackage,
+}: {
+  text: string;
+  activePackage: string;
+}) => {
   return (
     <View className={"flex-row gap-[5px] items-center"}>
-      <MaterialIcons name={"cancel"} color={"#db3030"} />
+      <MaterialIcons
+        name={activePackage === "Free" ? "cancel" : "check-circle-outline"}
+        color={activePackage === "Free" ? "#db3030" : "#5113a1"}
+      />
       <Text className={"font-normal text-sm text-grey-6"}>{text}</Text>
     </View>
   );

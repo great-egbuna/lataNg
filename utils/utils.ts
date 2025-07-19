@@ -19,7 +19,7 @@ export const formatRelativeTime = (createdAt: string) => {
 
   const now = new Date();
   const created = new Date(createdAt);
-  const diffInSeconds = Math.floor((now.getTime() - created.getTime() ) / 1000);
+  const diffInSeconds = Math.floor((now.getTime() - created.getTime()) / 1000);
 
   // Handle invalid dates
   if (isNaN(diffInSeconds) || diffInSeconds < 0) {
@@ -64,4 +64,39 @@ export const formatRelativeTime = (createdAt: string) => {
   // More than a year
   const years = Math.floor(diffInSeconds / 31556952);
   return `${years} ${years === 1 ? "year" : "years"} ago`;
-}
+};
+
+export const getNumOfColumns = (w: number) => {
+  if (w >= 800) return 3;
+  return 2;
+};
+
+export const getLocaleString = (dateStr: string) => {
+  const date = new Date(dateStr);
+
+  const localeString = date
+    ?.toLocaleString("en-GB", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+    })
+    ?.replace(/,/, " at")
+    .replace(/AM|PM/, "");
+
+  return localeString;
+};
+
+export const formatTimeString = (dateStr: string) => {
+  const date = new Date(dateStr);
+
+  const formattedTime = date?.toLocaleString("en-GB", {
+    hour12: false,
+    minute: "2-digit",
+    hour: "2-digit",
+  });
+
+  return formattedTime;
+};

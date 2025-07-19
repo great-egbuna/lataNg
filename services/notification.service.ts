@@ -14,7 +14,23 @@ class NotificationService {
           error.response.data.message || "Failed to fetch notifications"
         );
       }
-      throw new Error("Notifications failed to fetch!");
+      return new Error("Notifications failed to fetch!");
+    }
+  }
+
+  async markAsRead() {
+    try {
+      await $http.put("/notifications/read-all");
+    } catch (error) {
+      return new Error(`Error: ${error?.response?.data}`);
+    }
+  }
+
+  async markAsReadSingle(id: string) {
+    try {
+      await $http.put(`/notifications/read/${id}`);
+    } catch (error) {
+      return new Error(`Error: ${error?.response?.data}`);
     }
   }
 }

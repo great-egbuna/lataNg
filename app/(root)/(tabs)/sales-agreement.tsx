@@ -12,7 +12,7 @@ export default function SalesAgreement() {
     return <PromptLogin />;
   }
   return (
-    <ScrollView className="px-3 py-6 h-full bg-white">
+    <ScrollView className="px-2 py-6 h-full bg-white">
       <SalesAgreementComponent />
     </ScrollView>
   );

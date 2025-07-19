@@ -16,11 +16,20 @@ export default function SellerContact() {
   const { selectedProduct } = useApp() as AppContextProps;
 
   return (
-    <View className={" px-11 py-6 border border-grey-2 rounded-[10px]"}>
+    <View className={" px-3 py-6 border border-grey-2 rounded-[10px]"}>
       <ImageText
-        title={selectedProduct?.user.name as string}
-        text={selectedProduct?.user.phoneNumber as string}
-        imgSource={selectedProduct?.user.avatar as string}
+        title={
+          (selectedProduct?.user?.name as string) ||
+          selectedProduct?.product?.user?.name
+        }
+        text={
+          (selectedProduct?.user?.phoneNumber as string) ||
+          selectedProduct?.product?.user?.phoneNumber
+        }
+        imgSource={
+          (selectedProduct?.user?.avatar as string) ||
+          selectedProduct?.product?.user?.avatar
+        }
       />
 
       <SellerCTA />
@@ -92,51 +101,32 @@ const SellerCTA = () => {
   return (
     <View className="gap-2 mt-6">
       <ButtonSecondary
-        customStyles="py-2 bg-purple"
-        customTextStyles="text-white"
+        customStyles="py-1 bg-purple rounded-[16px]"
+        customTextStyles="text-white text-base "
         text={"WhatsApp Seller"}
         onPress={() =>
           Linking.openURL(
-            `https://wa.me/+234${selectedProduct?.user.phoneNumber}`
+            `https://wa.me/+234${selectedProduct?.user?.phoneNumber}`
           ).catch(() => alert("WhatsApp is not installed on this device"))
         }
       />
       <Button
-        customStyle={{
-          backgroundColor: colors.white,
-          width: "100%",
-          borderWidth: 1,
-          borderColor: colors.purple,
-          borderRadius: 12,
-        }}
-        buttonTextStyle={{
-          fontWeight: 600,
-          color: colors.purple,
-        }}
-        className="py-2"
+        className="py-1 rounded-2xl bg-white border border-purple"
         text={"Call Seller"}
         onPress={() =>
-          Linking.openURL(`tel:${selectedProduct?.user.phoneNumber}`).catch(
+          Linking.openURL(`tel:${selectedProduct?.user?.phoneNumber}`).catch(
             () => alert("Failed to open dailer")
           )
         }
+        purpleText
       />
 
       <Button
-        customStyle={{
-          backgroundColor: colors.white,
-          width: "100%",
-          borderWidth: 1,
-          borderColor: colors.purple,
-          borderRadius: 12,
-        }}
-        buttonTextStyle={{
-          fontWeight: 600,
-          color: colors.purple,
-        }}
-        className="py-2"
+        className="py-1 rounded-2xl bg-white border border-purple"
+        buttonTextStyle={"text-purple"}
         text={"Send message to Seller"}
         onPress={handleOpenChat}
+        purpleText
       />
 
       {/* <Button
@@ -184,16 +174,8 @@ const SellerCTA = () => {
             </View>
 
             <Button
-              customStyle={{
-                backgroundColor: colors.purple,
-                width: "100%",
-                borderRadius: 12,
-              }}
-              buttonTextStyle={{
-                fontWeight: 600,
-                color: colors.white,
-              }}
-              className="py-3"
+              buttonTextStyle={"font-semibold"}
+              className="py-2 w-full rounded-xl"
               text={sending ? "Sending..." : "Send Message"}
               onPress={handleSendMessage}
               disabled={sending || !message.trim()}

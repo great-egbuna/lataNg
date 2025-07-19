@@ -15,7 +15,7 @@ function useNotifications() {
 
   const { user, isLoggedIn } = useAuth() as IAUTH;
 
-  const fetchNotifications = async (page = 1, limit = 10) => {
+  const fetchNotifications = async (page = 1, limit = 1000) => {
     if (!isLoggedIn || !user) return;
 
     try {

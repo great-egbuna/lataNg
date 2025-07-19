@@ -2,9 +2,10 @@ import { categoryService } from "@/services/category.service";
 import { locationService } from "@/services/location.service";
 import { productService } from "@/services/product.service";
 import { reelService } from "@/services/reel.service";
-import {
+import React, {
   createContext,
   ReactNode,
+  SetStateAction,
   useContext,
   useEffect,
   useState,
@@ -34,7 +35,8 @@ export interface IProduct {
   description?: string;
   planName?: string;
   meta?: { selectedImage: string | ImageSourcePropType; planName: string };
-  price?: string;
+  price?: string | number;
+  discount?: number | string;
   state: string;
   city: string;
   user: { name: string; phoneNumber: string; avatar: string };
@@ -116,8 +118,21 @@ export interface AppContextProps {
   setReels: (value: IReel[] | null) => void;
   selectedReel: any[] | null;
   setSelectedReel: (value: any[] | null) => void;
-  reelLoading: boolean;
-  setReelLoading: (value: boolean) => void;
+  loadingCategory: boolean;
+  unlimitedCategories: any;
+  myProdActiveTab?: string;
+  setMyProdActiveTab?: (value: string) => void;
+  myProdQueryTab?: string;
+  setMyProdQueryTab?: (value: string) => void;
+  saveProductId?: string;
+  setSaveProductId?: React.Dispatch<SetStateAction<string | undefined>>;
+  chatMessageObj: any[] | null;
+  setChatMessageObj: (value: any[] | null) => void;
+  socket: any;
+  setSocket: (value: any) => void;
+
+  messages: any;
+  setMessages: (value: any) => void;
 }
 
 const AppContext = createContext<AppContextProps | null>(null);
@@ -139,8 +154,8 @@ export default function AppProvider({ children, mounted }: AppProviderProps) {
   const [appLoading, setAppLoading] = useState(true);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [socialUser, setSocialUser] = useState<ISocialUser | null>(null);
-  const [decision, setDecision] = useState<string>("SELLER");
-  const [states, setStates] = useState<States[] | null>(null);
+  const [decision, setDecision] = useState<string>("BUYER");
+  const [states, setStates] = useState<States[]>([{ id: "", name: "Any" }]);
   const [cities, setCities] = useState<ICities[] | null>(null);
   const [selectedProduct, setSelectedProduct] = useState<IProduct | null>(null);
   const [categories, setCategories] = useState<ICategory[] | null>(null);
@@ -162,7 +177,16 @@ export default function AppProvider({ children, mounted }: AppProviderProps) {
   >(null);
   const [reels, setReels] = useState<IReel[] | null>(null);
   const [selectedReel, setSelectedReel] = useState<any | null>(null);
-  const [reelLoading, setReelLoading] = useState(false);
+  const [loadingCategory, setLoadingCategory] = useState(false);
+  const [unlimitedCategories, setUnlimitedCategories] = useState([]);
+  const [myProdActiveTab, setMyProdActiveTab] = useState("ACTIVE");
+  const [myProdQueryTab, setMyProdQueryTab] = useState("ACTIVE");
+  const [saveProductId, setSaveProductId] = useState<undefined | string>(
+    undefined
+  );
+  const [chatMessageObj, setChatMessageObj] = useState<any[] | null>(null);
+  const [socket, setSocket] = useState<any>(null);
+  const [messages, setMessages] = useState([]);
 
   const loadApp = () => {
     setAppLoading(false);
@@ -174,8 +198,8 @@ export default function AppProvider({ children, mounted }: AppProviderProps) {
 
   useEffect(() => {
     (async () => {
-      const states = await locationService.getStates();
-      setStates(states);
+      const statesResults = await locationService.getStates();
+      setStates([...states, ...statesResults]);
     })();
   }, []);
 
@@ -208,15 +232,30 @@ export default function AppProvider({ children, mounted }: AppProviderProps) {
   }, []);
 
   // Handle category selection
-  const handleCategorySelect = (category: ICategoryWithSubcategories) => {
-    setSelectedCategory(category);
+  const handleCategorySelect = async (category: ICategoryWithSubcategories) => {
+    try {
+      setSelectedCategory(category);
+      setLoadingCategory(true);
+      if (category.subcategories && category.subcategories.length > 0) {
+        setSubcategoryOverlayVisible(true);
 
-    if (category.subcategories && category.subcategories.length > 0) {
-      setSubcategoryOverlayVisible(true);
-    } else {
-      // If no subcategories, load products for the category directly
-      handleSubcategorySelect(category.id, category.id);
-      setCategoryOverlayVisible(false);
+        const res = await productService.getProductsByCategory({
+          categoryId: category?.id,
+          limit: 1000000000,
+        });
+
+        setUnlimitedCategories(res.data);
+      } else {
+        // If no subcategories, load products for the category directly
+        handleSubcategorySelect(category.id, category.id);
+        setCategoryOverlayVisible(false);
+      }
+
+      setLoadingCategory(false);
+    } catch (error: any) {
+      console.log(
+        `An Error Occured: ${error?.response?.data || error?.message}`
+      );
     }
   };
 
@@ -319,6 +358,20 @@ export default function AppProvider({ children, mounted }: AppProviderProps) {
     setReels,
     selectedReel,
     setSelectedReel,
+    unlimitedCategories,
+    loadingCategory,
+    myProdActiveTab,
+    setMyProdActiveTab,
+    myProdQueryTab,
+    setMyProdQueryTab,
+    saveProductId,
+    setSaveProductId,
+    chatMessageObj,
+    setChatMessageObj,
+    socket,
+    setSocket,
+    messages,
+    setMessages,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

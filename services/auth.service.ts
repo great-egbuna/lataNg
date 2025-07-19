@@ -21,7 +21,9 @@ class AuthService {
       return res.data;
     } catch (error) {
       console.log("error", JSON.stringify(error?.response?.data));
-      return new Error("Failed to register");
+      return new Error(
+        error?.response?.data?.error[0]?.message || "Failed to register"
+      );
     }
   }
 
