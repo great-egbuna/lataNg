@@ -100,7 +100,7 @@ export default function PasswordDetails({
         return (
           <View key={index} className={"flex-1 "}>
             <Text
-              className={`text-grey-9 font-normal ${
+              className={`text-grey-9 font-normal text-lg ${
                 isDisabled ? "text-grey-6" : ""
               }`}
             >
@@ -138,11 +138,11 @@ export default function PasswordDetails({
               placeholder={item.placeholder}
               secureTextEntry={true}
               editable={!isDisabled}
-              customInputStyles={`rounded-md border px-3 mt-2  ${
+              customInputStyles={`rounded-md border py-2 px-3 mt-2  ${
                 item.name === "confirmPassword" && passwordError
                   ? "border-red-500 mb-1"
                   : ""
-              } h-[28px] ${
+              }  ${
                 isDisabled
                   ? "bg-grey-2 text-grey-6 border-grey-3"
                   : "bg-white border-grey-5"
@@ -173,7 +173,7 @@ export default function PasswordDetails({
 const HeaderComponent = () => {
   return (
     <View className={" mt-4"}>
-      <Text className={"font-semibold text-xs text-grey-9"}>
+      <Text className={"font-semibold text-lg text-grey-9"}>
         Change Password
       </Text>
     </View>

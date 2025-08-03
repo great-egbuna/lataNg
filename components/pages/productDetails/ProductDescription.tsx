@@ -35,12 +35,16 @@ export default function ProductDescription({
     <View
       className={"flex-col gap-2.5  border border-grey-2 rounded-[10px] p-3"}
     >
-      <Text className={"text-purple font-extrabold text-xl"}>
+      <Text className={"text-purple font-extrabold text-base md:text-lg"}>
         <FontAwesome6 name="naira-sign" size={20} />
         {price?.toLocaleString()}
       </Text>
 
-      <Text className={"text-grey-10 font-semibold text-xl tracking-[-0.72px]"}>
+      <Text
+        className={
+          "text-grey-10 font-medium text-base md:text-lg tracking-[-0.72px]"
+        }
+      >
         {name}
       </Text>
 
@@ -53,14 +57,16 @@ export default function ProductDescription({
 
       <View>
         <Text
-          className={"text-grey-8-100 font-semibold text-xl tracking-[-0.72px]"}
+          className={
+            "text-grey-8-100 font-medium text-base md:text-lg tracking-[-0.72px]"
+          }
         >
           Product Description
         </Text>
 
         <Text
           className={
-            "text-gray-700 font-light text-lg mt-1-5 max-w-2xl tracking-[-0.72px]"
+            "text-gray-700 font-light text-base md:text-lg mt-1-5 max-w-2xl tracking-[-0.72px]"
           }
         >
           {description}
@@ -69,14 +75,16 @@ export default function ProductDescription({
 
       <View>
         <Text
-          className={"text-grey-8-100 font-semibold text-xl tracking-[-0.72px]"}
+          className={
+            "text-grey-8-100 font-medium text-base md:text-lg tracking-[-0.72px]"
+          }
         >
           Product Category
         </Text>
 
         <Text
           className={
-            "text-gray-700 font-light text-lg mt-1-5 max-w-2xl tracking-[-0.72px]"
+            "text-gray-700 font-light text-base md:text-lg mt-1-5 max-w-2xl tracking-[-0.72px]"
           }
         >
           {category}
@@ -85,14 +93,16 @@ export default function ProductDescription({
 
       <View>
         <Text
-          className={"text-grey-8-100 font-semibold text-xl tracking-[-0.72px]"}
+          className={
+            "text-grey-8-100 font-medium text-base md:text-lg tracking-[-0.72px]"
+          }
         >
           Product Subcategory
         </Text>
 
         <Text
           className={
-            "text-gray-700 font-light text-lg tracking-[-0.72px] mt-1-5 max-w-2xl"
+            "text-gray-700 font-light text-base md:text-lg tracking-[-0.72px] mt-1-5 max-w-2xl"
           }
         >
           {/* SubCategory Id can be the actual sub category name */}
@@ -105,7 +115,7 @@ export default function ProductDescription({
         <View>
           <Text
             className={
-              "text-grey-8-100 font-semibold text-xl tracking-[-0.72px]"
+              "text-grey-8-100 font-medium text-base md:text-lg tracking-[-0.72px]"
             }
           >
             Product Type
@@ -113,7 +123,7 @@ export default function ProductDescription({
 
           <Text
             className={
-              "text-gray-700 font-light text-lg tracking-[-0.72px] mt-1-5 max-w-2xl"
+              "text-gray-700 font-light text-base md:text-lg tracking-[-0.72px] mt-1-5 max-w-2xl"
             }
           >
             {type}

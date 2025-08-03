@@ -72,7 +72,7 @@ export default function AnalyticsCharts() {
   return (
     <View className="mb-6">
       <View className={"flex-row justify-between items-center my-2"}>
-        <Text className={"flex-1"}>Product Insights</Text>
+        <Text className={"flex-1 text-lg"}>Product Insights</Text>
 
         <DropdownInput
           placeholder={months.find((m) => m.month === selectedMonth)?.name}

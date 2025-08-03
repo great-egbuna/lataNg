@@ -20,7 +20,7 @@ export default function AnalyticsCard({
       <View
         className={`border border-grey-2  rounded-lg px-6 py-4 bg-purple gap-2 ${className}`}
       >
-        <Text className={`font-normal text-base text-grey-10 ${textClassName}`}>
+        <Text className={`font-normal text-lg text-grey-10 ${textClassName}`}>
           {text_one}
         </Text>
         <Text
@@ -28,7 +28,7 @@ export default function AnalyticsCard({
         >
           {text_two}
         </Text>
-        <Text className={`font-normal text-sm text-gray-500 ${textClassName} `}>
+        <Text className={`font-normal text-lg text-gray-500 ${textClassName} `}>
           {text_three}
         </Text>
       </View>

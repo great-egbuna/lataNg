@@ -17,20 +17,7 @@ export default function MyProducts({
   const { setMyProduct, myProdActiveTab: tab } = useApp() as AppContextProps;
   const productNew = myProducts.data;
 
-  const activeProduct = productNew.filter(
-    (prod: any) => prod.status === "ACTIVE"
-  );
-
-  const inactiveProd = productNew.filter(
-    (prod: any) => prod.status === "INACTIVE"
-  );
-
-  const declined = productNew.filter(
-    (prod: any) => prod.status === "CANCELLED"
-  );
-
-  const draft = productNew.filter((prod: any) => prod.status === "DRAFT");
-
+  console.log("productNew:", productNew[productNew.length - 1]);
   return (
     <FlatList
       data={productNew}
@@ -60,7 +47,9 @@ export default function MyProducts({
       ListHeaderComponentClassName="relative z-10"
       keyExtractor={(item) => item.id}
       ListEmptyComponent={() => (
-        <Text className="text-gray-400 font-semibold">No products found</Text>
+        <Text className="text-gray-400 font-semibold text-base">
+          No products found
+        </Text>
       )}
     />
   );

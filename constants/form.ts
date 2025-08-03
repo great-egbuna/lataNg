@@ -1,23 +1,23 @@
 export const sellerFields = [
   {
-    placeholder: "Enter  business name",
+    placeholder: "Enter Business Name",
     name: "name",
   },
 
   {
-    placeholder: "Enter  email",
+    placeholder: "Enter Email",
     name: "email",
   },
   {
-    placeholder: "Enter business location",
+    placeholder: "Enter Business Location",
     name: "address",
   },
   {
-    placeholder: "Enter phone number",
+    placeholder: "Enter Phone Number",
     name: "phoneNumber",
   },
   {
-    placeholder: "About business",
+    placeholder: "About Business",
     name: "aboutBusiness",
   },
   {

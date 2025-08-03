@@ -42,7 +42,7 @@ export default function ButtonSecondary({
     >
       {iconSrc && <Image source={iconSrc} className="mr-2 flex" />}
 
-      <Text className={`${textClass} text-lg`}>{text}</Text>
+      <Text className={`${textClass} text-base md:text-lg`}>{text}</Text>
 
       {icon && <MaterialIcon name={icon} size={18} color={colors.purple} />}
     </TouchableOpacity>

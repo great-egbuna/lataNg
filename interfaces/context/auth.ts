@@ -5,11 +5,11 @@ export interface IUSER {
 }
 
 export interface IAUTH {
-  isLoggedIn: boolean;
-  setIsLoggedIn: (prev: boolean) => void;
-  checkAuth: () => void;
+  isLoggedIn?: boolean;
+  setIsLoggedIn?: (prev: boolean) => void;
+  checkAuth?: () => void;
   user?: IUSER | null;
   setUser?: (value: IUSER | null) => void;
-  loading: boolean;
-  setLoading: (value: boolean) => void;
+  loading?: boolean;
+  setLoading?: (value: boolean) => void;
 }

@@ -7,6 +7,7 @@ import {
   isSuccessResponse,
   statusCodes,
 } from "@react-native-google-signin/google-signin";
+import { getErrorMessage } from "@/utils/utils";
 
 class SocialAuthService {
   public async googleSignUp() {
@@ -85,7 +86,6 @@ class SocialAuthService {
       const res = await $http.get(
         `/auth/google-callback-token?role=${role}&accessToken=${accessToken}`
       );
-      console.log("response", res?.data);
 
       return res?.data;
     } catch (error) {
@@ -97,7 +97,6 @@ class SocialAuthService {
   public async googleRedirect({ role }: IGOOGLE) {
     try {
       const res = await $http.get(`/auth/google-redirect?role=${role}`);
-      console.log("response", res?.data);
 
       return res?.data;
     } catch (error) {
@@ -130,7 +129,6 @@ class SocialAuthService {
       const res = await $http.get(
         `/auth/google-callback-token?${params.toString()}`
       );
-      console.log("response", res?.data);
 
       return res?.data;
     } catch (error) {
@@ -138,7 +136,7 @@ class SocialAuthService {
         "google callback not ally error",
         JSON.stringify(error?.response?.data)
       );
-      return new Error("Failed to authenticate with google");
+      return new Error(getErrorMessage(error?.response?.data));
     }
   }
 }

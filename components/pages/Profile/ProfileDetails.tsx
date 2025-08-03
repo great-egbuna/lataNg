@@ -112,8 +112,8 @@ export default function ProfileDetails({
   // HeaderComponent as originally defined
   const HeaderComponent = () => {
     return (
-      <View className={" "}>
-        <Text className={"font-semibold text-base text-grey-9"}>
+      <View>
+        <Text className={"font-semibold text-xl text-grey-9"}>
           Profile Details
         </Text>
 
@@ -138,7 +138,9 @@ export default function ProfileDetails({
   };
 
   return (
-    <View className={"p-2 border border-offwhite rounded-[7px] gap-3 flex-1"}>
+    <View
+      className={"p-2 border border-offwhite rounded-[7px] gap-3 flex-1 mt-4"}
+    >
       {/* HeaderComponent */}
       <HeaderComponent />
 
@@ -146,17 +148,19 @@ export default function ProfileDetails({
       {profileDetailsFields.map((item, index) => {
         return (
           <View key={index} className={" "}>
-            <Text className={"text-grey-9 font-normal"}>{item.label}</Text>
+            <Text className={"text-grey-9 text-lg font-normal"}>
+              {item.label}
+            </Text>
 
             <Input
               value={getFieldValue(item.name)}
               onChangeText={handleChange(item.name)}
               onBlur={() => handleBlur(item.name)}
               placeholder={item.placeholder}
-              customInputStyles={`rounded-md  border border-purple px-3 ${
+              customInputStyles={`rounded-md  border py-2 px-3 ${
                 item.type === "textarea" || item.label === "Address"
-                  ? "py-3 mt-[8px]  min-h-[40px]"
-                  : "py-0.5 mt-[8px]  h-[28px]"
+                  ? "py-3 mt-[8px] "
+                  : "py-0.5 mt-[8px]  "
               }   ${item?.label === "Email" ? "bg-offwhite" : "bg-white"}`}
               customStyles="flex-none"
               multiline={item.type === "textarea"}

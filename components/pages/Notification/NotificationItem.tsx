@@ -1,4 +1,4 @@
-import { Text, TouchableOpacity, View } from "react-native";
+import { Pressable, Text, TouchableOpacity, View } from "react-native";
 import RoundedImage from "@/components/ui/RoundedImage";
 import { images } from "@/constants/images";
 import { formatRelativeTime, getLocaleString } from "@/utils/utils";
@@ -35,8 +35,8 @@ export default function NotificationItem({
   };
 
   return (
-    <TouchableOpacity
-      className={"flex-row gap-4 my-2 py-2  "}
+    <Pressable
+      className={"flex-row gap-4 my-2 py-4  border border-grey-2 rounded-md "}
       onPress={navigate}
     >
       <RoundedImage
@@ -46,16 +46,16 @@ export default function NotificationItem({
 
       <View className={"gap-0.5 flex-1"}>
         <Text
-          className={`font-semibold text-sm ${
+          className={`font-medium text-base md:text-lg tracking-[-0.72px] ${
             isRead === 0 ? "text-grey-9" : "text-gray-400"
           }`}
         >
           {message}
         </Text>
 
-        <View className="flex-row gap-1">
+        <View className="flex-row gap-1 mt-2">
           <Text
-            className={`font-normal text-xs  ${
+            className={`font-normal text-sm md:text-base   ${
               isRead === 1 ? "text-gray-400" : "text-grey-8-100"
             } `}
           >
@@ -63,13 +63,15 @@ export default function NotificationItem({
           </Text>
 
           <Text
-            className={` ${isRead === 1 ? "text-gray-400" : "text-grey-8-100"}`}
+            className={` ${
+              isRead === 1 ? "text-gray-400" : "text-grey-8-100"
+            } text-base`}
           >
             |
           </Text>
 
           <Text
-            className={`font-normal text-xs   ${
+            className={`font-normal text-base ${
               isRead === 1 ? "text-gray-400" : "text-grey-8-100"
             }`}
           >
@@ -77,6 +79,6 @@ export default function NotificationItem({
           </Text>
         </View>
       </View>
-    </TouchableOpacity>
+    </Pressable>
   );
 }

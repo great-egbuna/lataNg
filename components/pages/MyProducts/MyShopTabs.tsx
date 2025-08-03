@@ -80,7 +80,7 @@ export default function MyShopTabs({
   };
   return (
     <View className=" gap-2 px-3.5 pt-4">
-      <Text className="text-grey-9 font-semibold">My Shop</Text>
+      <Text className="text-grey-9 font-semibold text-lg">My Shop</Text>
       <View className="flex-row">
         {tabs.map((tab) => {
           return (
@@ -91,7 +91,9 @@ export default function MyShopTabs({
               customStyles={`border-0 min-w-[1px] flex-1 min-h-[5px] py-1 px-0.5  rounded-3xl  ${
                 isActiveTab === tab.status && tab.bg
               }`}
-              customTextStyles={`${tab.color}  font-semibold text-center ${
+              customTextStyles={`${
+                tab.color
+              }  font-semibold text-center text-sm ${
                 isActiveTab === tab.status && "text-white"
               } ${
                 isActiveTab === "INACTIVE" && tab.status === "INACTIVE"

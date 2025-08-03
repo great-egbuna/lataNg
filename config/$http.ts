@@ -1,15 +1,17 @@
-import { base_url } from "@/constants/env";
 import { getValueFor } from "@/store/storage";
 import axios from "axios";
 
 const $http = axios.create({
-  baseURL: "https://lata-main-backend.azurewebsites.net/v1",
-  /*  baseURL: "https://d661-105-120-132-94.ngrok-free.app/v1", */
+  /*  baseURL: "https://lata-main-backend.azurewebsites.net/v1", */
+  /*  baseURL: "https://lata-dev-backend.azurewebsites.net" */
+  baseURL: "https://lata-api.go2.ng/v1",
+  /*   baseURL: "https://6e7fe1f13596.ngrok-free.app/v1", */
   headers: {
     requestSession: JSON.stringify({
       processId: Date.now(),
       userSystemId: Date.now().toString(),
     }),
+    "ngrok-skip-browser-warning": true,
   },
 });
 

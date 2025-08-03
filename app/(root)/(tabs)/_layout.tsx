@@ -15,6 +15,7 @@ export default function AppLayout() {
   const { user, isLoggedIn } = useAuth() as IAUTH;
   const { searchResult, setSearchResult } = useSearch() as ISearchContextProps;
 
+  const isSeller = user?.role === "SELLER";
   return (
     <SafeAreaView className="bg-white  h-full relative ">
       <Header />
@@ -49,9 +50,14 @@ export default function AppLayout() {
           }}
           options={{
             headerShown: false,
+            href: isSeller ? "/shop" : "/",
             tabBarIcon: ({ focused }) => {
               return (
-                <TabBarIcon text={"Home"} focused={focused} icon={"home"} />
+                <TabBarIcon
+                  text={isSeller ? "My shop" : "Home"}
+                  focused={focused}
+                  icon={"home"}
+                />
               );
             },
           }}
@@ -60,8 +66,7 @@ export default function AppLayout() {
           name="message"
           options={{
             headerShown: false,
-            //href: null,
-            href: user?.role === "SELLER" ? "/message" : null,
+            href: isSeller ? "/message" : "/decision",
             tabBarIcon: ({ focused }) => {
               return (
                 <TabBarIcon
@@ -77,7 +82,7 @@ export default function AppLayout() {
           name="sell"
           options={{
             headerShown: false,
-            href: user?.role === "SELLER" ? "/sell" : "/decision",
+            href: isSeller ? "/sell" : "/decision",
             tabBarIcon: ({ focused }) => {
               return (
                 <TabBarIcon
@@ -94,7 +99,7 @@ export default function AppLayout() {
           name="shop"
           options={{
             headerShown: false,
-            href: user?.role === "SELLER" ? "/shop" : null,
+            href: null,
             tabBarIcon: ({ focused }) => {
               if (user?.role === "SELLER")
                 return (
@@ -111,7 +116,7 @@ export default function AppLayout() {
           name="notifications"
           options={{
             headerShown: false,
-            href: isLoggedIn ? "/notifications" : "/login",
+            href: isSeller ? "/notifications" : "/decision",
             tabBarIcon: ({ focused }) => {
               return (
                 <TabBarIcon

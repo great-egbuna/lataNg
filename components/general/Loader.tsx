@@ -18,7 +18,7 @@ export default function Loader({
 
 export const FullScreenLoader = ({ label }: { label?: string }) => {
   return (
-    <View className="absolute inset-0 z-[100] bg-white flex items-center justify-center">
+    <View className="h-full bg-white flex items-center justify-center">
       <Loader size="small" />
       <Text className="text-gray-700/70 text-xs sm:text-sm md:text-base">
         {!!label ? label : "Please Wait..."}

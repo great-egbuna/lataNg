@@ -35,7 +35,7 @@ export default function Button({
         <Text
           className={`${
             purpleText ? "text-purple" : "text-white"
-          } text-lg ${buttonTextStyle}`}
+          } text-base md:text-lg ${buttonTextStyle}`}
         >
           {text}
         </Text>

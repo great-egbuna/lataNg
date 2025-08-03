@@ -11,7 +11,7 @@ export default function LocationBox({ text, onPress }: Props) {
   return (
     <Pressable style={styles.box} onPress={onPress}>
       <Ionicons name="location-outline" size={18} />
-      <Text className="text-lg">{text}</Text>
+      <Text className="text-base md:text-lg">{text}</Text>
     </Pressable>
   );
 }

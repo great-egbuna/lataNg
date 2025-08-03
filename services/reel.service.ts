@@ -6,10 +6,12 @@ interface Reel {
   video: { uri: string; name: string; type: string };
 }
 
+const newDeploymentUrl = `https://lata-api.go2.ng/v1`;
+
 class ReelService {
   async getReels() {
     try {
-      const response = await $http.get("/reels");
+      const response = await $http.get(`${newDeploymentUrl}/reels`);
       return response.data?.reels;
     } catch (error: any) {
       console.log("error message", JSON.stringify(error?.response?.data));
@@ -19,7 +21,7 @@ class ReelService {
 
   async createReel(reel: any) {
     try {
-      const response = await $http.post("/reels", reel, {
+      const response = await $http.post(`${newDeploymentUrl}/reels`, reel, {
         headers: {
           "Content-Type": "multipart/form-data",
         },

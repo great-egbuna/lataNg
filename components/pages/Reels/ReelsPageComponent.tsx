@@ -210,13 +210,13 @@ const styles = StyleSheet.create({
     borderBottomColor: "#eee",
   },
   title: {
-    fontSize: 24,
+    fontSize: 20,
     fontWeight: "bold",
     color: "#333",
     marginBottom: 8,
   },
   subtitle: {
-    fontSize: 16,
+    fontSize: 18,
     color: "#666",
   },
   content: {
@@ -256,7 +256,7 @@ const styles = StyleSheet.create({
     marginTop: 12,
   },
   uploadSubtext: {
-    fontSize: 14,
+    fontSize: 18,
     color: "#666",
     marginTop: 4,
   },
@@ -267,7 +267,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   label: {
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: "600",
     color: "#333",
   },
@@ -298,7 +298,7 @@ const styles = StyleSheet.create({
   },
   createButtonText: {
     color: "#fff",
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: "600",
   },
 });

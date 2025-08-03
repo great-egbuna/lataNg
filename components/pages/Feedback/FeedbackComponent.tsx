@@ -80,11 +80,11 @@ export default function FeedbackComponent() {
       <Text className="text-grey-9 font-semibold text-lg text-center mb-2">
         You have not received any Feedback yet.
       </Text>
-      <Text className="text-grey-6 text-center mb-1">
+      <Text className="text-grey-6 text-center mb-1 text-base">
         Ask your customers to drop feedbacks for you.
       </Text>
 
-      <Text className="text-grey-8 mb-2">
+      <Text className="text-grey-8 mb-2 text-base">
         Copy and send the below link to them.
       </Text>
       <View className="rounded-lg w-full mb-4">
@@ -93,12 +93,10 @@ export default function FeedbackComponent() {
             {`https://lata.ng/feedback/${user?.id}`}
           </Text>
           <TouchableOpacity
-            className="bg-purple p-2 rounded-md rounded-xl  px-6 w-full"
+            className="bg-purple p-2 rounded-md rounded-xl  px-6 w-full  mt-3"
             onPress={handleCopyLink}
           >
-            <Text className="text-white text-base text-center ">
-              Copy my ink
-            </Text>
+            <Text className="text-white text-lg text-center ">Copy my ink</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -121,19 +119,19 @@ export default function FeedbackComponent() {
       <View className="border border-grey-2 rounded-lg p-4 mb-4">
         <View className="flex-row">
           <View className="bg-green rounded-lg py-1 px-2">
-            <Text className="text-white text-base">{getRating()}</Text>
+            <Text className="text-white text-lg">{getRating()}</Text>
           </View>
         </View>
 
         <View className="flex-row justify-between my-2">
-          <Text className="font-semibold">
+          <Text className="font-semibold text-lg">
             {item.product?.name || "Product"}
           </Text>
-          <Text className="text-grey-6 text-xs">
+          <Text className="text-grey-6 text-base">
             {new Date(item.createdAt).toLocaleDateString()}
           </Text>
         </View>
-        <Text className="text-black text-base font-bold">
+        <Text className="text-black text-lg font-bold">
           {activeTab === "received"
             ? item.user?.name || item?.sender || "Customer"
             : "You"}
@@ -158,7 +156,7 @@ export default function FeedbackComponent() {
         </View>
 
         <Link href={`/product/${item?.product?.id}`}>
-          <Text className="text-blue-700   font-bold"> View product</Text>
+          <Text className="text-blue-700   font-bold text-lg"> View product</Text>
         </Link>
       </View>
     );

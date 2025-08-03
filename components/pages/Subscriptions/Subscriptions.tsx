@@ -64,7 +64,7 @@ export default function SubscriptionsComponent() {
     <ScrollView className={"py-6 pb-10  rounded-[10px] bg-white"}>
       <View className={"gap-2  px-2"}>
         <View className={"px-"}>
-          <Text className={"text-base font-semibold text-grey-8 "}>
+          <Text className={"text-base font-semibold text-grey-8 text-lg "}>
             Increase your product sales with our subscription packages
           </Text>
 

@@ -73,12 +73,14 @@ export default function SavedPageComponent() {
         columnWrapperClassName="mb-4 gap-4"
         className="mt-3"
         ListHeaderComponent={() => (
-          <Text className="text-base my-3 font-semibold">Saved Products</Text>
+          <Text className="text-lg my-3 font-semibold">Saved Products</Text>
         )}
         onEndReached={loadMoreSavedProducts}
         onEndReachedThreshold={0.7}
         ListEmptyComponent={() => (
-          <Text className="font-light text-gray-500">No products found</Text>
+          <Text className="font-light text-gray-500 text-base">
+            No products found
+          </Text>
         )}
       />
     </View>

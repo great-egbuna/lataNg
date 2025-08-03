@@ -76,7 +76,7 @@ const Header = () => {
           "bg-purple rounded-[5px] px-2 py-2 flex-row items-center justify-between"
         }
       >
-        <Text className={"text-white font-semibold text-sm"}>My Messages</Text>
+        <Text className={"text-white font-semibold text-lg"}>My Messages</Text>
       </View>
 
       <Input

@@ -13,6 +13,7 @@ import { paymentService } from "@/services/payment.service"; // Adjust path as n
 import { colors } from "@/colors";
 import Button from "@/components/general/Button";
 import { WebView } from "react-native-webview"; // You'll need to install this package
+import { FontAwesome6 } from "@expo/vector-icons";
 
 export default function BalanceComponent() {
   const { wallet, loading, error, refreshWallet } = useWallet();
@@ -171,7 +172,7 @@ export default function BalanceComponent() {
     <View className={"border border-grey-2 rounded-[10px] gap-6 p-6 h-"}>
       <View className={"gap-2"}>
         <Text className={"font-semibold text-grey-9 text-lg"}>My Balance</Text>
-        <Text className={"font-normal text-grey-8-100 "}>
+        <Text className={"font-normal text-grey-8-100 text-base"}>
           You can use your balance to pay for subscription packages
         </Text>
       </View>
@@ -182,11 +183,12 @@ export default function BalanceComponent() {
             "bg-purple-2  rounded-[1px] justify-center gap-3 px-6 py-3"
           }
         >
-          <Text className={"font-normal  text-grey-8-100"}>
+          <Text className={"font-normal text-lg  text-grey-10"}>
             Available balance
           </Text>
-          <Text className={"font-semibold text-grey-10 text-base"}>
-            #{wallet?.balance}
+          <Text className={"font-semibold text-grey-10 text-lg"}>
+            <FontAwesome6 name="naira-sign" size={18} />
+            {wallet?.balance}
           </Text>
         </View>
       </View>
@@ -197,7 +199,7 @@ export default function BalanceComponent() {
         }
         onPress={() => setModalVisible(true)}
       >
-        <Text className={"text-white font-bold text-base"}>Recharge</Text>
+        <Text className={"text-white font-bold text-lg"}>Recharge</Text>
       </TouchableOpacity>
 
       {/* Recharge Modal */}

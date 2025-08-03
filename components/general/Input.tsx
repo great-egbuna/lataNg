@@ -3,6 +3,7 @@ import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { colors } from "@/colors";
 import Button from "./Button";
 import Loader from "./Loader";
+import React from "react";
 
 interface Props {
   placeholder?: string;
@@ -22,6 +23,7 @@ interface Props {
   onPress?: () => void;
   loading?: boolean;
   secureTextEntry?: boolean;
+  rightIcon?: React.ReactNode;
 }
 
 export default function Input({
@@ -42,6 +44,7 @@ export default function Input({
   onPress,
   loading,
   secureTextEntry = false,
+  ...props
 }: Props) {
   return (
     <View className={`rounded flex-row flex-1 ${customStyles} `}>
@@ -58,6 +61,8 @@ export default function Input({
         defaultValue={value}
         secureTextEntry={secureTextEntry}
       />
+
+      {props.rightIcon && props.rightIcon}
 
       {showBtn && (
         <Button

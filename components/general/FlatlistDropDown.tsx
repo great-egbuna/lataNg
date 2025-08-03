@@ -41,7 +41,7 @@ export default function FLatlistDropdown({
           setIsOpen(!isOpen);
         }} // Toggle dropdown
       >
-        <Text className={`text-lg text-grey-5 ${textClassName}`}>
+        <Text className={`text-base md:text-lg text-grey-5 ${textClassName}`}>
           {placeholder || "Quick Search"}
         </Text>
         <MaterialIcons

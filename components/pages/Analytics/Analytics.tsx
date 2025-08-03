@@ -24,10 +24,10 @@ export default function AnalyticsPageComponent() {
   return (
     <ScrollView className={" h-full bg-white px-2 py-4"}>
       <View className={"gap-2 mb-4"}>
-        <Text className={"font-semibold text-sm text-grey-10 "}>
+        <Text className={"font-semibold text-lg text-grey-10 "}>
           Seller's Analytic
         </Text>
-        <Text className={"font-normal text-xs text-grey-7 "}>
+        <Text className={"font-normal text-lg text-grey-7 "}>
           Hi {user?.name}, Welcome back!
         </Text>
       </View>

@@ -25,6 +25,7 @@ import { IAUTH } from "@/interfaces/context/auth";
 import { save } from "@/store/storage";
 import { AppContextProps, ISocialUser, useApp } from "@/context/AppContext";
 import * as Linking from "expo-linking";
+import { ErrorType, getErrorMessage, objectToFormData } from "@/utils/utils";
 
 const phoneNumberValidation = yup
   .string()
@@ -63,26 +64,37 @@ const schemaValidation = yup.object().shape({
 
 const registerFields = [
   {
-    placeholder: "Enter  Business Name",
+    placeholder: "Enter Business Name",
     name: "name",
+    textarea: false,
+  },
+
+  {
+    placeholder: "Enter Email",
+    name: "email",
+    textarea: false,
   },
 
   {
     placeholder: "Enter Business Location",
     name: "address",
+    textarea: false,
   },
   {
     placeholder: "Enter Phone Number",
     name: "phoneNumber",
-  },
-  {
-    placeholder: "About Business",
-    name: "aboutBusiness",
+    textarea: false,
   },
 
   {
     placeholder: "Referrer ID (optional)",
     name: "referrerCode",
+    textarea: false,
+  },
+  {
+    placeholder: "About Business",
+    name: "aboutBusiness",
+    textarea: true,
   },
 ];
 
@@ -96,6 +108,7 @@ export default function CompleteSignUpComponent() {
 
   const [loading, setLoading] = useState(false);
   const [avatar, setAvatar] = useState<string | null>(null);
+  const [file, setFile] = useState<ImagePicker.ImagePickerAsset | null>(null);
 
   const onSubmit = async (
     values: any,
@@ -103,17 +116,24 @@ export default function CompleteSignUpComponent() {
   ) => {
     setLoading(true);
 
-    if (avatar) values.avatar = avatar;
+    const formData = objectToFormData(values);
+    if (file)
+      // @ts-expect-error
+      formData.append("file", {
+        uri: file.uri,
+        name: file.fileName,
+        type: file.mimeType,
+      });
 
-    values.googleIntegration = values.email;
+    // values.googleIntegration = values.email;
 
-    const res = await authService.completeRegisteration(values);
+    const res = await authService.completeRegisteration(formData);
 
     if (res instanceof Error) {
       showToast({
         type: "error",
         text1: "Error",
-        text2: res.message,
+        text2: res?.message,
       });
       setLoading(false);
       return;
@@ -130,7 +150,7 @@ export default function CompleteSignUpComponent() {
     resetForm();
     setLoading(false);
 
-    checkAuth();
+    checkAuth!();
 
     router.push("/");
   };
@@ -143,9 +163,8 @@ export default function CompleteSignUpComponent() {
     });
 
     if (!result.canceled) {
-      console.log("Image  result", result.assets[0].uri);
-
       setAvatar!(result.assets[0].uri);
+      setFile(result.assets[0]);
     } else {
       alert("You did not select any image");
     }
@@ -188,8 +207,9 @@ export default function CompleteSignUpComponent() {
         initialValues={{
           name: name,
           referrerCode: "",
-          password: "CompleteUserRegistration123$",
+          /*    password: "CompleteUserRegistration123$", */
           /*   shouldCompleteProfile: `${shouldCompleteProfile}`, */
+
           ...newSocailUser,
         }}
         validationSchema={schemaValidation}
@@ -201,25 +221,28 @@ export default function CompleteSignUpComponent() {
           values,
           errors,
         }: FormikProps<any>) => (
-          <View className="gap-4 h-full">
+          <View className="gap-2 min-h-full ">
             {registerFields.map((field, index) => {
               return (
-                <View key={index}>
+                <View key={index} className="gap-0 ">
                   <Input
                     placeholder={field.placeholder}
                     onChangeText={handleChange(field.name)}
                     onBlur={handleBlur(field.name)}
                     value={values[field.name]}
-                    customStyles="bg-white "
-                    customInputStyles="bg-white border rounded-md border-grey-12 py-2 px-3 min-h-[16px]"
+                    customStyles="bg-white"
+                    customInputStyles={`${
+                      field.name !== "email" && "bg-white "
+                    } border rounded-md border-grey-12 py-2 px-3 ${
+                      field.textarea ? "min-h-[120px]" : "min-h-[40px]"
+                    } ${field.textarea ? "max-h-[150px]" : "max-h-[40px]"}`}
                     editable={!(field.name === "email" && socialUser?.email)}
+                    multiline={field.textarea}
                   />
 
-                  {(errors[field.name] as any) && (
-                    <Text className="text-danger  text-small mt-2">
-                      {errors[field.name] as any}
-                    </Text>
-                  )}
+                  <Text className="text-danger  text-sm ">
+                    {errors[field.name] as any}
+                  </Text>
                 </View>
               );
             })}
@@ -227,33 +250,15 @@ export default function CompleteSignUpComponent() {
             <View className="gap-6">
               <ButtonSecondary
                 onPress={() => handleSubmit()}
-                text={
-                  loading ? (
-                    <Loader size="small" color="white" />
-                  ) : (
-                    "Complete sign up"
-                  )
-                }
+                text={loading ? "Please wait..." : "Complete sign up"}
                 customStyles="bg-purple rounded-lg w-full   w-full py-2.5 rounded-md"
                 customTextStyles="text-white font-semibold text-base"
               />
 
-              <Link href={"/login"}>
-                <Text className="font-normal text-base text-grey-6 text-center mx-auto">
-                  Already have an account?{" "}
-                  <Text className="text-purple text-base">Login</Text>
-                </Text>
-              </Link>
-
-              <View className="flex-row items-center gap-[10px]">
-                <View className="flex-1 h-0.5 bg-gray-300" />
-                <Text className="font-normal text-grey-6">Or Login with</Text>
-                <View className="flex-1 h-0.5 bg-gray-300" />
-              </View>
               <Pressable onPress={handleTermsAndConditions}>
                 <Text className="font-normal text-base text-grey-6 text-center mx-auto">
-                  By creating an account, you agree to the and{" "}
-                  <Text className="text-purple">Terms and Conditions</Text>{" "}
+                  By creating an account, you agree to the{" "}
+                  <Text className="text-purple">Terms and Conditions</Text> and{" "}
                   <Text className="text-purple">Privacy Policy</Text>
                 </Text>
               </Pressable>

@@ -15,7 +15,7 @@ export default function SafetyTips() {
       <View className={"border border-grey-2 rounded-[10px] p-4"}>
         <Text
           className={
-            "text-grey-10 font-semibold text-xl tracking-[-0.72px] mb-3"
+            "text-grey-10 font-medium text-base md:text-lg tracking-[-0.72px] mb-3"
           }
         >
           Safety tips

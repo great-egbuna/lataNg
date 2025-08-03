@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import Input from "@/components/general/Input";
 import { ErrorMessage, Formik, FormikProps } from "formik";
-import { Image, Text, View } from "react-native";
+import { Image, Text, TouchableOpacity, View } from "react-native";
 import ButtonSecondary from "@/components/general/ButtonSecondary";
 import { images } from "@/constants/images";
 import * as yup from "yup";
@@ -16,6 +16,8 @@ import { socialAuthService } from "@/services/socialAuth.service";
 import { ILOGIN } from "@/interfaces/auth";
 import { colors } from "@/colors";
 import { AppContextProps, useApp } from "@/context/AppContext";
+import { customLogger } from "@/utils/utils";
+import { Feather } from "@expo/vector-icons";
 
 const schemaValidation = yup.object().shape({
   email: yup
@@ -50,6 +52,7 @@ export default function LoginComponent() {
 
   const [loading, setLoading] = useState(false);
   const [loadingSocialAuth, setLoadingSocialAuth] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const onSubmit = async (
     values: any,
@@ -97,66 +100,11 @@ export default function LoginComponent() {
     router.push("/");
   };
 
-  const handleGoogleSignIn = async () => {
-    setLoadingSocialAuth(true);
-
-    const googleRes = await socialAuthService.googleSignIn();
-
-    if (googleRes instanceof Error) {
-      showToast({
-        type: "error",
-        text1: "Error",
-        text2: googleRes.message,
-      });
-      setLoadingSocialAuth(false);
-      return;
-    }
-    const values: ILOGIN = {
-      email: googleRes?.email as string,
-      password: "CompleteUserRegistration123$",
-    };
-
-    const res = await authService.login(values);
-
-    if (res instanceof Error) {
-      showToast({
-        type: "error",
-        text1: "Error",
-        text2: res.message,
-      });
-      setLoadingSocialAuth(false);
-      return;
-    }
-
-    if (!res.publicToken || !res.isEmailVerified) {
-      showToast({
-        type: "error",
-        text1: "Error",
-        text2: "Please verify your email",
-      });
-      setLoading(false);
-
-      return;
-    }
-
-    showToast({
-      type: "success",
-      text1: "Success",
-      text2: res.message || "Success",
-    });
-
-    setLoadingSocialAuth(false);
-
-    await save("lataPubToken", res.publicToken);
-
-    checkAuth();
-    router.push("/");
-  };
-
-  const handleSignInBuyer = async () => {
+  const handleSocialAuth = async () => {
     setLoadingSocialAuth(true);
 
     const res = await socialAuthService.googleSignUp();
+
     if (res instanceof Error) {
       showToast({
         type: "error",
@@ -167,9 +115,9 @@ export default function LoginComponent() {
 
       return;
     }
-
-    const callbackResponse = await socialAuthService.googleCallback({
-      role: decision,
+    console.log("descison", decision);
+    const callbackResponse = await socialAuthService.googleCallbackNotAlly({
+      role: "BUYER",
       accessToken: res as string,
     });
 
@@ -190,6 +138,64 @@ export default function LoginComponent() {
       text2: "Success",
     });
 
+    // @ts-ignore
+
+    if (callbackResponse?.shouldCompleteProfile) {
+      router.push("/complete-signup");
+    } else {
+      await save("lataPubToken", callbackResponse?.publicToken);
+      checkAuth!();
+      router.push("/");
+      setLoading(false);
+      setLoadingSocialAuth(false);
+    }
+
+    return;
+  };
+  const handleSignInBuyer = async () => {
+    setLoadingSocialAuth(true);
+
+    const res = await socialAuthService.googleSignUp();
+    if (res instanceof Error) {
+      showToast({
+        type: "error",
+        text1: "Request Failed",
+        text2: "Failed to sign in with google",
+      });
+      setLoadingSocialAuth(false);
+
+      return;
+    }
+
+    const callbackResponse = await socialAuthService.googleCallbackNotAlly({
+      role: decision,
+      accessToken: res as string,
+    });
+
+    if (callbackResponse instanceof Error) {
+      customLogger({
+        file: "LoginComponent.tsx",
+        component: "LoginComponent",
+        log: callbackResponse,
+      });
+
+      showToast({
+        type: "error",
+        text1: "Request Failed",
+        text2: "Failed to sign in with google",
+      });
+      setLoadingSocialAuth(false);
+      setLoading(false);
+
+      return;
+    }
+
+    showToast({
+      type: "success",
+      text1: "Success",
+      text2: "Success",
+    });
+
     setLoadingSocialAuth(false);
 
     await save("lataPubToken", callbackResponse?.publicToken);
@@ -198,8 +204,7 @@ export default function LoginComponent() {
     router.push("/");
   };
 
-  const onPress =
-    decision === "SELLER" ? handleGoogleSignIn : handleSignInBuyer;
+  const onPress = handleSocialAuth;
 
   return (
     <View className=" mt-12">
@@ -222,6 +227,7 @@ export default function LoginComponent() {
         }: FormikProps<any>) => (
           <View className="gap-6">
             {loginFields.map((field, index) => {
+              const isPassword = field.name === "password";
               return (
                 <View key={index} className="flex-1">
                   <Input
@@ -229,8 +235,23 @@ export default function LoginComponent() {
                     onChangeText={handleChange(field.name)}
                     onBlur={handleBlur(field.name)}
                     value={values[field.name]}
-                    customStyles="bg-white"
-                    customInputStyles="bg-white border rounded-md border-grey-12 px-3 py-2"
+                    customStyles="bg-white border rounded-md border-grey-12 px-3 py-2 items-center"
+                    customInputStyles="bg-white"
+                    secureTextEntry={isPassword && !showPassword}
+                    // If your Input supports a rightIcon or similar prop:
+                    rightIcon={
+                      isPassword ? (
+                        <TouchableOpacity
+                          onPress={() => setShowPassword((prev) => !prev)}
+                        >
+                          {showPassword ? (
+                            <Feather name="eye" size={20} />
+                          ) : (
+                            <Feather name="eye-off" size={20} />
+                          )}
+                        </TouchableOpacity>
+                      ) : null
+                    }
                   />
 
                   {(errors[field.name] as any) && (
@@ -241,7 +262,6 @@ export default function LoginComponent() {
                 </View>
               );
             })}
-
             <View className="gap-6">
               <ButtonSecondary
                 text={loading ? <Loader size="small" color="white" /> : "Login"}
@@ -251,12 +271,12 @@ export default function LoginComponent() {
               />
 
               <Link href={"/decision"}>
-                <Text className="font-normal text-sm text-grey-6 text-center mx-auto">
+                <Text className="font-normal text-lg text-grey-6 text-center mx-auto">
                   Don’t have an account ?{" "}
-                  <Text className="text-purple text-small">Sign up</Text>
+                  <Text className="text-purple text-lg">Sign up</Text>
                 </Text>
               </Link>
-
+              {/* 
               <View className="flex-row items-center gap-[10px]">
                 <View className="flex-1 h-0.5 bg-gray-100" />
                 <Text className="font-normal text-grey-6">Or login with</Text>
@@ -275,7 +295,7 @@ export default function LoginComponent() {
                 customTextStyles="text-purple font-semibold text-base"
                 iconSrc={loadingSocialAuth ? "" : images.googleIcon}
                 onPress={onPress}
-              />
+              /> */}
 
               <Text className="font-normal text-base text-grey-6  mx-auto">
                 By creating an account, you agree to the

@@ -15,8 +15,7 @@ import DropdownInput, {
 import { useState } from "react";
 import { objectToFormData } from "@/utils/utils";
 import { productService } from "@/services/product.service";
-import { createProductValidator } from "@/validators/createProduct";
-import { ICreateProduct } from "@/interfaces/product";
+
 import Loader from "@/components/general/Loader";
 import { showToast } from "@/components/general/Toast";
 import { useAuth } from "@/context/AuthContext";
@@ -31,6 +30,8 @@ interface ProductFormProps {
   setShowOverlay: (value: boolean) => void;
   setSelectedImg: (value: string) => void;
   setProductFiles: (value: any[]) => void;
+  setProductName: (value: string) => void;
+  setProductPrice: (value: string) => void;
 }
 
 export default function ProductForm({
@@ -39,11 +40,11 @@ export default function ProductForm({
   setProductFiles,
   setShowOverlay,
   setSelectedImg,
+  ...props
 }: ProductFormProps) {
   const router = useRouter();
   const { user } = useAuth() as IAUTH;
-  const { cities, states, categories, subCategories } =
-    useApp() as AppContextProps;
+  const { states, categories } = useApp() as AppContextProps;
 
   const [files, setFiles] = useState<any>([]);
   const [uploading, setUploading] = useState(false);
@@ -53,13 +54,17 @@ export default function ProductForm({
     productType: "",
     state: "",
     city: "",
+    discount: "",
+    description: "",
   });
+  const [selectedSubCategory, setSelectedSubCategory] = useState<any>(null);
+  const [selectedCity, setSelectedCity] = useState<any>(null);
 
   const handleImageUpload = async () => {
     setUploading(true);
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ["images"],
-      allowsEditing: true,
+      allowsEditing: false,
       quality: 1,
       base64: false,
     });
@@ -88,8 +93,8 @@ export default function ProductForm({
     values.city = payload.city;
     values.price = Number(values.price);
 
-    if (values.discount) {
-      values.discount = Number(values.discount);
+    if (payload.discount) {
+      values.discount = Number(payload.discount);
     }
 
     const formData = objectToFormData(values);
@@ -123,6 +128,17 @@ export default function ProductForm({
     router.push("/shop");
   };
 
+  const handleNameChange = async (value: string, handleChange: any) => {
+    props.setProductName(value);
+    handleChange("name")(value);
+  };
+
+  const handlePriceChange = async (value: string, handleChange: any) => {
+    props.setProductName(value);
+
+    handleChange("price")(value);
+  };
+
   return (
     <Formik
       onSubmit={onSubmit}
@@ -140,7 +156,7 @@ export default function ProductForm({
       }: FormikProps<any>) => (
         <View className={"bg-white my-3 h-full "}>
           <View className={"p-3 border-grey-1 border rounded-lg gap-3 mb-3"}>
-            <Text className={"text-grey-7 font-normal text-small"}>
+            <Text className={"text-grey-7 font-normal text-sbase"}>
               Add at least one photo of your product
             </Text>
 
@@ -166,11 +182,11 @@ export default function ProductForm({
               />
             </View>
 
-            <Text className={"text-grey-8 font-normal text-tiny"}>
+            <Text className={"text-grey-8 font-normal text-base"}>
               Each picture must not exceed 5MB
             </Text>
 
-            <Text className={"text-grey-8 font-normal text-tiny "}>
+            <Text className={"text-grey-8 font-normal text-base "}>
               Supported formats are JPEG and PNG
             </Text>
           </View>
@@ -178,13 +194,14 @@ export default function ProductForm({
           <View className={"flex-row gap-2.5 px-2 items-start"}>
             <View className="flex-1">
               <Input
-                onChangeText={handleChange("name")}
+                onChangeText={(text) => handleNameChange(text, handleChange)}
                 onBlur={() => handleBlur("name")}
                 value={values.name}
                 placeholder={"Product name"}
                 customInputStyles={
                   "rounded-md bg-white border border-grey-5  px-3 py-3 "
                 }
+                multiline
               />
 
               <Text
@@ -198,13 +215,14 @@ export default function ProductForm({
 
             <View className="flex-1 ">
               <Input
-                onChangeText={handleChange("price")}
+                onChangeText={(text) => handlePriceChange(text, handleChange)}
                 onBlur={() => handleBlur("price")}
                 value={values.price?.toLocaleString()}
                 placeholder={"Price"}
                 customInputStyles={
                   "rounded-md bg-white border border-grey-5  px-3 py-3 "
                 }
+                multiline
               />
 
               <Text
@@ -221,9 +239,10 @@ export default function ProductForm({
             <View className={"flex-row gap-2.5  px-2 "}>
               <DropdownInputView
                 placeholder={"Select category"}
-                onSelect={(value) =>
-                  setPayload({ ...payload, categoryId: value.id })
-                }
+                onSelect={(value) => {
+                  setSelectedSubCategory(value?.subcategories);
+                  setPayload({ ...payload, categoryId: value.id });
+                }}
                 data={categories}
                 className="relative flex-1 "
                 btnClassName="py-3"
@@ -234,7 +253,7 @@ export default function ProductForm({
                 onSelect={(value) =>
                   setPayload({ ...payload, subCategoryId: value.id })
                 }
-                data={subCategories}
+                data={selectedSubCategory}
                 className="relative flex-1"
                 btnClassName="py-3"
               />
@@ -253,9 +272,10 @@ export default function ProductForm({
 
               <DropdownInputView
                 placeholder={"Select state"}
-                onSelect={(value) =>
-                  setPayload({ ...payload, state: value.id })
-                }
+                onSelect={(value) => {
+                  setPayload({ ...payload, state: value.id });
+                  setSelectedCity(value.cities);
+                }}
                 data={states}
                 className="relative flex-1 "
                 btnClassName="py-3"
@@ -266,19 +286,23 @@ export default function ProductForm({
               <DropdownInputView
                 placeholder={"Select city"}
                 onSelect={(value) => setPayload({ ...payload, city: value.id })}
-                data={cities}
+                data={selectedCity}
                 className="relative"
                 btnClassName="py-3"
               />
 
-              <Input
-                onChangeText={handleChange("discount")}
-                onBlur={() => handleBlur("discount")}
-                value={values.discount}
-                placeholder={"Give Discount(%) e.g 10"}
-                customInputStyles={
-                  "rounded-md bg-white border border-grey-5  px-3 py-3"
-                }
+              <DropdownInputView
+                placeholder={"Select Discount (%)"}
+                onSelect={(value) => {
+                  console.log("value-discount:", value);
+                  setPayload({ ...payload, discount: value.id });
+                }}
+                data={[...Array(101)].map((_, i) => ({
+                  id: i,
+                  name: `${i}`,
+                }))}
+                className="relative"
+                btnClassName="py-3"
               />
 
               <Input
@@ -305,7 +329,7 @@ export default function ProductForm({
                   <Loader color="white" size="small" />
                 ) : (
                   <Text className={" text-white font-semibold "}>
-                    Update Product
+                    Create Product
                   </Text>
                 )}
               </TouchableOpacity>

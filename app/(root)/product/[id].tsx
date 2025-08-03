@@ -242,22 +242,22 @@ export default function ProductDefault() {
             </>
           )}
 
+          <TouchableOpacity
+            className="flex-row items-center justify-center py-3 px-4 bg-purple-2 rounded-lg mt-4"
+            onPress={handleOpenFeedback}
+          >
+            <Ionicons name="star-outline" size={20} color={colors.purple} />
+            <Text className="ml-2 text-purple font-medium text-base md:text-lg">
+              Leave Feedback
+            </Text>
+          </TouchableOpacity>
+
           <ProductFeedback
             productId={selectedProduct?.product?.id || selectedProduct?.id}
           />
           <SimilarProducts categoryId={selectedProduct?.categoryId} />
 
           {/* Feedback Button */}
-
-          <TouchableOpacity
-            className="flex-row items-center justify-center py-3 px-4 bg-purple-2 rounded-lg mt-4"
-            onPress={handleOpenFeedback}
-          >
-            <Ionicons name="star-outline" size={20} color={colors.purple} />
-            <Text className="ml-2 text-purple font-semibold">
-              Leave Feedback
-            </Text>
-          </TouchableOpacity>
         </View>
         <FeedbackModal
           productId={selectedProduct?.product?.id || selectedProduct?.id}

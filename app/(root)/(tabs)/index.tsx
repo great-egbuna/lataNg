@@ -23,11 +23,10 @@ import { useSavedProducts } from "@/hooks/useProducts";
 export default function Index() {
   const router = useRouter();
   const { width } = useWindowDimensions();
-  const { appLoading, setSelectedProduct, subCategoryProducts, saveProductId } =
+  const { appLoading, setSelectedProduct, subCategoryProducts } =
     useApp() as AppContextProps;
   const { user, isLoggedIn, loading: authLoading } = useAuth() as IAUTH;
   const { searchResult } = useSearch() as ISearchContextProps;
-  const { savedProducts } = useSavedProducts();
 
   const [products, setProducts] = useState<any>([]);
   const [otherProducts, setOtherProducts] = useState<any>([]);
@@ -127,11 +126,11 @@ export default function Index() {
   };
 
   if (appLoading) {
-    return <FullScreenLoader />;
+    return <FullScreenLoader label="Loading app..." />;
   }
 
   if (loading) {
-    return <FullScreenLoader />;
+    return <FullScreenLoader label="Loading products.." />;
   }
 
   if (error) {

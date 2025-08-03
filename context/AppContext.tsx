@@ -11,6 +11,7 @@ import React, {
   useState,
 } from "react";
 import { ImageSourcePropType } from "react-native";
+import { usePathname } from "expo-router";
 
 interface AppProviderProps {
   children: ReactNode;
@@ -140,6 +141,8 @@ const AppContext = createContext<AppContextProps | null>(null);
 export const useApp = () => useContext(AppContext);
 
 export default function AppProvider({ children, mounted }: AppProviderProps) {
+  const pathname = usePathname();
+
   const [navOpen, setNavOpen] = useState(false);
   const [feedbackOpen, setFeedbackOpen] = useState(false);
   const [feedbackProductId, setFeedbackProductId] = useState<
@@ -229,7 +232,7 @@ export default function AppProvider({ children, mounted }: AppProviderProps) {
       const res = await reelService.getReels();
       setReels(res);
     })();
-  }, []);
+  }, [pathname]);
 
   // Handle category selection
   const handleCategorySelect = async (category: ICategoryWithSubcategories) => {

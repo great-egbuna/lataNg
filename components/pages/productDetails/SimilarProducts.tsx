@@ -35,7 +35,11 @@ export default function SimilarProducts({
 
   return (
     <View>
-      <Text className={"text-black font-bold text-xl tracking-[-0.72px] mb-2"}>
+      <Text
+        className={
+          "text-black font-medium text-base md:text-lg tracking-[-0.72px] mb-2"
+        }
+      >
         Similar Products
       </Text>
       <View className="flex-row ">

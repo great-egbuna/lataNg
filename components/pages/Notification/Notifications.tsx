@@ -53,16 +53,20 @@ export default function NotificationsComponent() {
             url={item?.data?.url}
           />
         )}
-        className={"px-2 bg-white  border border-grey-2 rounded-[7px] "}
+        className={"px-2 bg-white   rounded-[7px] min-h-full "}
         keyExtractor={(item, index) => index?.toString()}
         ListEmptyComponent={() => (
           <View className="flex-1 justify-center items-center">
-            <Text className="text-gray-500">No notifications found</Text>
+            <Text className="text-gray-500 text-base">
+              No notifications found
+            </Text>
           </View>
         )}
         ListFooterComponent={() => (
           <View className="flex-1 justify-center items-center">
-            <Text className="text-gray-500">No more notifications</Text>
+            <Text className="text-gray-500 text-base">
+              No more notifications
+            </Text>
           </View>
         )}
         onEndReached={loadMoreNotifications}
@@ -89,14 +93,14 @@ const Header = ({
 
   return (
     <View className={"justify-between  py-3 flex-row  items-center bg-white"}>
-      <Text className={"text-grey-9 font-semibold text-base"}>
+      <Text className={"text-grey-9 font-medium text-base md:text-lg"}>
         Notifications
       </Text>
       <TouchableOpacity onPress={markAsRead} disabled={isRead === 1}>
         <Text
           className={`${
             isRead === 1 ? "opacity-50" : ""
-          } text-purple font-normal text-base`}
+          } text-purple font-medium text-base md:text-lg text-base`}
         >
           Mark all as read
         </Text>

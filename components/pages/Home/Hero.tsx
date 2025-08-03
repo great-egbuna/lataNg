@@ -99,13 +99,14 @@ export default function Hero({
         horizontal
         bounces={false}
         renderItem={({ item }) => <ReelCircle item={item} />}
+        className="mt-2"
         showsHorizontalScrollIndicator={false}
       />
 
-      <View className="flex-row justify-between mt-4">
+      <View className="flex-row itms-center justify-between mt-4">
         {/*  <ButtonSecondary text="Select category" icon={"keyboard-arrow-down"} /> */}
 
-        <View className="w-[140px] py-0.5">
+        <View className="w-[140px] py-0.5 ">
           <FLatlistDropdown
             placeholder={category?.name}
             btnClassName="py-0 rounded-xl  border-purple min-h-[28px]"
@@ -140,18 +141,18 @@ export default function Hero({
 
       {subCategoryProducts && subCategoryProducts.length === 0 ? (
         <View className="gap">
-          <Text className="text-base mt-2 font-semibold text-gray-300">
+          <Text className="text-base md:text-lg mt-2 font-semibold text-gray-300">
             No Products Found In That Category
           </Text>
 
-          <Text className="text-xl my-2 font-semibold">
+          <Text className="text-base md:text-lg my-2 font-semibold">
             {title || "Trending Products"}
           </Text>
         </View>
       ) : (
         <>
           {showTitle && (
-            <Text className={`text-xl  font-semibold my-2`}>
+            <Text className={`text-base md:text-lg  font-medium my-2`}>
               {category?.name && category?.name !== "All categories"
                 ? title
                 : title || "Trending Products"}

@@ -14,7 +14,7 @@ export default function ProductInsight({
   clicks: number;
   visits: number;
 }) {
-  const [insights, setInsights] = useState([
+  const insights = [
     {
       label: "Views",
       icon: (
@@ -39,11 +39,11 @@ export default function ProductInsight({
       icon: <MaterialIcons name="person" size={24} color={colors.purple} />,
       count: visits,
     },
-  ]);
+  ];
 
   return (
     <View className={"border border-grey-2 rounded-[10px] p-4"}>
-      <Text className={"text-grey-10 font-semibold text-sm mb-3"}>
+      <Text className={"text-grey-10 font-medium text-base md:text-lg mb-3"}>
         Product insights
       </Text>
 
@@ -56,10 +56,10 @@ export default function ProductInsight({
             >
               <View className="flex-1 flex-row gap-3 items-center">
                 {insight.icon}
-                <Text>{insight.label}</Text>
+                <Text className="text-base md:text-lg">{insight.label}</Text>
               </View>
 
-              <Text>{insight.count || 0}</Text>
+              <Text className="text-base md:text-lg">{insight.count || 0}</Text>
             </View>
           );
         })}

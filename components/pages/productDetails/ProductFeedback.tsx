@@ -31,8 +31,10 @@ export default function ProductFeedback(props: IProductFeedback) {
   if (error)
     return (
       <View className={"gap-1"}>
-        <Text className={"text-black font-bold text-xl"}>Feedbacks</Text>
-        <Text className="text-grey-6 text-lg">
+        <Text className={"text-black font-medium text-base md:text-lg"}>
+          Feedbacks
+        </Text>
+        <Text className="text-grey-6 text-base md:text-lg">
           Could not fetch product feedback
         </Text>
       </View>
@@ -41,10 +43,10 @@ export default function ProductFeedback(props: IProductFeedback) {
   if (feedbacks?.length === 0)
     return (
       <View className={"gap-1"}>
-        <Text className={"text-black font-bold text-xl tracking-[-0.72px]"}>
+        <Text className={"text-black font-medium text-base md:text-lg"}>
           Feedbacks
         </Text>
-        <Text className="text-grey-6 text-lg tracking-[-0.72px]">
+        <Text className="text-grey-6 text-base md:text-lg">
           No feedbacks for this product{" "}
         </Text>
       </View>
@@ -52,7 +54,7 @@ export default function ProductFeedback(props: IProductFeedback) {
   return (
     <View className={"gap-2"}>
       <View className={"flex-row items-center justify-between"}>
-        <Text className={"text-black font-bold text-xl tracking-[-0.72px]"}>
+        <Text className={"text-black font-medium text-base md:text-lg"}>
           Feedbacks
         </Text>
       </View>

@@ -1,21 +1,20 @@
+import React from "react";
+
 import { Image, ImageSourcePropType, Text, View } from "react-native";
 import IconText from "@/components/general/IconText";
 import Ionicons from "@expo/vector-icons/Ionicons";
+import { FontAwesome6 } from "@expo/vector-icons";
 
 interface ProductPreviewProps {
   imgSource?: ImageSourcePropType;
   name?: string;
-  price?: number;
+  price?: string;
 }
 
-export default function ProductPreview({
-  imgSource,
-  name,
-  price,
-}: ProductPreviewProps) {
+function ProductPreview({ imgSource, name, price }: ProductPreviewProps) {
   return (
     <View className={"border border-grey-1 rounded-lg p-3 gap-3"}>
-      <Text className={"text-grey-8 text-sm font-normal"}>
+      <Text className={"text-grey-8 text-lg font-normal"}>
         Your Product will be displayed like this
       </Text>
 
@@ -31,16 +30,18 @@ export default function ProductPreview({
             className={"w-full h-full rounded-lg"}
           />
         ) : (
-          <Text className={"font-normal text-sm text-grey-8-100"}>
+          <Text className={"font-normal text-lg text-grey-8-100"}>
             Product Photo
           </Text>
         )}
       </View>
 
-      <Text className={"text-purple font-semibold text-base"}>
+      <Text className={"text-purple font-semibold text-lg"}>
         {name || "Product name"}
       </Text>
-      <Text className={"text-grey-9 font-normal text-sm"}>
+      <Text className={"text-grey-9 font-normal text-lg"}>
+        {" "}
+        <FontAwesome6 name="naira-sign" size={20} />
         {price?.toLocaleString()
           ? `N${price?.toLocaleString()}`
           : " Product price"}
@@ -54,3 +55,5 @@ export default function ProductPreview({
     </View>
   );
 }
+
+export default React.memo(ProductPreview);

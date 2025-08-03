@@ -32,10 +32,8 @@ export default function ImageCurosel({ uri, images }: Props) {
     setActiveImageIndex((prev) => prev - 1);
   };
 
-  console.log("Images", images?.length);
-
   return (
-    <View className={"flex-1 h-[179px] rounded-md relative"}>
+    <View className={"flex-1 h-[350px] rounded-md relative"}>
       <Image
         className={"w-full h-full rounded-md object-cover bg-indigo-100/40"}
         source={{ uri: images[activeImageIndex]?.url || uri }}

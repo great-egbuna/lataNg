@@ -48,6 +48,8 @@ export default function Profile() {
         lastUpdated: new Date().toISOString(),
       });
 
+      console.log("metaString", user?.meta);
+
       // First create a base object with the correct types
       const profileData: Record<string, any> = {
         // Include fields with correct types
@@ -106,8 +108,8 @@ export default function Profile() {
         }) => {
           return (
             <>
-              <View className={"px-2 h-full bg-white"}>
-                <Text className={"font-semibold text-grey-9 text-base mt-4 "}>
+              <View className={" h-full bg-white"}>
+                <Text className={"font-semibold text-grey-9 text-xl mt-4 "}>
                   Settings
                 </Text>
 
@@ -138,7 +140,7 @@ export default function Profile() {
                     onPress={() => handleSubmit()}
                     disabled={loading || submitting}
                   >
-                    <Text className={"text-white font-semibold"}>
+                    <Text className={"text-white font-semibold text-lg"}>
                       {loading || submitting ? "Saving..." : "Save"}
                     </Text>
                   </TouchableOpacity>

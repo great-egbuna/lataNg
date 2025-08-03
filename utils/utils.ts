@@ -100,3 +100,51 @@ export const formatTimeString = (dateStr: string) => {
 
   return formattedTime;
 };
+
+type LoggerParams = {
+  file: string;
+  component: string;
+  log: any;
+};
+
+export function customLogger({ file, component, log }: LoggerParams) {
+  const output = {
+    file,
+    component,
+    log,
+  };
+
+  console.log(output);
+  /*  return output; */
+}
+
+export type ErrorType = {
+  message: string;
+  error: { message: string }[];
+};
+
+export function getErrorMessage(error: ErrorType) {
+  const message = error?.error[0]?.message || "Something Occurred";
+  return message;
+}
+
+export const formatDateToShortMonthDay = (dateString: string) => {
+  const date = new Date(dateString);
+  const months = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ];
+  const month = months[date.getMonth()];
+  const day = date.getDate();
+  return `${month}, ${day}`;
+};

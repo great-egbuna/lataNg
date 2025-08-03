@@ -15,6 +15,10 @@ export default function Sell() {
   const [selectedImg, setSelectedImg] = useState<any | null>(null);
   const [deletedImages, setDeletedImages] = useState<any[]>([]);
   const [showOverlay, setShowOverlay] = useState(false);
+  const [productName, setProductName] = useState<string | undefined>(undefined);
+  const [productPrice, setProductPrice] = useState<string | undefined>(
+    undefined
+  );
 
   const handleImgDelete = () => {
     const newProductFiles = productFiles?.filter(
@@ -65,7 +69,11 @@ export default function Sell() {
         </View>
       )}
 
-      <ProductPreview imgSource={selectedImage} />
+      <ProductPreview
+        imgSource={selectedImage}
+        name={productName}
+        price={productPrice}
+      />
 
       <ProductForm
         setSelectedImage={setSelectedImage}
@@ -73,6 +81,8 @@ export default function Sell() {
         setSelectedImg={setSelectedImg}
         setShowOverlay={setShowOverlay}
         setProductFiles={setProductFiles}
+        setProductName={setProductName}
+        setProductPrice={setProductPrice}
       />
     </ScrollView>
   );

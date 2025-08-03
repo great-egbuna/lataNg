@@ -9,6 +9,7 @@ import {
   IVERIFYEMAIL,
   IVERIFYOPT,
 } from "@/interfaces/auth";
+import { customLogger, getErrorMessage } from "@/utils/utils";
 
 class AuthService {
   public async register(payload: IREGISTER) {
@@ -27,13 +28,21 @@ class AuthService {
     }
   }
 
-  public async completeRegisteration(payload: IREGISTER) {
+  public async completeRegisteration(payload: FormData) {
     try {
-      const res = await $http.post("/auth/complete-registration", payload);
+      const res = await $http.post("/auth/complete-registration", payload, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
       return res.data;
     } catch (error) {
-      console.log("error", JSON.stringify(error?.response?.data));
-      return new Error("Failed to register");
+      customLogger({
+        file: "auth.service.ts",
+        component: "",
+        log: JSON.stringify(error?.response?.data),
+      });
+      return new Error(getErrorMessage(error?.response?.data));
     }
   }
 

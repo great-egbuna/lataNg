@@ -153,10 +153,12 @@ export default function ProductCard({
 
       <View className="my-2 gap-[6px]">
         {!!discount && (
-          <Label
-            text={`${discount}% OFF`}
-            labelClassName="bg-[#fe0707] px-2 max-w-[100px]"
-          />
+          <View className="flex-row items-center gap-2">
+            <Label
+              text={`${discount}% OFF`}
+              labelClassName="bg-[#fe0707] px-2 "
+            />
+          </View>
         )}
 
         <Discount
@@ -165,9 +167,11 @@ export default function ProductCard({
           calculateDiscount={calculateDiscount}
           discount={discount}
         />
-        <Text className="font-semibold text-lg tracking-[-0.72px]">{name}</Text>
+        <Text className="font-normal text-base md:text-lg tracking-[-0.72px]">
+          {name}
+        </Text>
 
-        <Text className="text-lg text-grey-8 font-normal w-full  tracking-[-0.72px] line-clamp-2">
+        <Text className="text-base text-grey-8 font-normal w-full  tracking-[-0.72px] line-clamp-2">
           {desc}
         </Text>
 
@@ -175,7 +179,7 @@ export default function ProductCard({
           <View className="flex-row items-center ">
             <IonIcons name="location-outline" size={16} />
 
-            <Text className="text-lg text-grey-8 font-normal shrink">
+            <Text className="text-base md:text-lg text-grey-8 font-normal shrink">
               {/*   {getState(location)} */}
 
               {uuidRgx.test(location) ? getState(location) : location}
@@ -216,9 +220,11 @@ const Label = ({
 }) => {
   return (
     <View
-      className={`bg-purpl py-1.5 px-3 rounded-br-[3px] justify-center items-center rounded w-fit, ${labelClassName}`}
+      className={` py-1.5  px-3 rounded-br-[3px] justify-center items-center rounded w-fit ${labelClassName}`}
     >
-      <Text className="text-white font-normal text-base">{text}</Text>
+      <Text className="text-white font-normal text-sm md:text-base">
+        {text}
+      </Text>
     </View>
   );
 };

@@ -48,11 +48,11 @@ export default function ProfileSettings({
 
   return (
     <View className={"p-2 border border-offwhite rounded-[7px] flex-1"}>
-      <Text className={"font-semibold text-xs text-grey-9"}>
+      <Text className={"font-semibold text-lg text-grey-9"}>
         Notification Settings
       </Text>
 
-      <Text className={"font-normal "}>
+      <Text className={"font-normal text-base tracking-[-0.72px]"}>
         You will get an email notification for options you toggle on.
       </Text>
 
@@ -70,9 +70,9 @@ export default function ProfileSettings({
               }
             >
               <Text
-                className={`font-normal text-xs text-grey-8 ${
+                className={`font-normal text-lg text-grey-8 ${
                   item.label.includes("SMS") &&
-                  "font-semibold text-sm text-grey-9"
+                  "font-semibold text-lg text-grey-9"
                 }`}
               >
                 {item.label}

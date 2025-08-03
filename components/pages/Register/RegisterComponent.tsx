@@ -12,7 +12,7 @@ import {
 import ButtonSecondary from "@/components/general/ButtonSecondary";
 import { images } from "@/constants/images";
 import * as yup from "yup";
-import { Ionicons } from "@expo/vector-icons";
+import { Feather, Ionicons } from "@expo/vector-icons";
 import { Link } from "expo-router";
 import { ACCEPTED_IMAGE_TYPES } from "@/constants/image_types";
 import Loader from "@/components/general/Loader";
@@ -27,7 +27,7 @@ import { AppContextProps, useApp } from "@/context/AppContext";
 import { buyerFields, sellerFields } from "@/constants/form";
 import { useAuth } from "@/context/AuthContext";
 import { IAUTH } from "@/interfaces/context/auth";
-import { objectToFormData } from "@/utils/utils";
+import { customLogger, objectToFormData } from "@/utils/utils";
 import { IREGISTER } from "@/interfaces/auth";
 import * as Linking from "expo-linking";
 
@@ -95,6 +95,7 @@ export default function RegisterComponent() {
   const [loadingSocialAuth, setLoadingSocialAuth] = useState(false);
   const [avatar, setAvatar] = useState<string | null>(null);
   const [file, setFile] = useState<any | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
 
   const registerFields = decision === "SELLER" ? sellerFields : buyerFields;
 
@@ -107,6 +108,7 @@ export default function RegisterComponent() {
     const formData = objectToFormData(values);
 
     if (file) {
+      // @ts-expect-error
       formData.append("file", {
         uri: file.uri,
         type: file.mimeType,
@@ -197,15 +199,14 @@ export default function RegisterComponent() {
 
     // @ts-ignore
 
-    if (decision === "SELLER") {
+    if (callbackResponse?.shouldCompleteProfile) {
       router.push("/complete-signup");
     } else {
-      setLoadingSocialAuth(false);
-
       await save("lataPubToken", callbackResponse?.publicToken);
-      checkAuth();
-
+      checkAuth!();
       router.push("/");
+      setLoading(false);
+      setLoadingSocialAuth(false);
     }
 
     return;
@@ -263,6 +264,7 @@ export default function RegisterComponent() {
         }: FormikProps<any>) => (
           <View className="gap-4">
             {registerFields.map((field, index) => {
+              const isPassword = field.name === "password";
               return (
                 <View key={index} className="flex-1">
                   <Input
@@ -270,8 +272,23 @@ export default function RegisterComponent() {
                     onChangeText={handleChange(field.name)}
                     onBlur={handleBlur(field.name)}
                     value={values[field.name]}
-                    customStyles="bg-white "
-                    customInputStyles="bg-white  border rounded-md border-grey-12 py-2 px-3"
+                    customStyles="bg-white border rounded-md border-grey-12 px-3 py-2 items-center"
+                    customInputStyles="bg-white"
+                    secureTextEntry={isPassword && !showPassword}
+                    // If your Input supports a rightIcon or similar prop:
+                    rightIcon={
+                      isPassword ? (
+                        <TouchableOpacity
+                          onPress={() => setShowPassword((prev) => !prev)}
+                        >
+                          {showPassword ? (
+                            <Feather name="eye" size={20} />
+                          ) : (
+                            <Feather name="eye-off" size={20} />
+                          )}
+                        </TouchableOpacity>
+                      ) : null
+                    }
                   />
 
                   {(errors[field.name] as any) && (
@@ -294,13 +311,13 @@ export default function RegisterComponent() {
               />
 
               <Link href={"/login"}>
-                <Text className="font-normal text-base text-grey-6 text-center mx-auto">
+                <Text className="font-normal text-lg text-grey-6 text-center mx-auto">
                   Already have an account ?{" "}
-                  <Text className="text-purple text-base">Login</Text>
+                  <Text className="text-purple text-lg">Login</Text>
                 </Text>
               </Link>
 
-              <View className="flex-row items-center gap-[10px]">
+              {/*          <View className="flex-row items-center gap-[10px]">
                 <View className="flex-1 h-0.5 bg-gray-300" />
                 <Text className="font-normal text-grey-6 text-base">
                   Or Login with
@@ -321,7 +338,7 @@ export default function RegisterComponent() {
                 // @ts-ignore
                 iconSrc={loadingSocialAuth ? "" : images.googleIcon}
                 onPress={handleSocialAuth}
-              />
+              /> */}
               <Pressable onPress={handleTermsAndConditions}>
                 <Text className="font-normal text-base text-grey-6  mx-auto">
                   By creating an account, you agree to the{" "}

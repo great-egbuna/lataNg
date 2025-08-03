@@ -18,13 +18,12 @@ import DropdownInput, {
 import { useState } from "react";
 import { objectToFormData } from "@/utils/utils";
 import { productService } from "@/services/product.service";
-import { createProductValidator } from "@/validators/createProduct";
-import { ICreateProduct } from "@/interfaces/product";
+
 import Loader from "@/components/general/Loader";
 import { showToast } from "@/components/general/Toast";
 import { useAuth } from "@/context/AuthContext";
 import { IAUTH } from "@/interfaces/context/auth";
-import { Link, useRouter } from "expo-router";
+import { useRouter } from "expo-router";
 import { AppContextProps, useApp } from "@/context/AppContext";
 import { SimpleLineIcons } from "@expo/vector-icons";
 
@@ -40,7 +39,7 @@ interface ProductFormProps {
 
 export default function EditProductForm({
   setSelectedImage,
-  selectedImage,
+
   product,
   setShowOverlay,
   productFiles,
@@ -49,8 +48,7 @@ export default function EditProductForm({
 }: ProductFormProps) {
   const router = useRouter();
   const { user } = useAuth() as IAUTH;
-  const { cities, states, categories, subCategories } =
-    useApp() as AppContextProps;
+  const { states, categories } = useApp() as AppContextProps;
 
   const [files, setFiles] = useState<any>([]);
   const [uploading, setUploading] = useState(false);
@@ -60,15 +58,18 @@ export default function EditProductForm({
     productType: "",
     state: "",
     city: "",
+    discount: "",
+    description: "",
   });
-
+  const [selectedSubCategory, setSelectedSubCategory] = useState<any>(null);
+  const [selectedCity, setSelectedCity] = useState<any>(null);
   //console.log("productId", product?.files);
 
   const handleImageUpload = async () => {
     setUploading(true);
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ["images"],
-      allowsEditing: true,
+      allowsEditing: false,
       quality: 1,
       base64: false,
     });
@@ -98,8 +99,8 @@ export default function EditProductForm({
     values.selectedImage = payloadImage?.id;
     values.deleteImages = JSON?.stringify(deletedImages);
 
-    if (values.discount) {
-      values.discount = Number(values.discount);
+    if (payload.discount) {
+      values.discount = Number(payload.discount);
     }
 
     const formData = objectToFormData(values);
@@ -235,9 +236,10 @@ export default function EditProductForm({
             <View className={"flex-row gap-2.5  px-2 "}>
               <DropdownInputView
                 placeholder={product?.category?.name || "Select category"}
-                onSelect={(value) =>
-                  setPayload({ ...payload, categoryId: value.id })
-                }
+                onSelect={(value) => {
+                  setPayload({ ...payload, categoryId: value.id });
+                  setSelectedSubCategory(value?.subcategories);
+                }}
                 data={categories}
                 className="relative flex-1 "
                 btnClassName="py-3"
@@ -248,7 +250,7 @@ export default function EditProductForm({
                 onSelect={(value) =>
                   setPayload({ ...payload, subCategoryId: value.id })
                 }
-                data={subCategories}
+                data={selectedSubCategory}
                 className="relative flex-1"
                 btnClassName="py-3"
               />
@@ -267,9 +269,10 @@ export default function EditProductForm({
 
               <DropdownInputView
                 placeholder={"Select state"}
-                onSelect={(value) =>
-                  setPayload({ ...payload, state: value.id })
-                }
+                onSelect={(value) => {
+                  setPayload({ ...payload, state: value.id });
+                  setSelectedCity(value.cities);
+                }}
                 data={states}
                 className="relative flex-1 "
                 btnClassName="py-3"
@@ -280,19 +283,22 @@ export default function EditProductForm({
               <DropdownInputView
                 placeholder={"Select city"}
                 onSelect={(value) => setPayload({ ...payload, city: value.id })}
-                data={cities}
+                data={selectedCity}
                 className="relative"
                 btnClassName="py-3"
               />
 
-              <Input
-                onChangeText={handleChange("discount")}
-                onBlur={() => handleBlur("discount")}
-                value={values.discount}
-                placeholder={"Give Discount(%) e.g 10"}
-                customInputStyles={
-                  "rounded-md bg-white border border-grey-5  px-3 py-3"
-                }
+              <DropdownInputView
+                placeholder={"Select Discount (%)"}
+                onSelect={(value) => {
+                  setPayload({ ...payload, discount: value.id });
+                }}
+                data={[...Array(101)].map((_, i) => ({
+                  id: i + 1,
+                  name: `${i + 1}`,
+                }))}
+                className="relative"
+                btnClassName="py-3"
               />
 
               <Input

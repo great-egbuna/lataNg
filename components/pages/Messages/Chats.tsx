@@ -18,6 +18,7 @@ import { useAuth } from "@/context/AuthContext";
 import { io } from "socket.io-client";
 import { AppContextProps, useApp } from "@/context/AppContext";
 import { useRouter } from "expo-router";
+import { formatDateToShortMonthDay } from "@/utils/utils";
 export default function ChatUI({
   isLoading = false,
   onSendMessage,
@@ -133,6 +134,10 @@ export default function ChatUI({
         </View>
       </View>
       {/* Messages List */}
+
+      <Text className="text-center">
+        {formatDateToShortMonthDay(messages[0].createdAt)}
+      </Text>
       {isLoading ? (
         <View className="flex-1 justify-center items-center">
           <ActivityIndicator size="large" color="#8957E5" />

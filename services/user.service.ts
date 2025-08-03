@@ -17,6 +17,8 @@ interface UpdateProfileData {
   [key: string]: any;
 }
 
+const mainSiteLink = `https://lata-main-backend.azurewebsites.net/v1`;
+
 class UserService {
   async updateProfile(profileData: UpdateProfileData) {
     try {
@@ -24,8 +26,6 @@ class UserService {
 
       if (profileData.file) {
         const formData = new FormData();
-
-        console.log("profileData.file", profileData.file);
 
         formData.append("file", profileData.file);
 
@@ -63,7 +63,6 @@ class UserService {
             },
       });
 
-      console.log("profile update response", response?.data);
       return response?.data;
     } catch (error: any) {
       console.log("profile update error", error?.response?.data);
@@ -75,6 +74,19 @@ class UserService {
         );
       }
       return new Error("Profile update failed!");
+    }
+  }
+
+  async getSellerInfo(sellerId: string) {
+    try {
+      const sellerInfoResponse = await $http.get(
+        `${mainSiteLink}/users/seller/${sellerId}`
+      );
+      const seller = sellerInfoResponse?.data?.seller;
+
+      return seller;
+    } catch (error) {
+      return new Error("Failed to fetch sellers details");
     }
   }
 }

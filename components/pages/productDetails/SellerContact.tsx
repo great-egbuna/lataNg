@@ -1,8 +1,6 @@
 import { View, Text, TouchableOpacity, Modal, TextInput } from "react-native";
 import ImageText from "@/components/ui/ImageText";
 import Button from "@/components/general/Button";
-import { colors } from "@/colors";
-import { images } from "@/constants/images";
 import { AppContextProps, useApp } from "@/context/AppContext";
 import { Linking } from "react-native";
 import ButtonSecondary from "@/components/general/ButtonSecondary";
@@ -12,36 +10,60 @@ import { chatService } from "@/services/chat.service";
 import { useAuth } from "@/context/AuthContext";
 import { IAUTH } from "@/interfaces/context/auth";
 
-export default function SellerContact() {
+interface Prop {
+  name?: string;
+  phoneNumber?: string;
+  avatar?: string;
+  productId?: string;
+  userId?: string;
+}
+
+export default function SellerContact(props: Prop) {
   const { selectedProduct } = useApp() as AppContextProps;
 
   return (
     <View className={" px-3 py-6 border border-grey-2 rounded-[10px]"}>
       <ImageText
+        id={selectedProduct?.userId}
         title={
-          (selectedProduct?.user?.name as string) ||
+          (props?.name as string) ||
+          selectedProduct?.user?.name ||
           selectedProduct?.product?.user?.name
         }
         text={
-          (selectedProduct?.user?.phoneNumber as string) ||
+          (props.phoneNumber as string) ||
+          selectedProduct?.user?.phoneNumber ||
           selectedProduct?.product?.user?.phoneNumber
         }
         imgSource={
-          (selectedProduct?.user?.avatar as string) ||
-          selectedProduct?.product?.user?.avatar
+          (props?.avatar as string) ||
+          selectedProduct?.product?.user?.avatar ||
+          selectedProduct?.user?.avatar
         }
       />
 
-      <SellerCTA />
+      <SellerCTA
+        phoneNumber={props.phoneNumber}
+        productId={props.productId}
+        userId={props.userId}
+      />
     </View>
   );
 }
 
-const SellerCTA = () => {
+interface SellerCTAProp {
+  phoneNumber?: string;
+  productId?: string;
+  userId?: string;
+}
+
+const SellerCTA = (props: SellerCTAProp) => {
   const { selectedProduct } = useApp() as AppContextProps;
   const { user, isLoggedIn } = useAuth() as IAUTH;
   const [modalVisible, setModalVisible] = useState(false);
-  const [message, setMessage] = useState("");
+  const [message, setMessage] = useState(
+    `Hi, Is ${selectedProduct?.name} still available ?`
+  );
   const [sending, setSending] = useState(false);
   const [error, setError] = useState("");
 
@@ -53,13 +75,12 @@ const SellerCTA = () => {
       return;
     }
 
-    if (user && selectedProduct && user.id === selectedProduct.userId) {
+    if (
+      user &&
+      selectedProduct &&
+      user.id === (props?.userId || selectedProduct.userId)
+    ) {
       setError("You cannot send messages to yourself");
-      return;
-    }
-
-    if (user && user.role === "SELLER") {
-      setError("Please login as a buyer to send messages to sellers");
       return;
     }
 
@@ -77,9 +98,9 @@ const SellerCTA = () => {
 
       const res = await chatService.initiateChat({
         message: message.trim(),
-        productId: selectedProduct?.id,
+        productId: props?.productId || selectedProduct?.id,
         senderId: user?.id,
-        receiverId: selectedProduct?.userId,
+        receiverId: props.userId || selectedProduct?.userId,
       });
 
       if (res instanceof Error) {
@@ -98,6 +119,11 @@ const SellerCTA = () => {
     }
   };
 
+  const phone = props?.phoneNumber || selectedProduct?.user?.phoneNumber;
+  const productName = selectedProduct?.name;
+  const msg = `Hi, I am interested in ${productName} on Lata.ng`;
+  const url = `https://wa.me/234${phone}?text=${encodeURIComponent(msg)}`;
+
   return (
     <View className="gap-2 mt-6">
       <ButtonSecondary
@@ -105,18 +131,18 @@ const SellerCTA = () => {
         customTextStyles="text-white text-base "
         text={"WhatsApp Seller"}
         onPress={() =>
-          Linking.openURL(
-            `https://wa.me/+234${selectedProduct?.user?.phoneNumber}`
-          ).catch(() => alert("WhatsApp is not installed on this device"))
+          Linking.openURL(url).catch(() =>
+            alert("WhatsApp is not installed on this device")
+          )
         }
       />
       <Button
         className="py-1 rounded-2xl bg-white border border-purple"
         text={"Call Seller"}
         onPress={() =>
-          Linking.openURL(`tel:${selectedProduct?.user?.phoneNumber}`).catch(
-            () => alert("Failed to open dailer")
-          )
+          Linking.openURL(
+            `tel:${props?.phoneNumber || selectedProduct?.user?.phoneNumber}`
+          ).catch(() => alert("Failed to open dailer"))
         }
         purpleText
       />
@@ -128,23 +154,6 @@ const SellerCTA = () => {
         onPress={handleOpenChat}
         purpleText
       />
-
-      {/* <Button
-        customStyle={{
-          backgroundColor: colors.white,
-          width: "100%",
-          borderWidth: 1,
-          borderColor: colors.purple,
-          borderRadius: 12,
-        }}
-        buttonTextStyle={{
-          fontWeight: 600,
-          color: colors.purple,
-        }}
-        className="py-2"
-        text={"Give feedback"}
-        onPress={handleOpenChat}
-      /> */}
 
       {error ? <Text className="text-red-500 text-center">{error}</Text> : null}
       <Modal

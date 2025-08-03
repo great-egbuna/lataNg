@@ -79,11 +79,11 @@ export function useSavedProducts(
   };
 
   const checkIfProductIsSaved = (checkProductId: string | number): boolean => {
-    if (savingProducts.has(checkProductId)) {
+    if (savingProducts?.has(checkProductId)) {
       return true;
     }
 
-    const isSaved = savedProducts.some(
+    const isSaved = savedProducts?.some(
       (item) =>
         item.productId === checkProductId ||
         (item.product && item.product.id === checkProductId)
