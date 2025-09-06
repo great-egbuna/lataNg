@@ -15,7 +15,7 @@ export default function AppLayout() {
   const { setNavOpen, navOpen, subCategories, setSpecificCategoryProducts } =
     useApp() as AppContextProps;
   const { messages } = useMessage() as MessageContextProps;
-  const { user } = useAuth() as IAUTH;
+  const { user, isLoggedIn } = useAuth() as IAUTH;
   const { searchResult, setSearchResult } = useSearch() as ISearchContextProps;
 
   const isSeller = user?.role === "SELLER";
@@ -79,7 +79,7 @@ export default function AppLayout() {
           name="message"
           options={{
             headerShown: false,
-            href: isSeller ? "/message" : "/decision",
+            href: isLoggedIn ? "/message" : "/decision",
             tabBarIcon: ({ focused }) => {
               return (
                 <TabBarIcon
@@ -130,7 +130,7 @@ export default function AppLayout() {
           name="notifications"
           options={{
             headerShown: false,
-            href: isSeller ? "/notifications" : "/decision",
+            href: isLoggedIn ? "/notifications" : "/decision",
             tabBarIcon: ({ focused }) => {
               return (
                 <TabBarIcon
