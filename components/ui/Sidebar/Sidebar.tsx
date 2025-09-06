@@ -1,5 +1,4 @@
 import {
-  notLoggedInSidebar,
   buyerSidebar,
   sidebar,
   getNotLoggedInSidebar,

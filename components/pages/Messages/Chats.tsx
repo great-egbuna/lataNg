@@ -136,7 +136,7 @@ export default function ChatUI({
       {/* Messages List */}
 
       <Text className="text-center">
-        {formatDateToShortMonthDay(messages[0].createdAt)}
+        {formatDateToShortMonthDay(messages[messages?.length - 1].createdAt)}
       </Text>
       {isLoading ? (
         <View className="flex-1 justify-center items-center">

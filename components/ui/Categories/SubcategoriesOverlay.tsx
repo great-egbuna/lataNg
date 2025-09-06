@@ -13,8 +13,6 @@ import { colors } from "@/colors";
 import { ICategory, AppContextProps, IProduct } from "@/context/AppContext";
 import ButtonSecondary from "@/components/general/ButtonSecondary";
 import { useApp } from "@/context/AppContext";
-import { productService } from "@/services/product.service";
-import { useRouter } from "expo-router";
 
 interface SubcategoriesOverlayProps {
   visible: boolean;
@@ -29,12 +27,9 @@ function SubcategoriesOverlay({
   onClose,
   subcategories,
   categoryName,
-  categoryId,
 }: SubcategoriesOverlayProps) {
-  const { setSubCategoryProducts, unlimitedCategories } =
+  const { setSpecificCategoryProducts, unlimitedCategories } =
     useApp() as AppContextProps;
-
-  const router = useRouter();
 
   const handleSelect = async (subcategoryId: string) => {
     let otherProducts = [];
@@ -54,8 +49,8 @@ function SubcategoriesOverlay({
 
     const products = subProducts.length > 0 ? subProducts : otherProducts;
 
-    setSubCategoryProducts(products);
-    router.push(`/`);
+    setSpecificCategoryProducts(products);
+    /*  router.push(`/`); */
 
     onClose();
   };

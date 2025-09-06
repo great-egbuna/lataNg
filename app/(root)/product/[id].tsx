@@ -15,7 +15,7 @@ import FeedbackModal from "@/components/ui/Modal/FeedbackModal";
 import { productService } from "@/services/product.service";
 import ProductFeedback from "@/components/pages/productDetails/ProductFeedback";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import Loader, { FullScreenLoader } from "@/components/general/Loader";
+import { FullScreenLoader } from "@/components/general/Loader";
 import ErrorCard from "@/components/ui/ErrorCard";
 import ProductInsight from "@/components/pages/productDetails/ProductInsight";
 import ProductMgtButton from "@/components/pages/productDetails/ProductMgtButton";
@@ -34,7 +34,7 @@ export default function ProductDefault() {
 
   const router = useRouter();
 
-  const productId = selectedProduct?.product?.id || selectedProduct?.id;
+  const productId = selectedProduct?.product?.id;
 
   const { user, isLoggedIn } = useAuth() as IAUTH;
   const [feedbacks, setFeedbacks] = useState<any[]>([]);
@@ -94,49 +94,49 @@ export default function ProductDefault() {
     if (
       user &&
       selectedProduct &&
-      user.id === selectedProduct?.product?.productOwnerId
+      user.id === selectedProduct?.product?.userId
     ) {
       showToast({
         type: "error",
         text1: "Error",
-        text2: "You cannot give feedback to your own product",
+        text2: "You cannot give feedback on your own product",
       });
       return;
     }
 
-    const productName = selectedProduct?.product?.name || selectedProduct?.name;
+    const productName = selectedProduct?.product?.name;
     openFeedbackModal(productId, productName);
   };
 
   const getProductFeedbacks = async () => {
     const feedbacks = await productService.getProductFeedbacks(
-      selectedProduct?.id as string
+      selectedProduct?.product.id as string
     );
     setFeedbacks(feedbacks?.data);
   };
 
-  const product_owner_id =
-    selectedProduct?.userId || selectedProduct?.product?.userId;
+  const product_owner_id = selectedProduct?.product.userId;
+  const isOwnProduct = user?.id === product_owner_id;
 
-  const isOwnProduct = user && selectedProduct && user.id === product_owner_id;
   useEffect(() => {
     getProductFeedbacks();
   }, []);
 
   useEffect(() => {
-    if (selectedProduct && selectedProduct?.id === id) {
+    if (selectedProduct?.product?.id === id) {
       setLoading(false);
       return;
     }
 
     (async () => {
-      const res = await productService.getProductById(id as string);
+      const response = await productService.getProductById(id as string);
 
-      if (res instanceof Error) {
-        setError(res?.message);
+      if (response instanceof Error) {
+        setError(response?.message);
         setLoading(false);
       }
-      setSelectedProduct(res);
+
+      setSelectedProduct(response);
       setLoading(false);
     })();
   }, [id]);
@@ -153,77 +153,39 @@ export default function ProductDefault() {
       <ScrollView className={"w-full h-full bg-white px-2"}>
         <View className={"flex flex-col gap-4 py-3  mt-6 "}>
           <ImageCurosel
-            uri={selectedProduct?.meta?.selectedImage as string}
-            images={selectedProduct?.files || selectedProduct?.product?.files}
+            uri={selectedProduct?.product?.meta?.selectedImage as string}
+            images={selectedProduct?.product?.files}
           />
 
           <ProductDescription
-            price={
-              (selectedProduct?.price?.toLocaleString() as string) ||
-              selectedProduct?.product?.price
-            }
-            name={
-              (selectedProduct?.name as string) ||
-              selectedProduct?.product?.name
-            }
-            description={
-              (selectedProduct?.description as string) ||
-              selectedProduct?.product?.description
-            }
+            price={selectedProduct?.product?.price as number}
+            name={selectedProduct?.product?.name!}
+            description={selectedProduct?.product?.description!}
             location={`${
-              getCitiy(
-                (selectedProduct?.city as string) ||
-                  selectedProduct?.product?.city
-              ) ||
-              selectedProduct?.city ||
+              getCitiy(selectedProduct?.product?.city!) ||
               selectedProduct?.product?.city ||
               " "
             } ${
-              getState(
-                (selectedProduct?.state as string) ||
-                  selectedProduct?.product?.state
-              ) ||
-              selectedProduct?.state ||
+              getState(selectedProduct?.product?.state!) ||
               selectedProduct?.product?.state
             }`}
-            postTime={
-              selectedProduct?.createdAt || selectedProduct?.product?.createdAt
-            }
-            category={
-              selectedProduct?.category?.name ||
-              selectedProduct?.product?.category?.name
-            }
-            subCategoryId={
-              selectedProduct?.subCategoryId ||
-              selectedProduct?.product?.subCategoryId
-            }
-            type={
-              selectedProduct?.productType ||
-              selectedProduct?.product?.productType
-            }
+            postTime={selectedProduct?.product?.createdAt!}
+            category={selectedProduct?.product?.category?.name!}
+            subCategoryId={selectedProduct?.product?.subCategoryId!}
+            type={selectedProduct?.product?.productType!}
           />
 
-          <SellerContact />
+          <SellerContact product={selectedProduct?.product!} />
 
           <SafetyTips />
 
           {isOwnProduct && (
             <>
               <ProductInsight
-                views={
-                  selectedProduct?.views || selectedProduct?.product?.views
-                }
-                saved={
-                  selectedProduct?.saved || selectedProduct?.product?.saved
-                }
-                clicks={
-                  selectedProduct?.phoneClicks ||
-                  selectedProduct?.product?.phoneClicks
-                }
-                visits={
-                  selectedProduct?.userData?.profileViews ||
-                  selectedProduct?.product?.userData?.profileViews
-                }
+                views={selectedProduct?.product?.views!}
+                saved={selectedProduct?.product?.saved!}
+                clicks={selectedProduct?.product?.phoneClicks!}
+                visits={selectedProduct?.product?.userData?.profileViews!}
               />
 
               <ProductMgtButton
@@ -237,7 +199,7 @@ export default function ProductDefault() {
                 label={deleting ? "Deleting" : "Delete"}
                 className="border-red-5  "
                 customTextStyle="text-red-5 text-base font-semibold"
-                onclick={() => handleDelete(id)}
+                onclick={() => handleDelete(id as string)}
               />
             </>
           )}
@@ -252,16 +214,12 @@ export default function ProductDefault() {
             </Text>
           </TouchableOpacity>
 
-          <ProductFeedback
-            productId={selectedProduct?.product?.id || selectedProduct?.id}
-          />
-          <SimilarProducts categoryId={selectedProduct?.categoryId} />
+          <ProductFeedback productId={selectedProduct?.product?.id!} />
+          <SimilarProducts categoryId={selectedProduct?.product?.categoryId!} />
 
           {/* Feedback Button */}
         </View>
-        <FeedbackModal
-          productId={selectedProduct?.product?.id || selectedProduct?.id}
-        />
+        <FeedbackModal productId={selectedProduct?.product?.id} />
       </ScrollView>
     </>
   );

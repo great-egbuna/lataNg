@@ -96,6 +96,13 @@ export const sidebar = [
   },
   {
     icon: (
+      <MaterialIcons name={"manage-accounts"} size={16} color={"#292929"} />
+    ),
+    label: "Manage",
+    path: "/manage",
+  },
+  {
+    icon: (
       <MaterialIcons name={"pending-actions"} size={16} color={"#292929"} />
     ),
     label: "Sales Agreement",

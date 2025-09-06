@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
+import * as FileSystem from "expo-file-system";
+import * as Sharing from "expo-sharing";
 import {
-  ScrollView,
   Text,
   TouchableOpacity,
   View,
@@ -16,13 +17,35 @@ import { WebView } from "react-native-webview";
 import Loader, { FullScreenLoader } from "@/components/general/Loader";
 import Button from "@/components/general/Button";
 import { useWallet } from "@/hooks/useWallet";
-import { useSubscriptions } from "@/hooks/useSubscriptions";
-import { showToast } from "@/components/general/Toast";
 import ErrorCard from "@/components/ui/ErrorCard";
+import PayWithTransferModal from "./PayWithTransferModal";
+import { generateInvoiceHTML } from "./invoice";
+import { useAuth } from "@/context/AuthContext";
+import { IAUTH } from "@/interfaces/context/auth";
+
+interface TransferDataInterface {
+  bankName: string;
+  acctName: string;
+  reference: string;
+  acctNumber: string;
+  amountToPay: string;
+  clientName: string;
+  phoneNumber: string;
+  invoiceDate: string;
+  items: Array<{
+    description: string;
+    unitPrice: string;
+    VAT: number;
+    total: string;
+  }>;
+}
+
 export default function SubscriptionDetailsTop() {
   const { selectedPackage } = useApp() as AppContextProps;
   const { wallet } = useWallet();
-  const { loading, error, paymentData, initiatePayment, resetPaymentData } =
+  const { user } = useAuth() as IAUTH;
+
+  const { loading, error, initiatePayment, resetPaymentData } =
     useSubscriptionPayment({
       onSuccess: (data) => {
         console.log("Payment initiated successfully", data);
@@ -42,7 +65,11 @@ export default function SubscriptionDetailsTop() {
   const [processingBalPayment, setProcessingBalPayment] = useState(false);
   const [processingTransferPayment, setProcessingTransferPay] = useState(false);
   const [processingPaystackPayment, setProcessingPaystackPay] = useState(false);
+  const [transferData, setTransferData] =
+    useState<TransferDataInterface | null>(null);
+
   const durations = [1, 3, 6, 12];
+  const isComboSales = selectedPackage?.type === "COMBO";
 
   const tabs = [
     {
@@ -67,17 +94,33 @@ export default function SubscriptionDetailsTop() {
   ];
 
   useEffect(() => {
-    const duration = activePackage === "Free" ? 0 : selectedDuration;
+    const duration = isComboSales
+      ? selectedDuration
+      : activePackage === "Free"
+      ? 0
+      : selectedDuration;
+    if (isComboSales) {
+      const search = selectedPackage?.plans?.find(
+        (item: Record<string, any>) => {
+          return item.duration === duration;
+        }
+      );
 
-    const search = selectedPackage?.plans?.find((item: Record<string, any>) => {
-      return item.duration === duration && item.name === activePackage;
-    });
+      console.log("selectedBenefit", search);
+      setSelectedBenefits(search);
+    } else {
+      const search = selectedPackage?.plans?.find(
+        (item: Record<string, any>) => {
+          return item.duration === duration && item.name === activePackage;
+        }
+      );
 
-    setSelectedBenefits(search);
+      setSelectedBenefits(search);
+    }
   }, [activePackage, selectedDuration]);
 
   const handlePaymentClick = () => {
-    if (activePackage === "Free") {
+    if (activePackage === "Free" && !isComboSales) {
       return; // Already active, do nothing
     }
     setModalVisible(true);
@@ -99,7 +142,7 @@ export default function SubscriptionDetailsTop() {
     );
     setProcessingPaystackPay(false);
 
-    if (result && result.credentials?.paystackConfig) {
+    if (result.credentials.paystackConfig) {
       const paystackConfig = result.credentials.paystackConfig;
 
       // Create HTML for Paystack inline payment
@@ -160,7 +203,6 @@ export default function SubscriptionDetailsTop() {
     if (!selectedBenefits?.id) {
       Alert.alert("Error", "No plan selected");
       setProcessingTransferPay(false);
-
       return;
     }
 
@@ -170,23 +212,42 @@ export default function SubscriptionDetailsTop() {
       useWalletBalance
     );
 
-    if (result && result.credentials) {
+    if (result.credentials) {
       setModalVisible(false);
       setProcessingTransferPay(false);
 
-      // Format the transfer details in the requested format
-      Alert.alert(
-        "Pay via bank transfer",
-        `Bank Name: ${result.credentials.bankName}\n\nAcct Name: ${
-          result.credentials.acctName
-        }\n\nAcct No: ${result.credentials.acctNumber}\n\nCopy\nPayment ID: ${
-          result.credentials.reference
-        }\n\nCopy\nAmount: ₦${result.credentials.amountToPay.toLocaleString(
-          "en-US",
-          { minimumFractionDigits: 0, maximumFractionDigits: 0 }
-        )}\n\nDownload Invoice\n\n*INSTRUCTION\n\nFor mobile transfer use your payment ID as the narration\n\nFor bank deposit use your payment ID as the depositor's name`,
-        [{ text: "OK" }]
-      );
+      const discount =
+        result.credentials.actualTotalAmount *
+        (result.credentials.discountPercentage / 100);
+
+      const unitPriceVat = result.credentials.actualTotalAmount * 0.075;
+      const discountVat = result.credentials.discountPercentage * 0.075;
+      const items = [
+        {
+          description: `Subscription to ${result.credentials.planName} on Lata.ng`,
+          unitPrice: result.credentials.actualTotalAmount,
+          VAT: 7.5,
+          total: result.credentials.actualTotalAmount + unitPriceVat - discount,
+        },
+
+        {
+          description: `Plan Discount`,
+          unitPrice: discount,
+          VAT: 7.5,
+          total: discount + discountVat,
+        },
+      ];
+      setTransferData({
+        bankName: result.credentials.bankName,
+        acctName: result.credentials.acctName,
+        acctNumber: result.credentials.acctNumber,
+        reference: result.credentials.reference,
+        amountToPay: result.credentials.amountToPay,
+        clientName: user?.name,
+        phoneNumber: user?.phoneNumber,
+        invoiceDate: new Date().toLocaleDateString(),
+        items,
+      });
     }
   };
 
@@ -205,14 +266,6 @@ export default function SubscriptionDetailsTop() {
       value
     );
 
-    /*  if (result instanceof Error) {
-      showToast({
-        type: "error",
-        text1: "Error ocurred",
-        text2: result.message,
-      });
-    }
- */
     setUseWalletBalance(false);
 
     setProcessingBalPayment(false);
@@ -329,71 +382,122 @@ export default function SubscriptionDetailsTop() {
 
   return (
     <View>
+      <PayWithTransferModal
+        isVisible={!!transferData}
+        onClose={() => setTransferData(null)}
+        onDownloadInvoice={() =>
+          generateInvoiceHTML(transferData as TransferDataInterface)
+        }
+        transferDetails={{
+          bankName: transferData?.bankName!,
+          acctName: transferData?.acctName!,
+          acctNumber: transferData?.acctNumber!,
+          reference: transferData?.reference!,
+          amountToPay: transferData?.amountToPay!,
+        }}
+      />
       <Text
-        className={"font-semibold text-grey-8-100 text-base"}
+        className={"font-semibold text-grey-8-100 text-base mb-2"}
       >{`Available plans for ${selectedPackage.name} ads`}</Text>
 
       <View className="flex-row gap-1">
-        {tabs?.map((item: Record<string, any>, index: number) => {
-          return (
-            <TouchableOpacity
-              key={index}
-              onPress={() => {
-                setActivePackage(item.name);
-              }}
-              className={`${
-                item.name === activePackage
-                  ? "bg-purple text-white"
-                  : "bg-white border border-purple"
-              } rounded-xl  flex items-center justify-center    mt-4 mb-2 px-2`}
-            >
-              <Text
+        {isComboSales ? (
+          <>
+            {durations.map((duration) => (
+              <TouchableOpacity
+                key={duration}
+                onPress={() => {
+                  setSelectedDuration(duration);
+                }}
                 className={`${
-                  item.name === activePackage ? "text-white" : "text-purple"
-                } text-base`}
+                  duration === selectedDuration
+                    ? "bg-purple-2 text-white"
+                    : "bg-white border border-purple"
+                } rounded flex items-center justify-center py-0.5  mr-1  mb-2  flex-1`}
               >
-                {item.name}
-              </Text>
-            </TouchableOpacity>
-          );
-        })}
-      </View>
-
-      <View className={"border border-grey-2 rounded-[10px] px-2 py-4  gap-4"}>
-        {activePackage !== "Free" && (
-          <View>
-            <View className="flex-row ">
-              {durations.map((duration) => (
+                <Text
+                  className={`${
+                    duration === selectedDuration ? "text-black" : "text-purple"
+                  } text-xs`}
+                >
+                  {duration} {duration === 1 ? "month" : "months"}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </>
+        ) : (
+          <>
+            {tabs?.map((item: Record<string, any>, index: number) => {
+              return (
                 <TouchableOpacity
-                  key={duration}
+                  key={index}
                   onPress={() => {
-                    setSelectedDuration(duration);
+                    setActivePackage(item.name);
                   }}
                   className={`${
-                    duration === selectedDuration
-                      ? "bg-purple-2 text-white"
+                    item.name === activePackage
+                      ? "bg-purple text-white"
                       : "bg-white border border-purple"
-                  } rounded flex items-center justify-center py-0.5  mr-3  mb-2  flex-1`}
+                  } rounded-xl  flex items-center justify-center    mt-4 mb-2 px-2`}
                 >
                   <Text
                     className={`${
-                      duration === selectedDuration
-                        ? "text-black"
-                        : "text-purple"
-                    } text-xs`}
+                      item.name === activePackage ? "text-white" : "text-purple"
+                    } text-base`}
                   >
-                    {duration} {duration === 1 ? "month" : "months"}
+                    {item.name}
                   </Text>
                 </TouchableOpacity>
-              ))}
-            </View>
-          </View>
+              );
+            })}
+          </>
+        )}
+      </View>
+
+      <View className={"border border-grey-2 rounded-[10px] px-2 py-4  gap-4"}>
+        {!isComboSales && (
+          <>
+            {activePackage !== "Free" && (
+              <View>
+                <View className="flex-row ">
+                  {durations.map((duration) => (
+                    <TouchableOpacity
+                      key={duration}
+                      onPress={() => {
+                        setSelectedDuration(duration);
+                      }}
+                      className={`${
+                        duration === selectedDuration
+                          ? "bg-purple-2 text-white"
+                          : "bg-white border border-purple"
+                      } rounded flex items-center justify-center py-0.5  mr-3  mb-2  flex-1`}
+                    >
+                      <Text
+                        className={`${
+                          duration === selectedDuration
+                            ? "text-black"
+                            : "text-purple"
+                        } text-xs`}
+                      >
+                        {duration} {duration === 1 ? "month" : "months"}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              </View>
+            )}
+          </>
         )}
 
         {/* Always show features, for all packages */}
         {selectedBenefits?.features?.map((text: string, index: number) => {
           return (
-            <Benefit text={text} key={index} activePackage={activePackage} />
+            <Benefit
+              text={text}
+              key={index}
+              activePackage={activePackage}
+              isComboSales={isComboSales}
+            />
           );
         })}
 
@@ -404,7 +508,50 @@ export default function SubscriptionDetailsTop() {
           }
           onPress={handlePaymentClick}
         >
-          {activePackage === "Free" ? (
+          {isComboSales ? (
+            <>
+              <View className="flex-row items-center gap-2">
+                <Text className={"text-white text-sm font-normal line-through"}>
+                  ₦
+                  {selectedBenefits.price?.toLocaleString("en-US", {
+                    minimumFractionDigits: 0,
+                    maximumFractionDigits: 0,
+                  })}
+                </Text>
+                <Text className={"text-white text-base font-semibold"}>
+                  ₦
+                  {Math.floor(
+                    selectedBenefits.price -
+                      (selectedBenefits.price *
+                        selectedBenefits.discountPercentage) /
+                        100
+                  )?.toLocaleString("en-US", {
+                    minimumFractionDigits: 0,
+                    maximumFractionDigits: 0,
+                  })}
+                </Text>
+              </View>
+
+              <View
+                style={{
+                  position: "absolute",
+                  bottom: "-100%",
+                  right: 0,
+                  backgroundColor: "red",
+                  borderTopLeftRadius: 6,
+                  borderBottomRightRadius: 8,
+                  paddingHorizontal: 4,
+                  paddingVertical: 2,
+                }}
+              >
+                <Text
+                  style={{ color: "white", fontSize: 10, fontWeight: "bold" }}
+                >
+                  -{selectedBenefits.discountPercentage}% OFF
+                </Text>
+              </View>
+            </>
+          ) : activePackage === "Free" ? (
             <Text className={"text-white text-base font-semibold"}>Active</Text>
           ) : selectedBenefits?.discountPercentage ? (
             <>
@@ -491,14 +638,14 @@ export default function SubscriptionDetailsTop() {
               <Switch
                 value={useWalletBalance}
                 onValueChange={(value) => handleToggle(value)}
-                disabled={wallet?.balance < selectedBenefits?.price}
+                disabled={wallet?.balance! < selectedBenefits?.price}
                 trackColor={{ false: colors.greyFour, true: colors.purple }}
                 thumbColor={colors.white}
               />
             </View>
 
             {error && (
-              <Text className="text-red-500 mb-4">{error?.message}</Text>
+              <Text className="text-red-500 mb-4">An Error occurred</Text>
             )}
 
             <View className="gap-3">
@@ -508,12 +655,10 @@ export default function SubscriptionDetailsTop() {
                   width: "100%",
                   borderRadius: 12,
                 }}
-                buttonTextStyle={{
-                  fontWeight: 600,
-                  color: colors.white,
-                }}
                 className="py-1 rounded-lg"
-                text={processingPaystackPayment ? "Processing..." : "Pay now"}
+                text={
+                  processingPaystackPayment ? "Processing..." : "Pay online"
+                }
                 onPress={handlePayWithPaystack}
                 disabled={loading}
               />
@@ -562,15 +707,29 @@ export default function SubscriptionDetailsTop() {
 const Benefit = ({
   text,
   activePackage,
+  isComboSales,
 }: {
   text: string;
   activePackage: string;
+  isComboSales: boolean;
 }) => {
   return (
     <View className={"flex-row gap-[5px] items-center"}>
       <MaterialIcons
-        name={activePackage === "Free" ? "cancel" : "check-circle-outline"}
-        color={activePackage === "Free" ? "#db3030" : "#5113a1"}
+        name={
+          isComboSales
+            ? "check-circle-outline"
+            : activePackage === "Free"
+            ? "cancel"
+            : "check-circle-outline"
+        }
+        color={
+          isComboSales
+            ? "#5113a1"
+            : activePackage === "Free"
+            ? "#db3030"
+            : "#5113a1"
+        }
       />
       <Text className={"font-normal text-sm text-grey-6"}>{text}</Text>
     </View>

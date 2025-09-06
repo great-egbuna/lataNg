@@ -6,7 +6,7 @@ import { notificationService } from "@/services/notification.service";
 function useNotifications() {
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
   const [pagination, setPagination] = useState({
     currentPage: 1,
     lastPage: 1,
@@ -24,6 +24,9 @@ function useNotifications() {
 
       const response = await notificationService.getNotifications(page, limit);
 
+      if (response instanceof Error) {
+        setError(response?.message);
+      }
       setNotifications((prev) =>
         page === 1 ? response.data : [...prev, ...response.data]
       );
@@ -34,7 +37,7 @@ function useNotifications() {
         total: response?.meta?.total,
       });
     } catch (err: any) {
-      setError(err.message || "Failed to fetch notifications");
+      setError(err?.message || "Failed to fetch notifications");
     } finally {
       setLoading(false);
     }

@@ -11,8 +11,6 @@ import { ICategory } from "@/context/AppContext";
 
 interface DropdownInputProps {
   placeholder?: string;
-  data: string[] | ICategory[] | any;
-  onSelect: (value: string | ICategory | any) => void;
   className?: string;
   btnClassName?: string;
   textClassName?: string;
@@ -20,7 +18,6 @@ interface DropdownInputProps {
   open?: boolean;
   isOpen?: boolean;
   setIsOpen: (val: boolean) => void;
-  selectedValue: ICategory;
 }
 export default function FLatlistDropdown({
   placeholder,
@@ -51,28 +48,6 @@ export default function FLatlistDropdown({
           className="text-grey-5"
         />
       </TouchableOpacity>
-      {/* 
-      {isOpen && (
-        <FlatList
-          scrollEnabled
-          className="h-[200px] bg-white rounded-md shadow-md "
-          showsVerticalScrollIndicator
-          data={data}
-          nestedScrollEnabled={true}
-          renderItem={({ item, index }) => (
-            <TouchableOpacity
-              key={index}
-              onPress={() => {
-                setSelectedValue(item);
-                handleSelect(item);
-              }}
-              className="px-4 py-2 border-0"
-            >
-              <Text className="text-sm text-grey-8">{item?.name || item}</Text>
-            </TouchableOpacity>
-          )}
-        />
-      )} */}
     </View>
   );
 }
@@ -84,16 +59,13 @@ export function Dropdown({
   data: ICategory[];
   onPress: (val: any) => void;
 }) {
+  
   return (
     <View className="bg-white shadow-md w-full">
       {data.map((category, index) => {
         return (
           <TouchableOpacity
             key={index}
-            /*  onPress={() => {
-              setSelectedValue(category);
-              handleSelect(category);
-            }} */
             onPress={() => onPress(category)}
             className="px-4 py-2 border-0"
           >

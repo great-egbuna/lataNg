@@ -36,13 +36,22 @@ export interface IProduct {
   description?: string;
   planName?: string;
   meta?: { selectedImage: string | ImageSourcePropType; planName: string };
+  files?: any;
   price?: string | number;
   discount?: number | string;
   state: string;
   city: string;
-  user: { name: string; phoneNumber: string; avatar: string };
+  user: { name: string; phoneNumber: string; avatar: string; id: string };
   userId: string;
   subCategoryId?: string;
+  categoryId?: string;
+  createdAt?: string;
+  category?: { name: string };
+  productType?: string;
+  views?: number;
+  saved?: number;
+  phoneClicks?: number;
+  userData?: { profileViews: number };
 }
 
 interface ICities {
@@ -86,11 +95,11 @@ export interface AppContextProps {
   setSocialUser: (prev: ISocialUser | null) => void;
   states: States[] | null;
   setStates: (value: States[] | null) => void;
-  selectedProduct: IProduct | null;
-  setSelectedProduct: (value: IProduct | null) => void;
+  selectedProduct: { product: IProduct } | null;
+  setSelectedProduct: (value: { product: IProduct } | null) => void;
   cities: ICities[] | null;
   setCities: (value: ICities[] | null) => void;
-  categories: ICategory[] | null;
+  categories: ICategory[];
   setCategories: (value: ICategory[] | null) => void;
   subCategories: ICategory[] | null;
   setSubCategories: (value: ICategory[] | null) => void;
@@ -110,14 +119,14 @@ export interface AppContextProps {
   ) => Promise<void>;
   loadingProducts: boolean;
   categoryProducts: IProduct[];
-  subCategoryProducts: IProduct[] | null;
-  setSubCategoryProducts: (value: IProduct[] | null) => void;
+  specificCategoryProducts: IProduct[];
+  setSpecificCategoryProducts: (value: IProduct[] | null) => void;
   feedbackProductId: string | undefined;
   feedbackProductName: string | undefined;
   openFeedbackModal: (productId?: string, productName?: string) => void;
   reels: IReel[] | null;
   setReels: (value: IReel[] | null) => void;
-  selectedReel: any[] | null;
+  selectedReel: any | null;
   setSelectedReel: (value: any[] | null) => void;
   loadingCategory: boolean;
   unlimitedCategories: any;
@@ -160,8 +169,15 @@ export default function AppProvider({ children, mounted }: AppProviderProps) {
   const [decision, setDecision] = useState<string>("BUYER");
   const [states, setStates] = useState<States[]>([{ id: "", name: "Any" }]);
   const [cities, setCities] = useState<ICities[] | null>(null);
-  const [selectedProduct, setSelectedProduct] = useState<IProduct | null>(null);
-  const [categories, setCategories] = useState<ICategory[] | null>(null);
+  const [selectedProduct, setSelectedProduct] = useState<
+    AppContextProps["selectedProduct"] | null
+  >(null);
+  const [categories, setCategories] = useState<ICategory[]>([
+    {
+      id: "58abe3ac-ac93-4257-97fe-a46e786ea1dc",
+      name: "All categories",
+    },
+  ]);
   const [subCategories, setSubCategories] = useState<ICategory[] | null>(null);
   const [myProduct, setMyProduct] = useState<IProduct | null>(null);
 
@@ -175,9 +191,9 @@ export default function AppProvider({ children, mounted }: AppProviderProps) {
   const [categoryProducts, setCategoryProducts] = useState<IProduct[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [lastPage, setLastPage] = useState(1);
-  const [subCategoryProducts, setSubCategoryProducts] = useState<
-    IProduct[] | null
-  >(null);
+  const [specificCategoryProducts, setSpecificCategoryProducts] = useState<
+    IProduct[]
+  >([]);
   const [reels, setReels] = useState<IReel[] | null>(null);
   const [selectedReel, setSelectedReel] = useState<any | null>(null);
   const [loadingCategory, setLoadingCategory] = useState(false);
@@ -216,7 +232,7 @@ export default function AppProvider({ children, mounted }: AppProviderProps) {
   useEffect(() => {
     (async () => {
       const res = await categoryService.getCategories();
-      setCategories(res);
+      setCategories([...categories, ...res]);
     })();
   }, []);
 
@@ -352,8 +368,8 @@ export default function AppProvider({ children, mounted }: AppProviderProps) {
     handleSubcategorySelect,
     loadingProducts,
     categoryProducts,
-    subCategoryProducts,
-    setSubCategoryProducts,
+    specificCategoryProducts,
+    setSpecificCategoryProducts,
     feedbackProductId,
     feedbackProductName,
     openFeedbackModal,

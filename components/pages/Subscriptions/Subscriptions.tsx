@@ -1,11 +1,9 @@
-import React, { useEffect, useState } from "react";
-import { ScrollView, Text, View, ActivityIndicator } from "react-native";
+import React from "react";
+import { ScrollView, Text, View } from "react-native";
 import SubscriptionCards from "@/components/ui/Cards/SubscriptionCard";
-import { Link, useRouter } from "expo-router";
+import { useRouter } from "expo-router";
 import { AppContextProps, useApp } from "@/context/AppContext";
 
-// Import the subscription service
-import { subscriptionService } from "@/services/subscription.service";
 import { useSubscriptions } from "@/hooks/useSubscriptions";
 import { useAuth } from "@/context/AuthContext";
 import { IAUTH } from "@/interfaces/context/auth";
@@ -19,15 +17,14 @@ export const getColor = (index: number) => {
 
 export default function SubscriptionsComponent() {
   const router = useRouter();
-  const { selectedPackage, setSelectedPackage } = useApp() as AppContextProps;
+  const { setSelectedPackage } = useApp() as AppContextProps;
   const { user, isLoggedIn } = useAuth() as IAUTH;
 
   const {
     subscriptionPackages,
-    userData,
+
     loading,
     error,
-    refetchSubscriptions,
   } = useSubscriptions();
 
   if (!isLoggedIn || !user) {
@@ -61,7 +58,7 @@ export default function SubscriptionsComponent() {
   }
 
   return (
-    <ScrollView className={"py-6 pb-10  rounded-[10px] bg-white"}>
+    <ScrollView className={"pb-10  rounded-[10px] bg-white"}>
       <View className={"gap-2  px-2"}>
         <View className={"px-"}>
           <Text className={"text-base font-semibold text-grey-8 text-lg "}>

@@ -86,6 +86,7 @@ class UserService {
 
       return seller;
     } catch (error) {
+      console.log("sellers", error);
       return new Error("Failed to fetch sellers details");
     }
   }

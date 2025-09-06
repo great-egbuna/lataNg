@@ -1,68 +1,58 @@
-import { View, Text, TouchableOpacity, Modal, TextInput } from "react-native";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  Modal,
+  TextInput,
+  Alert,
+} from "react-native";
 import ImageText from "@/components/ui/ImageText";
 import Button from "@/components/general/Button";
-import { AppContextProps, useApp } from "@/context/AppContext";
+import { IProduct } from "@/context/AppContext";
 import { Linking } from "react-native";
 import ButtonSecondary from "@/components/general/ButtonSecondary";
+import * as FileSystem from "expo-file-system";
+import * as Sharing from "expo-sharing";
 import { useState } from "react";
-import { Alert } from "react-native";
 import { chatService } from "@/services/chat.service";
 import { useAuth } from "@/context/AuthContext";
 import { IAUTH } from "@/interfaces/context/auth";
 
 interface Prop {
-  name?: string;
-  phoneNumber?: string;
-  avatar?: string;
-  productId?: string;
-  userId?: string;
+  product: IProduct;
+  className?: string;
 }
 
 export default function SellerContact(props: Prop) {
-  const { selectedProduct } = useApp() as AppContextProps;
+  const userDetails = props?.product?.user;
 
   return (
-    <View className={" px-3 py-6 border border-grey-2 rounded-[10px]"}>
+    <View
+      className={`px-3 py-6 border border-grey-2 rounded-[10px] ${props.className}`}
+    >
       <ImageText
-        id={selectedProduct?.userId}
-        title={
-          (props?.name as string) ||
-          selectedProduct?.user?.name ||
-          selectedProduct?.product?.user?.name
-        }
-        text={
-          (props.phoneNumber as string) ||
-          selectedProduct?.user?.phoneNumber ||
-          selectedProduct?.product?.user?.phoneNumber
-        }
-        imgSource={
-          (props?.avatar as string) ||
-          selectedProduct?.product?.user?.avatar ||
-          selectedProduct?.user?.avatar
-        }
+        id={userDetails?.id}
+        title={userDetails?.name}
+        text={userDetails.phoneNumber}
+        imgSource={userDetails?.avatar}
       />
 
-      <SellerCTA
-        phoneNumber={props.phoneNumber}
-        productId={props.productId}
-        userId={props.userId}
-      />
+      <SellerCTA product={props?.product} />
     </View>
   );
 }
 
 interface SellerCTAProp {
-  phoneNumber?: string;
-  productId?: string;
-  userId?: string;
+  product: IProduct;
 }
 
 const SellerCTA = (props: SellerCTAProp) => {
-  const { selectedProduct } = useApp() as AppContextProps;
   const { user, isLoggedIn } = useAuth() as IAUTH;
   const [modalVisible, setModalVisible] = useState(false);
+
+  const product = props.product;
   const [message, setMessage] = useState(
-    `Hi, Is ${selectedProduct?.name} still available ?`
+    `Hi, Is ${product?.name || "this"} still available ?`
   );
   const [sending, setSending] = useState(false);
   const [error, setError] = useState("");
@@ -75,16 +65,90 @@ const SellerCTA = (props: SellerCTAProp) => {
       return;
     }
 
-    if (
-      user &&
-      selectedProduct &&
-      user.id === (props?.userId || selectedProduct.userId)
-    ) {
+    if (user && product && user.id === product.userId) {
       setError("You cannot send messages to yourself");
       return;
     }
 
     setModalVisible(true);
+  };
+
+  const downloadAndShareImage = async (imageUrl: string) => {
+    try {
+      const filename = imageUrl.split("/").pop();
+      const localUri = `${FileSystem.cacheDirectory}${filename}`;
+
+      const downloadResult = await FileSystem.downloadAsync(imageUrl, localUri);
+
+      if (downloadResult.status === 200) {
+        return downloadResult.uri;
+      }
+      return null;
+    } catch (error) {
+      console.error("Error downloading image:", error);
+      return null;
+    }
+  };
+
+  const handleWhatsAppShare = async () => {
+    const imageUrl = product?.meta?.selectedImage;
+    const productName = product?.name;
+    const productId = product?.id;
+    const phone = product?.user?.phoneNumber;
+    const formattedPhone = phone?.replace(/^0+/, "").replace(/[^0-9]/g, "");
+    const msg = `Hi, I am interested in your product on Lata.ng\n\nProduct Details:\nProduct Name: ${productName}\n\nView product at: https://lata.ng/product/${productId}`;
+
+    // if no productId just send message to seller
+
+    if (!productId) {
+      await Linking.openURL(
+        `https://wa.me/234${formattedPhone}?text=${encodeURIComponent(
+          `Hi there! I got your contact fron Lata.ng`
+        )}`
+      );
+      return;
+    }
+
+    if (!formattedPhone) {
+      Alert.alert("Error", "No phone number available");
+      return;
+    }
+
+    try {
+      let localImageUri = null;
+      if (imageUrl && typeof imageUrl === "string") {
+        localImageUri = await downloadAndShareImage(imageUrl);
+      }
+
+      const whatsappUrl = localImageUri
+        ? `whatsapp://send?phone=234${formattedPhone}&text=${encodeURIComponent(
+            msg
+          )}&attachment=${encodeURIComponent(localImageUri)}`
+        : `whatsapp://send?phone=234${formattedPhone}&text=${encodeURIComponent(
+            msg
+          )}`;
+
+      const canOpen = await Linking.canOpenURL(whatsappUrl);
+
+      if (canOpen) {
+        await Linking.openURL(whatsappUrl);
+      } else {
+        const webWhatsappUrl = `https://wa.me/234${formattedPhone}?text=${encodeURIComponent(
+          msg
+        )}`;
+        await Linking.openURL(webWhatsappUrl);
+      }
+    } catch (error) {
+      // Fallback to web WhatsApp
+      const webWhatsappUrl = `https://wa.me/234${formattedPhone}?text=${encodeURIComponent(
+        msg
+      )}`;
+      try {
+        await Linking.openURL(webWhatsappUrl);
+      } catch {
+        Alert.alert("Error", "WhatsApp is not installed on this device");
+      }
+    }
   };
 
   const handleSendMessage = async () => {
@@ -98,9 +162,9 @@ const SellerCTA = (props: SellerCTAProp) => {
 
       const res = await chatService.initiateChat({
         message: message.trim(),
-        productId: props?.productId || selectedProduct?.id,
+        productId: product?.id,
         senderId: user?.id,
-        receiverId: props.userId || selectedProduct?.userId,
+        receiverId: product.userId,
       });
 
       if (res instanceof Error) {
@@ -119,30 +183,21 @@ const SellerCTA = (props: SellerCTAProp) => {
     }
   };
 
-  const phone = props?.phoneNumber || selectedProduct?.user?.phoneNumber;
-  const productName = selectedProduct?.name;
-  const msg = `Hi, I am interested in ${productName} on Lata.ng`;
-  const url = `https://wa.me/234${phone}?text=${encodeURIComponent(msg)}`;
-
   return (
     <View className="gap-2 mt-6">
       <ButtonSecondary
         customStyles="py-1 bg-purple rounded-[16px]"
         customTextStyles="text-white text-base "
         text={"WhatsApp Seller"}
-        onPress={() =>
-          Linking.openURL(url).catch(() =>
-            alert("WhatsApp is not installed on this device")
-          )
-        }
+        onPress={handleWhatsAppShare}
       />
       <Button
         className="py-1 rounded-2xl bg-white border border-purple"
         text={"Call Seller"}
         onPress={() =>
-          Linking.openURL(
-            `tel:${props?.phoneNumber || selectedProduct?.user?.phoneNumber}`
-          ).catch(() => alert("Failed to open dailer"))
+          Linking.openURL(`tel:${product.user.phoneNumber}`).catch(() =>
+            alert("Failed to open dailer")
+          )
         }
         purpleText
       />

@@ -4,12 +4,19 @@ interface Props {
   text: string;
   className?: string;
   textStyle?: string;
+  onPress?: () => void;
 }
 
-export default function ButtonOutline({ text, textStyle, className }: Props) {
+export default function ButtonOutline({
+  text,
+  textStyle,
+  className,
+  onPress,
+}: Props) {
   return (
     <TouchableOpacity
-      className={`w-[83px] h-9 border rounded-[10px] items-center justify-center ${className}`}
+      className={` h-9 border items-center justify-center ${className}`}
+      onPress={onPress}
     >
       <Text className={textStyle}>{text}</Text>
     </TouchableOpacity>

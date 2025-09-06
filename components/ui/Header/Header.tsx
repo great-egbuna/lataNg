@@ -98,10 +98,10 @@ export default function Header() {
       </View>
 
       {pathname !== "/" && (
-        <View className="flex-row items-center gap-1">
+        <View className="flex-row items-center gap-1 bg-white p-3">
           <Feather name="arrow-left" color={"#787878"} />
           <Link href={"/"}>
-            <Text className="text-base underline   text-base underline text-grey-8">
+            <Text className="text-base  underline  underline text-grey-8">
               Home
             </Text>
           </Link>

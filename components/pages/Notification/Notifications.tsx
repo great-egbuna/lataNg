@@ -5,17 +5,16 @@ import useNotifications from "@/hooks/useNotifications";
 import Loader from "@/components/general/Loader";
 import { useAuth } from "@/context/AuthContext";
 import { IAUTH } from "@/interfaces/context/auth";
-import { Link } from "expo-router";
 import PromptLogin from "@/components/ui/PromptLogin";
 import { notificationService } from "@/services/notification.service";
 import { useState } from "react";
+import ErrorCard from "@/components/ui/ErrorCard";
 
 export default function NotificationsComponent() {
   const {
     notifications,
     loading,
     error,
-    pagination,
     refreshNotifications,
     loadMoreNotifications,
   } = useNotifications();
@@ -37,6 +36,8 @@ export default function NotificationsComponent() {
   if (!isLoggedIn || !user) {
     return <PromptLogin />;
   }
+
+  if (error) return <ErrorCard error={error} />;
 
   return (
     <View>

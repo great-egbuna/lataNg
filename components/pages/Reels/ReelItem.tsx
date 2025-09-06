@@ -1,13 +1,17 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   View,
   Text,
   TouchableOpacity,
   StyleSheet,
   Dimensions,
+  Image,
+  Modal,
 } from "react-native";
 import { useVideoPlayer, VideoView, VideoPlayer } from "expo-video";
-import { Ionicons } from "@expo/vector-icons";
+import { images } from "@/constants/images";
+import SellerContact from "../productDetails/SellerContact";
+import { useRouter } from "expo-router";
 
 const { height: WINDOW_HEIGHT } = Dimensions.get("window");
 
@@ -24,14 +28,21 @@ interface ReelItemProps {
   };
   index: number;
   activeReelIndex: number;
+  reelsRef: React.MutableRefObject<View[]>;
+  flatlistRef: any;
+  user: { avatar: string; id: string; name: string };
 }
 
 export default function ReelItem({
   item,
   index,
   activeReelIndex,
+  reelsRef,
+  flatlistRef,
+  user,
 }: ReelItemProps) {
   const isActive = activeReelIndex === index;
+  const router = useRouter();
 
   const player = useVideoPlayer(item.video_url, (player: VideoPlayer) => {
     player.loop = true;
@@ -44,52 +55,60 @@ export default function ReelItem({
   });
 
   useEffect(() => {
+    let interval: NodeJS.Timeout | null = null;
     if (isActive) {
-      player.play();
+      interval = setInterval(() => {
+        if (player?.currentTime <= player?.duration) {
+          // Do nothing
+        } else {
+          if (
+            flatlistRef.current &&
+            activeReelIndex + 1 < reelsRef.current.length
+          ) {
+            flatlistRef.current.scrollToIndex({
+              index: activeReelIndex + 1,
+              animated: true,
+            });
+          }
+        }
+      }, 250);
+
+      player?.play();
     } else {
-      player.pause();
+      if (interval) clearInterval(interval);
+      player?.pause();
       player.currentTime = 0;
     }
+
+    return () => {
+      if (interval) clearInterval(interval);
+    };
   }, [isActive]);
 
   return (
     <View style={styles.container}>
-      <VideoView
-        style={styles.video}
-        player={player}
-        contentFit="cover"
-        nativeControls={false}
-      />
+      <VideoView style={styles.video} player={player} nativeControls={false} />
 
       {/* User Info */}
-      <View style={styles.userInfo}>
-        <TouchableOpacity style={styles.userButton}>
-          <Text style={styles.username}>{item?.title}</Text>
+      <View style={styles.userInfo} className="w-full  ">
+        <TouchableOpacity onPress={() => router.push(`/seller/${user.id}`)}>
+          <View className="flex-row items-center gap-3 ">
+            <Image
+              source={user?.avatar ? { uri: user?.avatar } : images.lataLogoBig}
+              className="w-[60px] h-[60px] rounded-full "
+            />
+            <Text style={styles.username}>{user?.name}</Text>
+          </View>
         </TouchableOpacity>
       </View>
 
       {/* Description */}
       <View style={styles.descriptionContainer}>
+        <TouchableOpacity style={styles.userButton}>
+          <Text style={styles.username}>{item?.title}</Text>
+        </TouchableOpacity>
         <Text style={styles.description}>{item?.description}</Text>
       </View>
-
-      {/* Action Buttons */}
-      {/*   <View style={styles.actionButtons}>
-        <TouchableOpacity style={styles.actionButton}>
-          <Ionicons name="heart" size={28} color="white" />
-          <Text style={styles.actionText}>{item.likes}</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.actionButton}>
-          <Ionicons name="chatbubble" size={28} color="white" />
-          <Text style={styles.actionText}>{item.comments}</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.actionButton}>
-          <Ionicons name="share-social" size={28} color="white" />
-          <Text style={styles.actionText}>{item.shares}</Text>
-        </TouchableOpacity>
-      </View> */}
     </View>
   );
 }
@@ -108,8 +127,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     bottom: 150,
     left: 10,
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: "column",
   },
   userButton: {
     flexDirection: "row",
@@ -117,8 +135,8 @@ const styles = StyleSheet.create({
   },
   username: {
     color: "white",
-    fontWeight: "bold",
-    fontSize: 16,
+    fontWeight: 700,
+    fontSize: 18,
   },
   descriptionContainer: {
     position: "absolute",
@@ -128,7 +146,7 @@ const styles = StyleSheet.create({
   },
   description: {
     color: "white",
-    fontSize: 14,
+    fontSize: 16,
   },
   actionButtons: {
     position: "absolute",

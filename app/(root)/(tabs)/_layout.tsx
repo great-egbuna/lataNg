@@ -8,14 +8,27 @@ import { AppContextProps, useApp } from "@/context/AppContext";
 import { useAuth } from "@/context/AuthContext";
 import { IAUTH } from "@/interfaces/context/auth";
 import { useSearch, ISearchContextProps } from "@/context/SearchContext";
+import useNotifications from "@/hooks/useNotifications";
+import { MessageContextProps, useMessage } from "@/context/MessageContext";
 
 export default function AppLayout() {
-  const { setNavOpen, navOpen, subCategories, setSubCategoryProducts } =
+  const { setNavOpen, navOpen, subCategories, setSpecificCategoryProducts } =
     useApp() as AppContextProps;
-  const { user, isLoggedIn } = useAuth() as IAUTH;
+  const { messages } = useMessage() as MessageContextProps;
+  const { user } = useAuth() as IAUTH;
   const { searchResult, setSearchResult } = useSearch() as ISearchContextProps;
 
   const isSeller = user?.role === "SELLER";
+
+  const { notifications } = useNotifications();
+
+  const unReadNotifications = notifications?.filter(
+    (notif: any) => notif?.isRead === 1
+  );
+
+  const unReadMessages = messages?.filter(
+    (msg: any) => msg.lastMessageData?.isRead === false
+  );
   return (
     <SafeAreaView className="bg-white  h-full relative ">
       <Header />
@@ -44,7 +57,7 @@ export default function AppLayout() {
               }
 
               if (subCategories && subCategories?.length > 0) {
-                setSubCategoryProducts(null);
+                setSpecificCategoryProducts(null);
               }
             },
           }}
@@ -73,6 +86,7 @@ export default function AppLayout() {
                   text="Message"
                   focused={focused}
                   icon={"mail-outline"}
+                  showDot={unReadMessages?.length > 0}
                 />
               );
             },
@@ -123,6 +137,7 @@ export default function AppLayout() {
                   text="Notifications"
                   focused={focused}
                   icon={"notifications-none"}
+                  showDot={unReadNotifications?.length > 0} // Add this prop
                 />
               );
             },
@@ -214,6 +229,13 @@ export default function AppLayout() {
         />
         <Tabs.Screen
           name="reels"
+          options={{
+            headerShown: false,
+            href: null,
+          }}
+        />
+        <Tabs.Screen
+          name="manage"
           options={{
             headerShown: false,
             href: null,

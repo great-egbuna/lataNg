@@ -66,7 +66,7 @@ export default function SimilarProducts({
       </View>
 
       <View className="flex-row ">
-        {similarProducts?.slice(2).map((item, index) => {
+        {similarProducts?.slice(2, 4).map((item, index) => {
           return (
             <ProductCard
               key={index}

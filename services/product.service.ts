@@ -65,24 +65,23 @@ class ProductService {
       );
       return res.data;
     } catch (error) {
-      console.log("error", JSON.stringify(error?.response?.data));
+      console.log("trending products error", JSON.stringify(error));
       return new Error("Something went wrong");
     }
   }
 
   public async getProductsByCategory({
-    categoryId = "58abe3ac-ac93-4257-97fe-a46e786ea1dc",
+    categoryId,
     page = 1,
-    limit = 11,
   }: IGetProductsByCategory) {
     try {
       const res = await $http.get(
-        `${prodApi}/products?category=${categoryId}&page=${page}&limit=${limit}`
+        `${prodApi}/products?category=${categoryId}&page=${page}&limit=${11}`
       );
 
       return res.data;
     } catch (error: any) {
-      console.log("error", JSON.stringify(error?.response?.data));
+      console.log("otherProductsFetchError", JSON.stringify(error));
       return new Error("Something went wrong");
     }
   }

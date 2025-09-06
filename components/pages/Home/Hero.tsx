@@ -8,10 +8,8 @@ import {
   Text,
   View,
   TouchableOpacity,
-  ScrollView,
 } from "react-native";
 import ButtonSecondary from "@/components/general/ButtonSecondary";
-import DropdownInput from "@/components/general/Dropdown";
 import { AppContextProps, ICategory, useApp } from "@/context/AppContext";
 import { useRouter } from "expo-router";
 import { Reel } from "../Reels";
@@ -19,11 +17,12 @@ import CategoriesOverlay from "@/components/ui/Categories/CategoriesOverlay";
 import FLatlistDropdown, {
   Dropdown,
 } from "@/components/general/FlatlistDropDown";
-import SubCategoroyProducts from "./SubCategoryProduct";
+import { productService } from "@/services/product.service";
+import { useProductContext } from "@/context/ProductContext";
 
 interface Props {
-  setCategory: (value: ICategory | null) => void;
-  category?: ICategory;
+  setSelectedCategory: (value: ICategory | null) => void;
+  selectedCategory?: ICategory;
   title?: string;
   showTitle?: boolean;
 }
@@ -36,7 +35,7 @@ const ReelCircle = ({ item }: Reel) => {
     <TouchableOpacity
       style={styles.reelCircle}
       onPress={() => {
-        setSelectedReel(item.reels as any);
+        setSelectedReel(item as any);
         router.push("/reels");
       }}
     >
@@ -44,7 +43,8 @@ const ReelCircle = ({ item }: Reel) => {
         source={
           item.user?.avatar ? { uri: item?.user?.avatar } : images.lataLogoBig
         }
-        style={styles.avatar}
+        /*         style={styles.avatar} */
+        className="w-[60px] h-[60px] rounded-full border-[3px] border-[#C724FF] "
       />
       <Text style={styles.username} numberOfLines={1}>
         {item.user.name}
@@ -54,29 +54,41 @@ const ReelCircle = ({ item }: Reel) => {
 };
 
 export default function Hero({
-  setCategory,
-  category,
+  setSelectedCategory,
+  selectedCategory,
   title,
-  showTitle = true,
 }: Props) {
-  const { categories, setSubCategoryProducts, subCategoryProducts, reels } =
+  const { categories, setSpecificCategoryProducts, reels } =
     useApp() as AppContextProps;
+
+  const { setLoadingProducts, setProductFetchError } = useProductContext();
   const [modalVisible, setModalVisible] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
-  const [selectedValue, setSelectedValue] = useState<ICategory | null>(null);
-  const [newCategories, setNewCategories] = useState(categories);
 
   const toggleModal = () => {
     setModalVisible(!modalVisible);
   };
 
-  useEffect(() => {
-    const isExists = categories?.find((ctg) => ctg?.name === "All categories");
-    if (isExists) return;
-    categories?.unshift({ id: "", name: "All categories" });
-    setNewCategories(categories);
-  }),
-    [];
+  const handleFetchSpecificCategories = async (value: ICategory) => {
+    setLoadingProducts(true);
+    setSelectedCategory(value);
+    setIsOpen(false);
+    const specificProductsResponse = await productService.getProductsByCategory(
+      {
+        categoryId: value?.id,
+      }
+    );
+
+    if (specificProductsResponse instanceof Error) {
+      setProductFetchError(
+        `Failed to ${value.name} products. Please reload the app`
+      );
+    } else {
+      setSpecificCategoryProducts(specificProductsResponse?.data);
+    }
+
+    setLoadingProducts(false);
+  };
 
   return (
     <View>
@@ -108,15 +120,12 @@ export default function Hero({
 
         <View className="w-[140px] py-0.5 ">
           <FLatlistDropdown
-            placeholder={category?.name}
+            placeholder={selectedCategory?.name}
             btnClassName="py-0 rounded-xl  border-purple min-h-[28px]"
             textClassName="text-purple text-bold"
             iconColor={colors.purple}
-            data={newCategories as ICategory[]}
             isOpen={isOpen}
             setIsOpen={setIsOpen}
-            selectedValue={selectedValue?.name}
-            setSelectedValue={setSelectedValue}
           />
         </View>
 
@@ -129,37 +138,14 @@ export default function Hero({
       </View>
       {isOpen && (
         <Dropdown
-          onPress={(value) => {
-            setSelectedValue(value);
-            setCategory(value);
-            setSubCategoryProducts(null);
-            setIsOpen(false);
-          }}
+          onPress={(value) => handleFetchSpecificCategories(value)}
           data={categories as ICategory[]}
         />
       )}
 
-      {subCategoryProducts && subCategoryProducts.length === 0 ? (
-        <View className="gap">
-          <Text className="text-base md:text-lg mt-2 font-semibold text-gray-300">
-            No Products Found In That Category
-          </Text>
-
-          <Text className="text-base md:text-lg my-2 font-semibold">
-            {title || "Trending Products"}
-          </Text>
-        </View>
-      ) : (
-        <>
-          {showTitle && (
-            <Text className={`text-base md:text-lg  font-medium my-2`}>
-              {category?.name && category?.name !== "All categories"
-                ? title
-                : title || "Trending Products"}
-            </Text>
-          )}
-        </>
-      )}
+      <Text className={`text-base md:text-lg  font-medium my-2`}>
+        {title || "Trending Products"}
+      </Text>
 
       {/* Categories Overlay */}
       <CategoriesOverlay

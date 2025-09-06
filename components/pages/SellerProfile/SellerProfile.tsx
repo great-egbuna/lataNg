@@ -12,6 +12,7 @@ import { ImageSourcePropType } from "react-native";
 import { AppContextProps, useApp } from "@/context/AppContext";
 import { useAuth } from "@/context/AuthContext";
 import { IAUTH } from "@/interfaces/context/auth";
+import ErrorCard from "@/components/ui/ErrorCard";
 
 interface ISellerProfile {
   id: string;
@@ -24,7 +25,6 @@ interface ISellerProfile {
 }
 
 export default function SellerProfileComponent() {
-  const { setSelectedProduct } = useApp() as AppContextProps;
   const { user } = useAuth() as IAUTH;
 
   const { id } = useLocalSearchParams();
@@ -53,12 +53,22 @@ export default function SellerProfileComponent() {
     })();
   }, []);
 
+  const mockProduct = {
+    user: {
+      id: seller?.id,
+      phoneNumber: seller?.phoneNumber,
+      name: seller?.name,
+      avatar: seller?.avatar,
+    },
+    userId: seller?.userId,
+  };
+
   if (loading) return <FullScreenLoader />;
 
   if (error)
     return (
       <View className="min-h-full items-center justify-center">
-        An Error Occurred. Please, Contact admin if issues persist
+        <ErrorCard error="An Error Occurred. Please, Contact admin if issues persist" />
       </View>
     );
 
@@ -67,12 +77,7 @@ export default function SellerProfileComponent() {
       className="p-4 bg-white "
       ListHeaderComponent={
         <>
-          <SellerContact
-            name={seller?.name}
-            phoneNumber={seller?.phoneNumber}
-            userId={seller?.id}
-            avatar={seller?.avatar}
-          />
+          <SellerContact product={mockProduct as any} />
 
           <View className="my-4">
             <Text
@@ -114,7 +119,6 @@ export default function SellerProfileComponent() {
           price={item.price}
           discount={item?.discount as number}
           onPress={() => {
-            setSelectedProduct(item);
             router.push(`/product/${item.id}`);
           }}
           id={item.id as string}

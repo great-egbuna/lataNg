@@ -1,7 +1,7 @@
 import React, { useState, useRef } from "react";
 import { View, Dimensions, FlatList, StyleSheet } from "react-native";
 import ReelItem from "./ReelItem";
-import { AppContextProps } from "@/context/AppContext";
+import { AppContextProps, IReel } from "@/context/AppContext";
 import { useApp } from "@/context/AppContext";
 
 const avatar =
@@ -57,24 +57,43 @@ export const DUMMY_REELS: Reel[] = [
 export default function ReelsComponent() {
   const [activeReelIndex, setActiveReelIndex] = useState(0);
   const { selectedReel } = useApp() as AppContextProps;
+
+  console.log("selectedReel", selectedReel.user);
+
   const flatListRef = useRef<FlatList>(null);
+  const reelsRef = useRef<View[]>([]);
 
   const onViewableItemsChanged = useRef(({ changed }: any) => {
     changed.forEach((element: any) => {
       const cell = element.item;
       if (element.isViewable) {
         setActiveReelIndex(
-          selectedReel?.findIndex(
-            (reel) => (reel.id as number) === cell.id
+          selectedReel?.reels?.findIndex(
+            (reel: IReel) => reel.id === cell.id
           ) as number
         );
       }
     });
   });
 
-  const renderItem = ({ item, index }: { item: Reel; index: number }) => {
+  const renderItem = ({
+    item,
+    index,
+    user,
+  }: {
+    item: any;
+    index: number;
+    user: { avatar: string; id: string; name: string };
+  }) => {
     return (
-      <ReelItem item={item} index={index} activeReelIndex={activeReelIndex} />
+      <ReelItem
+        item={item}
+        index={index}
+        activeReelIndex={activeReelIndex}
+        reelsRef={reelsRef}
+        flatlistRef={flatListRef}
+        user={user}
+      />
     );
   };
 
@@ -82,8 +101,18 @@ export default function ReelsComponent() {
     <View style={styles.container}>
       <FlatList
         ref={flatListRef}
-        data={selectedReel}
-        renderItem={renderItem}
+        data={selectedReel.reels}
+        renderItem={({ item, index }) => (
+          <View
+            ref={(ref) => {
+              if (ref) {
+                reelsRef.current![index] = ref;
+              }
+            }}
+          >
+            {renderItem({ item, index, user: selectedReel?.user })}
+          </View>
+        )}
         pagingEnabled
         keyExtractor={(item) => item.id}
         showsVerticalScrollIndicator={false}

@@ -11,12 +11,14 @@ import { FullScreenLoader } from "@/components/general/Loader";
 import { colors } from "@/colors";
 import { useApp } from "@/context/AppContext";
 import { AppContextProps } from "@/context/AppContext";
+import ErrorCard from "@/components/ui/ErrorCard";
 
 export default function Messages() {
   const { setSocket, setChatMessageObj, messages, setMessages } =
     useApp() as AppContextProps;
   const { user } = useAuth() as IAUTH;
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState({ isError: false, errorMessage: "" });
 
   const SOCKET_URL = "https://lata-chat.azurewebsites.net";
 
@@ -39,23 +41,33 @@ export default function Messages() {
         });
 
         socketInstance.on(`receive-all:chats${user?.id}`, (res) => {
-          console.log("Received all chat");
           setMessages(res);
           setLoading(false);
         });
 
-        socketInstance.on("connect_error", (err) => console.log("error", err));
-        socketInstance.on("connect_timeout", () => console.log("error"));
+        socketInstance.on("connect_error", () =>
+          setError({ isError: true, errorMessage: "Socket connection error" })
+        );
+        socketInstance.on("connect_timeout", () =>
+          setError({
+            isError: true,
+            errorMessage: "Socket connection timeout error",
+          })
+        );
         return () => {
           socketInstance?.disconnect();
         };
       } catch (error) {
-        console.log("socket error", error);
+        setError({ isError: true, errorMessage: "Socket server error" });
+      } finally {
+        setLoading(false);
       }
     })();
   }, []);
 
   if (loading) return <FullScreenLoader />;
+
+  if (error.isError) return <ErrorCard error={"Server Error Occurred"} />;
 
   return (
     <FlatList

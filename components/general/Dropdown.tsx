@@ -12,6 +12,7 @@ interface DropdownInputProps {
   textClassName?: string;
   iconColor?: string;
   open?: boolean;
+  scrollViewClassName?: string;
 }
 
 export default function DropdownInput({
@@ -23,6 +24,7 @@ export default function DropdownInput({
   textClassName,
   iconColor,
   open,
+  scrollViewClassName
 }: DropdownInputProps) {
   const [isOpen, setIsOpen] = useState(open || false); // State to track dropdown open/close
   const [selectedValue, setSelectedValue] = useState<string | ICategory | null>(
@@ -59,7 +61,7 @@ export default function DropdownInput({
 
       <>
         {isOpen && (
-          <ScrollView className="h-[200px] bg-white rounded-md shadow">
+          <ScrollView className={`h-[200px] bg-white rounded-md shadow ${scrollViewClassName}`}>
             {data.map((item, index) => (
               <TouchableOpacity
                 key={index.toString()}

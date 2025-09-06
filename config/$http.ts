@@ -6,6 +6,7 @@ const $http = axios.create({
   /*  baseURL: "https://lata-dev-backend.azurewebsites.net" */
   baseURL: "https://lata-api.go2.ng/v1",
   /*   baseURL: "https://6e7fe1f13596.ngrok-free.app/v1", */
+
   headers: {
     requestSession: JSON.stringify({
       processId: Date.now(),

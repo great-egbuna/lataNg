@@ -1,19 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { View, Text } from "react-native";
-import AnalyticsBarChart from "./AnalyticsBarChart";
 
 import { generalService } from "@/services/general.service";
 import { months } from "@/constants/moths";
 import DropdownInput from "@/components/general/Dropdown";
 import AnalyticsCard from "@/components/ui/Cards/AnalyticsCard";
-import { useAuth } from "@/context/AuthContext";
-import PromptLogin from "@/components/ui/PromptLogin";
 import Loader from "@/components/general/Loader";
-import { IAUTH } from "@/interfaces/context/auth";
 
 export default function AnalyticsCharts() {
-  const { isLoggedIn, user } = useAuth() as IAUTH;
-
   const [selectedMonth, setSelectedMonth] = useState<number>(
     new Date().getMonth() + 1
   );
@@ -71,7 +65,7 @@ export default function AnalyticsCharts() {
 
   return (
     <View className="mb-6">
-      <View className={"flex-row justify-between items-center my-2"}>
+      <View className={"flex-row justify-between  my-2"}>
         <Text className={"flex-1 text-lg"}>Product Insights</Text>
 
         <DropdownInput
@@ -79,6 +73,7 @@ export default function AnalyticsCharts() {
           data={months}
           onSelect={handleMonthSelect}
           className={"flex-1 relative"}
+          scrollViewClassName="min-h-[400px]"
         />
       </View>
       {/*   <AnalyticsBarChart

@@ -10,8 +10,8 @@ class NotificationService {
       return response.data;
     } catch (error: any) {
       if (error.response && error.response.data) {
-        throw new Error(
-          error.response.data.message || "Failed to fetch notifications"
+        return new Error(
+          error.response.data?.message || "Failed to fetch notifications"
         );
       }
       return new Error("Notifications failed to fetch!");

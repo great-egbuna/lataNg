@@ -3,10 +3,9 @@ import React from "react";
 import Hero from "@/components/pages/Home/Hero";
 import ProductCard from "@/components/ui/Cards/ProductCard";
 import { FlatList, Text, View } from "react-native";
-import { SplashScreen, useRouter } from "expo-router";
+import { useRouter } from "expo-router";
 import { AppContextProps, ICategory, useApp } from "@/context/AppContext";
-import { useEffect, useState } from "react";
-import { productService } from "@/services/product.service";
+import { useState } from "react";
 import Loader, { FullScreenLoader } from "@/components/general/Loader";
 import { useAuth } from "@/context/AuthContext";
 import { IAUTH } from "@/interfaces/context/auth";
@@ -18,110 +17,51 @@ import SubCategoroyProducts from "@/components/pages/Home/SubCategoryProduct";
 import ErrorCard from "@/components/ui/ErrorCard";
 import { useWindowDimensions } from "react-native";
 import { getNumOfColumns } from "@/utils/utils";
-import { useSavedProducts } from "@/hooks/useProducts";
+import {
+  FetchedProductsInterface,
+  useProductContext,
+} from "@/context/ProductContext";
+import { productService } from "@/services/product.service";
+import useNotifications from "@/hooks/useNotifications";
 
 export default function Index() {
   const router = useRouter();
   const { width } = useWindowDimensions();
-  const { appLoading, setSelectedProduct, subCategoryProducts } =
+  const { appLoading, specificCategoryProducts, categories } =
     useApp() as AppContextProps;
-  const { user, isLoggedIn, loading: authLoading } = useAuth() as IAUTH;
+  const { user } = useAuth() as IAUTH;
+
+
   const { searchResult } = useSearch() as ISearchContextProps;
+  const productContext = useProductContext();
+  const [reFetching, setReFetching] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState<ICategory | null>(
+    null
+  );
+  const [currentPage, setCurrentPage] = useState(1);
+  const [reFetchError, setReFetchError] = useState("");
 
-  const [products, setProducts] = useState<any>([]);
-  const [otherProducts, setOtherProducts] = useState<any>([]);
-  const [loading, setLoading] = useState(true);
-  const [isFetching, setIsFetching] = useState(false);
-  const [page, setPage] = useState(1);
-  const [lastPage, setLastPage] = useState<number | undefined>(undefined);
-  const [category, setCategory] = useState<ICategory | null>(null);
-  const [initialPageLoad, setInitialPageLoad] = useState(true);
-  const [error, setError] = useState<null | string>(null);
-  const [cacheTrendingProducts, setCacheTendingProducts] = useState([]);
-  const [cacheOtherProducts, setCacheOtherProducts] = useState<any>([]);
-  const [cacheLastPage, setCacheLastPage] = useState(1);
-  useEffect(() => {
-    (async () => {
-      setCategory(null);
-      const [trendingProdRes, otherProductsRes] = await Promise.all([
-        productService.getTrendingProducts(),
-        productService.getProductsByCategory({
-          page,
-          categoryId: category?.id,
-        }),
-      ]);
+  const loadMore = async () => {
+    setReFetching(true);
+    if (productContext.lastPage > currentPage) {
+      const nextPage = currentPage + 1;
+      setCurrentPage((prev) => prev + 1);
 
-      if (
-        trendingProdRes instanceof Error ||
-        otherProductsRes instanceof Error
-      ) {
-        setError("An Error Occured. Please Contact Admin");
-      }
-      setProducts(trendingProdRes?.trendingProducts);
+      const moreProducts = await productService.getProductsByCategory({
+        page: nextPage,
+        categoryId: categories[0].id,
+      });
 
-      setOtherProducts([...otherProductsRes.data]);
-
-      // cache products
-      setCacheTendingProducts(trendingProdRes?.trendingProducts);
-      setCacheOtherProducts([...otherProductsRes?.data]);
-      setLastPage(otherProductsRes.meta.last_page);
-      setCacheLastPage(otherProductsRes?.meta?.last_page);
-      setInitialPageLoad(false);
-      setLoading(false);
-      await SplashScreen.hideAsync();
-    })();
-  }, [authLoading, isLoggedIn, user]);
-
-  useEffect(() => {
-    (async () => {
-      if (initialPageLoad) return;
-      const res = await productService.getTrendingProducts();
-      setProducts(res.trendingProducts);
-
-      setLoading(false);
-    })();
-  }, []);
-
-  useEffect(() => {
-    (async () => {
-      if (initialPageLoad) return;
-      setIsFetching(true);
-      const payload = {
-        page,
-      };
-
-      if (category?.id) payload.categoryId = category?.id;
-
-      const res = await productService.getProductsByCategory(payload);
-
-      setOtherProducts([...otherProducts, ...res.data]);
-      setLastPage(res.meta.last_page);
-      setIsFetching(false);
-    })();
-  }, [page]);
-
-  useEffect(() => {
-    (async () => {
-      if (initialPageLoad) return;
-      if (category && category?.name !== "All categories") {
-        setIsFetching(true);
-        const res = await productService.getProductsByCategory({
-          categoryId: category?.id,
-        });
-        setProducts([]);
-        setOtherProducts(res.data);
-        setLastPage(res.meta.last_page);
-        setIsFetching(false);
+      if (moreProducts instanceof Error) {
+        setReFetchError("Failed to fetch more products");
       } else {
-        setProducts(cacheTrendingProducts);
-        setOtherProducts(cacheOtherProducts);
-        setLastPage(cacheLastPage);
+        productContext.setOtherProducts([
+          ...productContext.otherProducts,
+          ...moreProducts?.data,
+        ]);
       }
-    })();
-  }, [category]);
-  const loadMore = () => {
-    if (lastPage && lastPage > page) {
-      setPage((prev) => prev + 1);
+
+      setReFetching(false);
     }
   };
 
@@ -129,32 +69,40 @@ export default function Index() {
     return <FullScreenLoader label="Loading app..." />;
   }
 
-  if (loading) {
+  if (productContext.loadingProducts) {
     return <FullScreenLoader label="Loading products.." />;
   }
 
-  if (error) {
-    return <ErrorCard error={error} />;
+  if (productContext.productFetchError) {
+    return <ErrorCard error={productContext.productFetchError} />;
   }
 
   if (searchResult?.length > 0) return <SearchProducts />;
 
-  if (subCategoryProducts && subCategoryProducts?.length > 0)
+  if (
+    specificCategoryProducts?.length > 0 &&
+    selectedCategory?.name !== "All categories"
+  )
     return (
-      <SubCategoroyProducts setCategory={setCategory} products={products} />
+      <SubCategoroyProducts
+        setSelectedCategory={setSelectedCategory}
+        selectedCategory={selectedCategory as ICategory}
+        products={productContext.trendingProducts}
+      />
     );
 
   return (
     <>
       <FlatList
-        data={products}
+        data={productContext.trendingProducts}
         ListHeaderComponent={() => {
           return (
             <Hero
-              setCategory={setCategory}
-              category={category as ICategory}
+              setSelectedCategory={setSelectedCategory}
+              selectedCategory={selectedCategory as ICategory}
               showTitle={
-                !!!category?.name || category?.name === "All categories"
+                !!!selectedCategory?.name ||
+                selectedCategory?.name === "All categories"
               }
             />
           );
@@ -172,7 +120,6 @@ export default function Index() {
               discount={item?.discount}
               price={item.price}
               onPress={() => {
-                setSelectedProduct(item);
                 router.push(`/product/${item.id}`);
               }}
               id={item.id as string}
@@ -188,7 +135,11 @@ export default function Index() {
         ListFooterComponent={
           <View>
             <FlatList
-              data={otherProducts}
+              data={
+                productContext.otherProducts.length > 0
+                  ? productContext.otherProducts
+                  : (specificCategoryProducts as FetchedProductsInterface[])
+              }
               renderItem={({ item }) => (
                 <ProductCard
                   name={item?.name}
@@ -199,7 +150,6 @@ export default function Index() {
                   price={item.price}
                   discount={item?.discount}
                   onPress={() => {
-                    setSelectedProduct(item);
                     router.push(`/product/${item.id}`);
                   }}
                   id={item.id as string}
@@ -211,14 +161,16 @@ export default function Index() {
               columnWrapperClassName="mb-4 gap-4"
               ListHeaderComponent={
                 <Text className="text-xl my-2 font-semibold">
-                  {category?.name || "Other Products"}
+                  {selectedCategory?.name || "Other Products"}
                 </Text>
               }
               onEndReached={loadMore}
               onEndReachedThreshold={0.7}
             />
 
-            {isFetching && <Loader />}
+            {reFetching && <Loader />}
+
+            {reFetchError && <View>{reFetchError}</View>}
           </View>
         }
       />
