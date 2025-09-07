@@ -30,7 +30,9 @@
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.anonymous.lataNg"
+      "package": "com.anonymous.lataNg",
+      "compileSdkVersion": 35,
+      "targetSdkVersion": 35
     },
     "web": {
       "bundler": "metro",
